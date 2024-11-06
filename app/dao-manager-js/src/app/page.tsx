@@ -1,4 +1,11 @@
+"use client";
 import Image from "next/image";
+import NearWallet from "../../../../package/network/near_rpc";
+import { useEffect } from "react";
+
+async function name() {
+  const instance = NearWallet.getInstance();
+}
 
 export default function Home() {
   return (
