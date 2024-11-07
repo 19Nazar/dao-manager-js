@@ -1,9 +1,13 @@
-import type { NextConfig } from "next";
+// next.config.js
+const path = require("path");
 
-const nextConfig: NextConfig = {
-  resolve: {
-    extensions: [".js", ".ts"],
+module.exports = {
+  experimental: {
+    turbo: {
+      resolveAlias: {
+        underscore: "lodash",
+        mocha: { browser: "mocha/browser-entry.js" },
+      },
+    },
   },
 };
-
-export default nextConfig;
