@@ -65,7 +65,7 @@ export default function Home() {
 
   async function checkTxns() {
     const check = await nearWallet.getTxnsHeshStatus({
-      txnHesh: "ERpbNv9Jbe7m1WNMHbNH1bsMBVVETWeKtQDKiFM4P3F8",
+      txnHesh: "4CW2ADpVP5Ma314SFKS8qMEo7WfC6Dvh8ie5ERwkvHTw",
       accountId: "maierr.testnet",
     });
     console.log(check);
