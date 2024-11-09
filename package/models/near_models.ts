@@ -5,3 +5,13 @@ export enum NetworkID {
   mainnet,
   testnet,
 }
+
+export class BlockChainResponse {
+  status: string;
+  data: object;
+
+  constructor({ status, data }: { status: string; data: object }) {
+    this.status = status;
+    this.data = data;
+  }
+}

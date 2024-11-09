@@ -5,7 +5,7 @@ import {
   Contract,
   Near,
 } from "near-api-js";
-import { NetworkID } from "../models/near_models";
+import { BlockChainResponse, NetworkID } from "../models/near_models";
 import { NearConstants } from "../constants/near_constants";
 export default class NearWallet {
   private static instance: NearWallet | null = null;
@@ -157,15 +157,37 @@ export default class NearWallet {
   }: {
     txnHesh: string;
     accountId: string;
-  }) {
+  }): Promise<BlockChainResponse> {
+    if (!this.nearConnection) {
+      throw new Error("You need connect to wallet");
+    }
     try {
-      const res = this.nearConnection.connection.provider.txStatusReceipts(
-        txnHesh,
-        accountId,
-      );
-      console.log(res);
+      const res =
+        await this.nearConnection.connection.provider.txStatusReceipts(
+          txnHesh,
+          accountId,
+          "FINAL",
+        );
+      const respStatus = res.status as any;
+      if ("Failure" in respStatus) {
+        return new BlockChainResponse({
+          status: "error",
+          data: respStatus.Failure,
+        });
+      } else if ("SuccessValue" in respStatus) {
+        return new BlockChainResponse({
+          status: "success",
+          data: respStatus.Failure,
+        });
+      } else {
+        throw new Error("Unknown action");
+      }
     } catch (e) {
       console.error(e);
     }
+  }
+
+  async signOut() {
+    this.walletConnection?.signOut();
   }
 }
