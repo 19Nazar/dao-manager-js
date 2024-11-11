@@ -46,7 +46,7 @@ export default function Home() {
   async function testNFT() {
     const resp = await nearWallet.callSmartContractFunc({
       contractId: "mintspace2.testnet",
-      methodName: "create_store",
+      changeMethodName: "create_store",
       deposit: "3700000000000000000000000",
       args: {
         owner_id: "maierr.testnet",
@@ -65,10 +65,14 @@ export default function Home() {
 
   async function checkTxns() {
     const check = await nearWallet.getTxnsHeshStatus({
-      txnHesh: "4CW2ADpVP5Ma314SFKS8qMEo7WfC6Dvh8ie5ERwkvHTw",
+      txnHesh: "6Cic1sM2KjKgee7xNsppEQr37y2vRh8cz5gdcpL9PnDM",
       accountId: "maierr.testnet",
     });
     console.log(check);
+  }
+
+  async function policy() {
+    await daoService.getPolicy({ contractId: "daotest.sputnik-v2.testnet" });
   }
 
   return (
@@ -112,6 +116,14 @@ export default function Home() {
         className="button"
       >
         txn
+      </button>
+      <button
+        onClick={async () => {
+          await policy();
+        }}
+        className="button"
+      >
+        policy
       </button>
     </div>
   );
