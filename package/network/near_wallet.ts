@@ -74,13 +74,15 @@ export default class NearWallet {
 
   async callSmartContractFunc({
     contractId,
-    methodName,
+    changeMethodName,
+    viewMethodName,
     args = {},
     gas = "300000000000000",
     deposit = "1000000000000000000000000",
   }: {
     contractId: string;
-    methodName: string;
+    changeMethodName?: string;
+    viewMethodName?: string;
     args?: object;
     gas?: string;
     deposit?: string;
@@ -93,22 +95,29 @@ export default class NearWallet {
         this.walletConnection.account(),
         contractId,
         {
-          viewMethods: [],
-          changeMethods: [methodName],
+          viewMethods: [viewMethodName],
+          changeMethods: [changeMethodName],
           useLocalViewExecution: false, // укажите любые методы, если они известны, или оставьте пустым
         },
       );
 
-      if (contract[methodName]) {
+      if (contract[changeMethodName ?? viewMethodName]) {
         try {
-          const result = await contract[methodName](args, gas, deposit);
+          const result = await contract[changeMethodName ?? viewMethodName](
+            args,
+            gas,
+            deposit,
+          );
           console.log("Результат вызова:", result);
           return { status: 200, data: result };
         } catch (error) {
           console.error("Ошибка при вызове метода:", error);
         }
       } else {
-        console.error("Метод не существует в контракте:", methodName);
+        console.error(
+          "Метод не существует в контракте:",
+          changeMethodName ?? viewMethodName,
+        );
       }
     } catch (error) {
       console.error("Error call smart contract", error);
@@ -153,13 +162,16 @@ export default class NearWallet {
 
   async getTxnsHeshStatus({
     txnHesh,
-    accountId,
+    accountId = this.walletConnection?.getAccountId(),
   }: {
     txnHesh: string;
-    accountId: string;
+    accountId?: string;
   }): Promise<BlockChainResponse> {
     if (!this.nearConnection) {
       throw new Error("You need connect to wallet");
+    }
+    if (accountId == null) {
+      throw new Error("You need input account id or connect to wallet");
     }
     try {
       const res =
@@ -177,17 +189,18 @@ export default class NearWallet {
       } else if ("SuccessValue" in respStatus) {
         return new BlockChainResponse({
           status: "success",
-          data: respStatus.Failure,
+          data: respStatus.SuccessValue,
         });
       } else {
         throw new Error("Unknown action");
       }
     } catch (e) {
       console.error(e);
+      throw new Error("Get transaction error:", e);
     }
   }
 
-  async signOut() {
+  signOut() {
     this.walletConnection?.signOut();
   }
 }
