@@ -1,4 +1,7 @@
 {
+  "name": "dao-manager-js-lib",
+  "private": true,
+  "main": "./package/index.ts",
   "devDependencies": {
     "@typescript-eslint/parser": "^5.0.1",
     "eslint": "^8.52.0",

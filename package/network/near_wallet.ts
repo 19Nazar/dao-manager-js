@@ -72,65 +72,12 @@ export default class NearWallet {
     }
   }
 
-  async callSmartContractFunc({
-    contractId,
-    changeMethodName,
-    viewMethodName,
-    args = {},
-    gas = "300000000000000",
-    deposit = "1000000000000000000000000",
-  }: {
-    contractId: string;
-    changeMethodName?: string;
-    viewMethodName?: string;
-    args?: object;
-    gas?: string;
-    deposit?: string;
-  }) {
-    if (this.walletConnection == null) {
-      throw new Error("Wallet connection is absent");
-    }
-    try {
-      const contract = new Contract(
-        this.walletConnection.account(),
-        contractId,
-        {
-          viewMethods: [viewMethodName],
-          changeMethods: [changeMethodName],
-          useLocalViewExecution: false, // укажите любые методы, если они известны, или оставьте пустым
-        },
-      );
-
-      if (contract[changeMethodName ?? viewMethodName]) {
-        try {
-          const result = await contract[changeMethodName ?? viewMethodName](
-            args,
-            gas,
-            deposit,
-          );
-          console.log("Результат вызова:", result);
-          return { status: 200, data: result };
-        } catch (error) {
-          console.error("Ошибка при вызове метода:", error);
-        }
-      } else {
-        console.error(
-          "Метод не существует в контракте:",
-          changeMethodName ?? viewMethodName,
-        );
-      }
-    } catch (error) {
-      console.error("Error call smart contract", error);
-      throw new Error("Error call smart contract", error);
-    }
-  }
-
   async newCallSmartContractFunc({
     contractId,
     methodName,
     args = {},
     gas = "300000000000000",
-    deposit = "1000000000000000000000000",
+    deposit = "0",
   }: {
     contractId: string;
     methodName: string;
@@ -143,14 +90,13 @@ export default class NearWallet {
     }
 
     try {
-      const currentUrl: string = window.location.href;
+      // const currentUrl: string = window.location.href;
       const res = this.walletConnection.account().functionCall({
         contractId: contractId,
         methodName: methodName,
         args: args,
         gas: BigInt(gas),
         attachedDeposit: BigInt(deposit),
-        walletCallbackUrl: currentUrl,
       });
 
       console.log(res);

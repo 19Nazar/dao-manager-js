@@ -1,4 +1,5 @@
 import {
+  ActProposalModel,
   AddBountyModel,
   AddMemberToRoleModel,
   AddProposalModel,
@@ -38,8 +39,8 @@ export default class DaoService {
   }
 
   async createDaoMeneger({
-    name = "",
-    purpose = "",
+    name,
+    purpose,
     metadata = "",
     policy = [],
   }: {
@@ -200,7 +201,7 @@ export default class DaoService {
           Transfer: {
             token_id: transferModel.token_id,
             receiver_id: transferModel.receiver_id,
-            amount: BigInt(transferModel.amount),
+            amount: transferModel.amount,
           },
         };
         break;
@@ -327,6 +328,130 @@ export default class DaoService {
       args: { proposal: { description: description, kind: kind } },
       gas: gas,
       deposit: deposit,
+    });
+  }
+
+  /**
+   * @getProposalByID Proposal details by passing the ID or index of a given proposal.
+   * @param contractId
+   * @param id
+   */
+  async getProposalByID({
+    contractId,
+    id,
+  }: {
+    contractId: string;
+    id: number;
+  }) {
+    const res = await this.nearWallet.newCallSmartContractFunc({
+      contractId: contractId,
+      methodName: "get_proposal",
+      args: { id: id },
+      deposit: "0",
+    });
+    console.log(res);
+  }
+
+  /**
+   * @getMultipleProposals Multiple proposal details by passing the index ("ID") starting point and a limit of how many records you would like returned.
+   * @param contractId
+   * @param from_index
+   * @param limit
+   */
+  async getMultipleProposals({
+    contractId,
+    from_index,
+    limit,
+  }: {
+    contractId: string;
+    from_index: number;
+    limit: number;
+  }) {
+    const res = await this.nearWallet.newCallSmartContractFunc({
+      contractId: contractId,
+      methodName: "get_proposals",
+      args: { from_index: from_index, limit: limit },
+      deposit: "0",
+    });
+  }
+
+  /**
+   * @actProposal This function is responsible for the action we can do on the proposal
+   * @param contractId id of the contract to be acted upon
+   * @param id id proposal
+   * @param action The action to be taken (VoteApprove, VoteReject, VoteRemove)
+   */
+  async actProposal({
+    contractId,
+    id,
+    action,
+  }: {
+    contractId: string;
+    id: number;
+    action: ActProposalModel;
+  }) {
+    const res = await this.nearWallet.newCallSmartContractFunc({
+      contractId: contractId,
+      methodName: "act_proposal",
+      args: { id: id, action: action.toString() },
+    });
+  }
+
+  /**
+   * @getBounty Get bounty list
+   * @param contractId
+   */
+  async getBounty({ contractId }: { contractId: string }) {
+    const res = await this.nearWallet.newCallSmartContractFunc({
+      contractId: contractId,
+      methodName: "get_bounties",
+    });
+  }
+
+  /**
+   * @claimBounty To take on the bounty
+   * @param contractId
+   * @param id
+   * @param deadline The time it will take for the performer to complete the bounty.
+   */
+  async claimBounty({
+    contractId,
+    id,
+    deadline,
+  }: {
+    contractId: string;
+    id: number;
+    deadline: string;
+  }) {
+    const res = await this.nearWallet.newCallSmartContractFunc({
+      contractId: contractId,
+      methodName: "bounty_claim",
+      args: { id: id, deadline: deadline },
+    });
+  }
+
+  /**
+   * @giveupBounty If the performer decides to withdraw from the assignment
+   * @param id
+   */
+  async giveUpBounty({ contractId, id }: { contractId: string; id: number }) {
+    const res = await this.nearWallet.newCallSmartContractFunc({
+      contractId: contractId,
+      methodName: "bounty_giveup",
+      args: { id: id },
+    });
+  }
+
+  /**
+   * @doneBounty Called upon completion of the bounty
+   * @param contractId
+   * @param id
+   */
+  async doneBounty({ contractId, id }: { contractId: string; id: number }) {
+    const res = await this.nearWallet.newCallSmartContractFunc({
+      contractId: contractId,
+      methodName: "bounty_done",
+      args: { id: id },
     });
   }
 }
