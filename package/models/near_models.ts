@@ -37,9 +37,12 @@ export enum ProposalTypes {
 
 export interface AddProposalModel {}
 
-// @AddMemberToRole func. Adding members in a specific role in a DAO.
-// @member_id The ID of the account that is being added
-// @role The name of the role to which the participant is added
+/**
+ * @AddMemberToRole  Used to add a member to a specific role within the DAO.
+ * @description  Assigns a role to a participant in the DAO.
+ * @param member_id  The ID of the account being added.
+ * @param role  The name of the role assigned to the participant.
+ */
 export class AddMemberToRoleModel implements AddProposalModel {
   member_id: string;
   role: string;
@@ -49,9 +52,12 @@ export class AddMemberToRoleModel implements AddProposalModel {
   }
 }
 
-// @ChangeConfig func. Changing the DAO configuration, such as changing the name, description, or logo.
-// @name Name DAO
-// @purpose Purpose of the DAO
+/**
+ * @ChangeConfig  Used to modify the DAO configuration, including its name, description, or logo.
+ * @description  Allows updates to the DAO’s basic information.
+ * @param name  The name of the DAO.
+ * @param purpose  The purpose or mission of the DAO.
+ */
 export class ChangeConfigModel implements AddProposalModel {
   name: string; // Name DAO
   purpose: string;
@@ -72,13 +78,16 @@ export class ChangeConfigModel implements AddProposalModel {
   }
 }
 
-// @ChangePolicyModel func. Updating the voting rules and access rights in the DAO.
-// @roles List of roles that define the rights of DAO participants. Each role contains information about the permissions that are associated with that role.
-// @default_vote_policy The default voting policy for all proposals. It defines how participants can vote and how many votes are required for approval.
-// @proposal_bond A mandatory deposit (in NEAR tokens) to be made when creating an offer.
-// @proposal_period Period (in nanoseconds) during which the voting proposals are active.
-// @bounty_bond The deposit required to create the award
-// @bounty_forgiveness_period Forgiveness period for the bounty (also in nanoseconds), during which the bounty can be canceled.
+/**
+ * @ChangePolicyModel  Used to update voting rules and access rights within the DAO.
+ * @description  Modifies the DAO's governance policy, including roles, voting policies, and bond requirements.
+ * @param roles  A list of roles defining DAO participant permissions. Each role specifies associated permissions.
+ * @param default_vote_policy  The default voting policy for all proposals, determining voting rights and required approval votes.
+ * @param proposal_bond  The deposit (in NEAR tokens) required when creating a proposal.
+ * @param proposal_period  The active duration (in nanoseconds) for voting proposals.
+ * @param bounty_bond  The required deposit for creating a bounty.
+ * @param bounty_forgiveness_period  The forgiveness period for bounties (in nanoseconds), during which the bounty can be canceled.
+ */
 export class ChangePolicyModel implements AddProposalModel {
   roles: Array<any>;
   default_vote_policy: Map<string, any>;
@@ -114,9 +123,12 @@ export class ChangePolicyModel implements AddProposalModel {
   }
 }
 
-// @RemoveMemberFromRoleModel func. Used to remove a participant from a role.
-// @member_id ID of the account that is being deleted
-// @role The name of the role from which the member is being removed
+/**
+ * @RemoveMemberFromRoleModel  Used to remove a participant from a specific role.
+ * @description  Removes a designated member from the specified role within the contract.
+ * @param member_id  The ID of the account that is being removed.
+ * @param role  The name of the role from which the member is being removed.
+ */
 export class RemoveMemberFromRoleModel implements AddProposalModel {
   member_id: string;
   role: string;
@@ -126,11 +138,14 @@ export class RemoveMemberFromRoleModel implements AddProposalModel {
   }
 }
 
-// @FunctionCallModel func. Used to call a function on a contract.
-// @receiver_id The address of the contract to which the call is sent
-// @actions A list of actions, each of which includes a method and arguments
-// @deposit Deposit amount in NEAR tokens
-// @gas Amount of gas to call
+/**
+ * @FunctionCallModel  Used to call a function on a specified contract.
+ * @description  Executes a function on a contract by specifying the target, actions, and any required deposit.
+ * @param receiver_id  The address of the contract to which the function call is sent.
+ * @param actions  A list of actions, each including a method name and its arguments.
+ * @param deposit  The amount of NEAR tokens to deposit for this call.
+ * @param gas  The amount of gas required for the function call.
+ */
 export class FunctionCallModel implements AddProposalModel {
   receiver_id: string;
   actions: Array<any>;
@@ -155,8 +170,11 @@ export class FunctionCallModel implements AddProposalModel {
   }
 }
 
-// @UpgradeSelfModel func. Used to update the contract itself.
-// @hash Hash of a new contract loaded into DAO
+/**
+ * @UpgradeSelfModel  Used to update the contract itself.
+ * @description  Updates the current contract by loading a new version.
+ * @param hash  The hash of the new contract to be loaded into the DAO.
+ */
 export class UpgradeSelfModel implements AddProposalModel {
   hash: string;
   constructor({ hash }: { hash: string }) {
@@ -164,10 +182,13 @@ export class UpgradeSelfModel implements AddProposalModel {
   }
 }
 
-// @UpgradeRemoteModel func. Used to update a remote contract.
-// @receiver_id ID of the contract to be updated
-// @method_name Method for updating
-// @hash The hash of the new contract
+/**
+ * @UpgradeRemoteModel  Used to update a remote contract.
+ * @description  Updates a specified remote contract by calling an upgrade method.
+ * @param receiver_id  The ID of the contract to be updated.
+ * @param method_name  The name of the method used for updating.
+ * @param hash  The hash of the new contract version to be applied.
+ */
 export class UpgradeRemoteModel implements AddProposalModel {
   receiver_id: string;
   method_name: string;
@@ -187,10 +208,13 @@ export class UpgradeRemoteModel implements AddProposalModel {
   }
 }
 
-// @TransferModel func. Used to transfer funds from a DAO to another account.
-// @token_id ID of the token that is being transferred
-// @receiver_id Funds recipient ID
-// @amount Number of tokens to be transferred
+/**
+ * @TransferModel  Used to transfer funds from a DAO to another account.
+ * @description  Transfers a specified amount of tokens from the DAO to a recipient.
+ * @param token_id  The ID of the token being transferred.
+ * @param receiver_id  The ID of the recipient receiving the funds.
+ * @param amount  The number of tokens to be transferred.
+ */
 export class TransferModel implements AddProposalModel {
   token_id: string;
   receiver_id: string;
@@ -211,8 +235,10 @@ export class TransferModel implements AddProposalModel {
   }
 }
 
-// @SetStakingContractModel func. Used to assign a steakage contract.
-// @staking_id Steakage contract ID
+/**
+ * @SetStakingContractModel func. Used to assign a steakage contract.
+ * @param staking_id Steakage contract ID
+ */
 export class SetStakingContractModel implements AddProposalModel {
   staking_id: string;
   constructor({ staking_id }: { staking_id: string }) {
@@ -220,12 +246,14 @@ export class SetStakingContractModel implements AddProposalModel {
   }
 }
 
-// @AddBountyModel func. Used to add a new task with a reward.
-// @description  Used to add a new task with a reward.
-// @token  Reward token
-// @amount  Amount of remuneration
-// @times  Number of participants who can complete the task
-// @max_deadline  Maximum period of task completion in days
+/**
+ * @AddBountyModel  Used to add a new task with a reward.
+ * @description  Adds a new task that rewards participants upon completion.
+ * @param token  The token used for the reward.
+ * @param amount  The amount of remuneration for completing the task.
+ * @param times  The number of participants who can complete the task.
+ * @param max_deadline  The maximum period for task completion in days.
+ */
 export class AddBountyModel implements AddProposalModel {
   description: string;
   token: string;
@@ -253,9 +281,11 @@ export class AddBountyModel implements AddProposalModel {
   }
 }
 
-// @BountyDoneModel  Used to complete a task with a reward.
-// @bounty_id  Bounty task ID
-// @receiver_id Beneficiary ID
+/**
+ * @BountyDoneModel  Used to complete a task with a reward.
+ * @param bounty_id  Bounty task ID
+ * @param receiver_id Beneficiary ID
+ */
 export class BountyDoneModel implements AddProposalModel {
   bounty_id: number;
   receiver_id: string;
@@ -271,8 +301,10 @@ export class BountyDoneModel implements AddProposalModel {
   }
 }
 
-// @FactoryInfoUpdateModel func. Used to update factory information.
-// @factory_info  factory information
+/**
+ * @FactoryInfoUpdateModel func. Used to update factory information.
+ * @param factory_info  factory information
+ */
 export class FactoryInfoUpdateModel implements AddProposalModel {
   factory_info: string;
   constructor({ factory_info }: { factory_info: string }) {
@@ -280,8 +312,10 @@ export class FactoryInfoUpdateModel implements AddProposalModel {
   }
 }
 
-// @ChangePolicyAddOrUpdateRoleModel func. Adds or updates a role in the policy.
-// @role Role
+/**
+ * @ChangePolicyAddOrUpdateRoleModel func. Adds or updates a role in the policy.
+ * @param role Role
+ */
 export class ChangePolicyAddOrUpdateRoleModel implements AddProposalModel {
   role: Role;
   constructor({ role }: { role: Role }) {
@@ -289,12 +323,14 @@ export class ChangePolicyAddOrUpdateRoleModel implements AddProposalModel {
   }
 }
 
-// @Role
-// @name  The name of the role, which must be unique.
-// @kind  Role Type. This is an enumeration that defines how the membership of the role will be defined:
-// @permissions  A list of permissions that defines what actions role members can perform.
-// @vote_policy  Voting policy for certain types of proposals
-// @balance  An optional parameter that specifies the minimum balance required for a member to perform certain actions described in permissions.
+/**
+ * @Role
+ * @param name  The name of the role, which must be unique.
+ * @param kind  Role Type. This is an enumeration that defines how the membership of the role will be defined:
+ * @param permissions  A list of permissions that defines what actions role members can perform.
+ * @param vote_policy  Voting policy for certain types of proposals
+ * @param balance  An optional parameter that specifies the minimum balance required for a member to perform certain actions described in permissions.
+ */
 export class Role {
   role: object;
   constructor({
@@ -345,8 +381,10 @@ export class AllKind {
   }
 }
 
-// @ChangePolicyRemoveRoleModel func. Removes the role from the policy.
-// @roleName  Role name for deletion
+/**
+ * @ChangePolicyRemoveRoleModel func. Removes the role from the policy.
+ * @param roleName  Role name for deletion
+ */
 export class ChangePolicyRemoveRoleModel implements AddProposalModel {
   roleName: string;
 
@@ -355,8 +393,10 @@ export class ChangePolicyRemoveRoleModel implements AddProposalModel {
   }
 }
 
-// @ChangePolicyUpdateDefaultVotePolicyModel func. Updates the default voting policy.
-// @vote_policy  New voting policy
+/**
+ * @ChangePolicyUpdateDefaultVotePolicyModel func. Updates the default voting policy.
+ * @param vote_policy  New voting policy
+ */
 export class ChangePolicyUpdateDefaultVotePolicyModel
   implements AddProposalModel
 {
@@ -366,11 +406,13 @@ export class ChangePolicyUpdateDefaultVotePolicyModel
   }
 }
 
-// @VotePolicy
-// @weight_kind  Determines the type of weight for votes
-// @threshold  The threshold of votes required to pass a motion.
-// @quorum  The value indicating the minimum number of votes required for a quorum.
-// @weight  The value indicating the weight of the voice.
+/**
+ * @VotePolicy
+ * @param weight_kind  Determines the type of weight for votes
+ * @param threshold  The threshold of votes required to pass a motion.
+ * @param quorum  The value indicating the minimum number of votes required for a quorum.
+ * @param weight  The value indicating the weight of the voice.
+ */
 export class VotePolicy {
   votePolicy: object;
 
@@ -394,16 +436,20 @@ export class VotePolicy {
   }
 }
 
-// @WeightKind
-// @TokenWeight  The weight of votes depends on the number of tokens.
-// @RoleWeight  The weight of votes is determined according to the role of the participants.
+/**
+ * @WeightKind
+ * @param TokenWeight  The weight of votes depends on the number of tokens.
+ * @param RoleWeight  The weight of votes is determined according to the role of the participants.
+ */
 export enum WeightKind {
   TokenWeight = "TokenWeight",
   RoleWeight = "RoleWeight",
 }
 
-// @ChangePolicyUpdateParametersModel func. Updates the parameters of the DAO policy.
-// @parameters  New policy parameters
+/**
+ * @ChangePolicyUpdateParametersModel func. Updates the parameters of the DAO policy.
+ * @param parameters  New policy parameters
+ */
 export class ChangePolicyUpdateParametersModel implements AddProposalModel {
   parameters: object;
   constructor({ parameters }: { parameters: PolicyParameters }) {
@@ -411,13 +457,15 @@ export class ChangePolicyUpdateParametersModel implements AddProposalModel {
   }
 }
 
-// @PolicyParameters
-// @proposal_bond  The deposit in tokens required to create an offer.
-// @proposal_period  The time (in nanoseconds) that the proposal will be active and available for voting.
-// @bounty_bond  Deposit to place a bounty (bounty).
-// @bounty_forgiveness_period  The period (in nanoseconds) during which participants can avoid a penalty for failing to perform on an award.
-// @default_vote_policy  The default voting policy for DAOs.
-// @roles  A list of roles (Role structures) that define the rights of participants in the DAO, such as permission to create proposals, vote, and perform other actions.
+/**
+ * @PolicyParameters
+ * @param proposal_bond  The deposit in tokens required to create an offer.
+ * @param proposal_period  The time (in nanoseconds) that the proposal will be active and available for voting.
+ * @param bounty_bond  Deposit to place a bounty (bounty).
+ * @param bounty_forgiveness_period  The period (in nanoseconds) during which participants can avoid a penalty for failing to perform on an award.
+ * @param default_vote_policy  The default voting policy for DAOs.
+ * @param roles  A list of roles (Role structures) that define the rights of participants in the DAO, such as permission to create proposals, vote, and perform other actions.
+ */
 export class PolicyParameters {
   policyParameters: object;
   constructor({
@@ -448,4 +496,10 @@ export class PolicyParameters {
       proposal_bond: proposal_bond,
     };
   }
+}
+
+export enum ActProposalModel {
+  VoteApprove = "VoteApprove",
+  VoteReject = "VoteReject",
+  VoteRemove = "VoteRemove",
 }

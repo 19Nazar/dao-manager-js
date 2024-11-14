@@ -4,6 +4,7 @@ import NearWallet from "../../../../package/network/near_wallet";
 import { useState, useEffect } from "react";
 import { NetworkID } from "../../../../package/models/near_models";
 import DaoService from "../../../../package/service/dao_service";
+// import DaoManagerJS from "DaoManagerJS";
 export default function Home() {
   const [nearWallet, setNearWallet] = useState<NearWallet | null>(null);
   const [daoService, setDaoService] = useState<DaoService | null>(null);
@@ -44,9 +45,9 @@ export default function Home() {
   }
 
   async function testNFT() {
-    const resp = await nearWallet.callSmartContractFunc({
+    const resp = await nearWallet.newCallSmartContractFunc({
       contractId: "mintspace2.testnet",
-      changeMethodName: "create_store",
+      methodName: "create_store",
       deposit: "3700000000000000000000000",
       args: {
         owner_id: "maierr.testnet",
