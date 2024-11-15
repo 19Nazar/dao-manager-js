@@ -20,15 +20,27 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.button {
-  padding: 10px 20px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
+@keyframes slideIn {
+  0% {
+    transform: translateX(-100%); /* Начинаем за пределами экрана */
+  }
+  100% {
+    transform: translateX(0); /* Останавливаемся на месте */
+  }
 }
 
-.button:hover {
-  background-color: #45a049;
+.customButton {
+  background-color: #a463b0;
+  color: white;
+  display: block;
+}
+
+.centered-container {
+  animation: slideIn 1s ease-out;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh; /* Высота 100% от высоты окна просмотра */
+  /* text-align: center; */
 }

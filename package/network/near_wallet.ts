@@ -40,8 +40,10 @@ export default class NearWallet {
 
     this.nearConnection = await connect(conf);
 
-    // create wallet connection
     this.walletConnection = new WalletConnection(this.nearConnection, "my-app");
+  }
+
+  async sigIn() {
     if (!this.walletConnection.isSignedIn()) {
       await this.walletConnection.requestSignIn({ keyType: "ed25519" });
     } else {
