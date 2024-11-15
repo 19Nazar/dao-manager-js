@@ -1,27 +1,36 @@
 "use client";
-import Image from "next/image";
 import NearWallet from "../../../../package/network/near_wallet";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { NetworkID } from "../../../../package/models/near_models";
 import DaoService from "../../../../package/service/dao_service";
+import CustomButton from "../shared_widgets/custom_button";
+import { useRouter } from "next/compat/router";
+import { UrlDashboard } from "../url_dashboard/url_dashboard";
 // import DaoManagerJS from "DaoManagerJS";
 export default function Home() {
+  const router = useRouter();
   const [nearWallet, setNearWallet] = useState<NearWallet | null>(null);
   const [daoService, setDaoService] = useState<DaoService | null>(null);
+  const [isLogin, setIsLogin] = useState<boolean | null>(null);
 
   useEffect(() => {
     const walletInstance = NearWallet.getInstance();
     setNearWallet(walletInstance);
+
     const daoInstance = DaoService.getInstance();
     setDaoService(daoInstance);
   }, []);
 
   useEffect(() => {
-    if (nearWallet) {
-      console.log(nearWallet);
-    }
-    console.log(daoService);
-  }, [nearWallet, daoService]);
+    const init = async () => {
+      await connectToWallet();
+      const isLogin = await checkIsLogIn();
+      if (isLogin == true) {
+        router.push(UrlDashboard.profile);
+      }
+    };
+    if (nearWallet) init();
+  }, [router, nearWallet]);
 
   async function connectToWallet() {
     try {
@@ -38,7 +47,7 @@ export default function Home() {
     }
   }
 
-  async function check(): Promise<boolean> {
+  async function checkIsLogIn(): Promise<boolean> {
     const test = await nearWallet.checkIsSign();
     console.log(test);
     return test;
@@ -77,31 +86,31 @@ export default function Home() {
   }
 
   return (
-    <div>
-      <button
+    <div className="centered-container">
+      <h1 className="text-4xl font-bold">Welcome to DAO MANAGER</h1>
+      <CustomButton
+        text="Log In"
         onClick={async () => {
           await connectToWallet();
         }}
-        className="button"
-      >
-        test
-      </button>
-      <button
+        style={{ fontSize: "25px" }}
+      />
+      {/* <button
         onClick={async () => {
-          await check();
+          await checkIsLogIn();
         }}
         className="button"
       >
         check
-      </button>
-      <button
+      </button> */}
+      {/* <Button
+        color="primary"
         onClick={async () => {
           await testNFT();
         }}
-        className="button"
       >
         smart
-      </button>
+      </Button>
       <button
         onClick={async () => {
           await create();
@@ -125,7 +134,7 @@ export default function Home() {
         className="button"
       >
         policy
-      </button>
+      </button> */}
     </div>
   );
 }

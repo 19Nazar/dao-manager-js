@@ -1,5 +1,5 @@
 {
-  "name": "dao-manager-js-lib",
+  "name": "dao-manager-js",
   "private": true,
   "main": "./package/index.ts",
   "devDependencies": {
