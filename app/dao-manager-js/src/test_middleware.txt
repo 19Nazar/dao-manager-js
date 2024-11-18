@@ -1,0 +1,31 @@
+import { NextResponse, NextRequest } from "next/server";
+
+export async function middleware(request: NextRequest) {
+  // const url = request.nextUrl.clone();
+  // console.log("Middleware triggered");
+  // // Получаем значение куки isLogin
+  // const isLogin = request.cookies.get("isLogin")?.value === "true";
+  // // Если пользователь на корневом пути, определяем, куда его перенаправить
+  // if (url.pathname === "/") {
+  //   if (isLogin) {
+  //     // Если пользователь авторизован, перенаправляем на /profile
+  //     url.pathname = "/profile";
+  //   } else {
+  //     // Если пользователь не авторизован, перенаправляем на /login
+  //     url.pathname = "/login";
+  //   }
+  //   return NextResponse.redirect(url);
+  // }
+  // // Если пользователь не авторизован и пытается зайти не на /login, отправляем на /login
+  // if (!isLogin && url.pathname !== "/login") {
+  //   url.pathname = "/login";
+  //   return NextResponse.redirect(url);
+  // }
+  // // Если пользователь авторизован и пытается зайти на /login, перенаправляем на /profile
+  // if (isLogin && url.pathname === "/login") {
+  //   url.pathname = "/profile";
+  //   return NextResponse.redirect(url);
+  // }
+  // // Если ни одно условие не сработало, разрешаем доступ
+  // return NextResponse.next();
+}

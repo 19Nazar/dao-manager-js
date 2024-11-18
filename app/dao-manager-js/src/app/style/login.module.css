@@ -1,0 +1,7 @@
+.top_right_container {
+  position: absolute;
+  top: 20px; /* Отступ от верхнего края */
+  right: 20px; /* Отступ от правого края */
+  z-index: 999;
+  /* align-items: center; Выравнивание элементов по центру */
+}
