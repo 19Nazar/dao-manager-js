@@ -4,6 +4,8 @@ import {
   WalletConnection,
   Contract,
   Near,
+  KeyPair,
+  keyStores,
 } from "near-api-js";
 import { BlockChainResponse, NetworkID } from "../models/near_models";
 import { NearConstants } from "../constants/near_constants";
@@ -26,6 +28,37 @@ export default class NearWallet {
     return NearWallet.instance;
   }
 
+  async test() {
+    const keyStore = new keyStores.InMemoryKeyStore();
+    const PRIVATE_KEY = "ed25519:5oSj8pDE7F2vRQtsfnf3ramjDu8wWt4C3msVn1apL22J"; // Приватный ключ, соответствующий публичному ключу
+    const ACCOUNT_ID = "maierr.testnet";
+    const NETWORK_ID = "testnet";
+
+    // Добавляем ключ в keyStore
+    const keyPair = KeyPair.fromString(PRIVATE_KEY);
+    await keyStore.setKey(NETWORK_ID, ACCOUNT_ID, keyPair);
+
+    // Подключаемся к NEAR
+    const near = await connect({
+      networkId: NETWORK_ID,
+      keyStore, // Передаём keyStore с ключом
+      nodeUrl: "https://rpc.testnet.near.org",
+      walletUrl: "https://wallet.testnet.near.org",
+    });
+
+    const account = await near.account(ACCOUNT_ID);
+
+    // Вызываем смарт-контракт
+    const result = await account.functionCall({
+      contractId: "sputnik-v2.testnet",
+      methodName: "create",
+      args: { arg1: "value1" }, // Параметры функции
+      gas: BigInt("100000000000000"), // Лимит газа
+      attachedDeposit: BigInt("1000000000000000000000000"), // (опционально) Депозит
+    });
+    console.log(result);
+  }
+
   async createWalletConnection({ networkID }: { networkID: NetworkID }) {
     // connect to NEAR
     if (!this.config) {
@@ -43,9 +76,19 @@ export default class NearWallet {
     this.walletConnection = new WalletConnection(this.nearConnection, "my-app");
   }
 
-  async sigIn() {
+  async sigIn({
+    successUrl,
+    failureUrl,
+  }: {
+    successUrl?: string;
+    failureUrl?: string;
+  }) {
     if (!this.walletConnection.isSignedIn()) {
-      await this.walletConnection.requestSignIn({ keyType: "ed25519" });
+      await this.walletConnection.requestSignIn({
+        keyType: "ed25519",
+        successUrl: successUrl,
+        failureUrl: failureUrl,
+      });
     } else {
       console.log(
         "Пользователь уже авторизован:",
@@ -148,7 +191,7 @@ export default class NearWallet {
     }
   }
 
-  signOut() {
-    this.walletConnection?.signOut();
+  async signOut() {
+    await this.walletConnection?.signOut();
   }
 }

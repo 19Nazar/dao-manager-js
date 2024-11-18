@@ -8,7 +8,7 @@ import {
 import NearWallet from "./network/near_wallet";
 import DaoService from "./service/dao_service";
 
-export class DaoManagerJS {
+export default class DaoManagerJS {
   private static instance: DaoManagerJS | null = null;
   nearWallet: NearWallet;
   daoService: DaoService;
@@ -24,9 +24,22 @@ export class DaoManagerJS {
   }
 
   //WalletInteraction
-  async logIn({ networkID }: { networkID: NetworkID }) {
+  async createWalletConnection({ networkID }: { networkID: NetworkID }) {
     const res = await this.nearWallet.createWalletConnection({
       networkID: networkID,
+    });
+  }
+
+  async logIn({
+    successUrl,
+    failureUrl,
+  }: {
+    successUrl?: string;
+    failureUrl?: string;
+  }) {
+    const res = await this.nearWallet.sigIn({
+      successUrl: successUrl,
+      failureUrl: failureUrl,
     });
   }
 
