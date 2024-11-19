@@ -1,8 +1,8 @@
 class NearModels {}
 
 export enum NetworkID {
-  mainnet,
-  testnet,
+  mainnet = "mainnet",
+  testnet = "testnet",
 }
 
 export class BlockChainResponse {
@@ -13,6 +13,11 @@ export class BlockChainResponse {
     this.status = status;
     this.data = data;
   }
+}
+
+export enum ConnectionType {
+  default,
+  wallet,
 }
 
 export enum ProposalTypes {

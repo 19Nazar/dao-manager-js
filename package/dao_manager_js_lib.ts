@@ -2,6 +2,7 @@ import {
   ActProposalModel,
   AddProposalModel,
   BlockChainResponse,
+  ConnectionType,
   NetworkID,
   ProposalTypes,
 } from "./models/near_models";
@@ -24,8 +25,21 @@ export default class DaoManagerJS {
   }
 
   //WalletInteraction
-  async createWalletConnection({ networkID }: { networkID: NetworkID }) {
-    const res = await this.nearWallet.createWalletConnection({
+  async createConnection({
+    connectionType,
+    networkID,
+    privateKey,
+    accountID,
+  }: {
+    privateKey?: string;
+    accountID?: string;
+    connectionType: ConnectionType;
+    networkID: NetworkID;
+  }) {
+    const res = await this.nearWallet.createConnection({
+      connectionType: connectionType,
+      privateKey: privateKey,
+      accountID: accountID,
       networkID: networkID,
     });
   }

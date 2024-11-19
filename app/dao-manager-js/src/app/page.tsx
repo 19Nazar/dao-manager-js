@@ -13,29 +13,30 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    console.log("test");
-    async function load() {
-      if (walletInstance) {
-        await loading();
-      }
-    }
-    load();
+    // console.log("test");
+    // async function load() {
+    //   if (walletInstance) {
+    //     await loading();
+    //   }
+    // }
+    // load();
+    router.push("/login");
   }, [router]); // Убираем `nearWallet` из зависимостей, чтобы избежать бесконечного рендера
 
-  async function connectToWallet() {
-    try {
-      if (walletInstance) {
-        const test = await walletInstance.createWalletConnection({
-          networkID: NetworkID.testnet,
-        });
-        console.log(test);
-      } else {
-        throw new Error("NearWallet not loaded");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  }
+  // async function connectToWallet() {
+  //   try {
+  //     if (walletInstance) {
+  //       const test = await walletInstance.createWalletConnection({
+  //         networkID: NetworkID.testnet,
+  //       });
+  //       console.log(test);
+  //     } else {
+  //       throw new Error("NearWallet not loaded");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //   }
+  // }
 
   async function checkIsLogIn(): Promise<boolean> {
     if (!walletInstance) {
@@ -47,19 +48,19 @@ export default function Home() {
     return test;
   }
 
-  async function loading() {
-    if (!walletInstance) {
-      console.error("NearWallet is not initialized");
-      return;
-    }
-    await connectToWallet();
-    const isLogin = await checkIsLogIn();
-    if (isLogin) {
-      router.push("/profile");
-    } else {
-      router.push("/login");
-    }
-  }
+  // async function loading() {
+  //   if (!walletInstance) {
+  //     console.error("NearWallet is not initialized");
+  //     return;
+  //   }
+  //   await connectToWallet();
+  //   const isLogin = await checkIsLogIn();
+  //   if (isLogin) {
+  //     router.push("/profile");
+  //   } else {
+  //     router.push("/login");
+  //   }
+  // }
 
   return (
     <div className="centered-container">

@@ -7,18 +7,43 @@ import {
   KeyPair,
   keyStores,
 } from "near-api-js";
-import { BlockChainResponse, NetworkID } from "../models/near_models";
+import {
+  BlockChainResponse,
+  ConnectionType,
+  NetworkID,
+} from "../models/near_models";
 import { NearConstants } from "../constants/near_constants";
+import { KeyPairString } from "near-api-js/lib/utils";
+import { promises } from "dns";
+import { error } from "console";
 export default class NearWallet {
   private static instance: NearWallet | null = null;
-  config: Map<NetworkID, ConnectConfig> | null = null;
+  config: Map<ConnectionType, Map<NetworkID, ConnectConfig>> | null = null;
   walletConnection: WalletConnection | null = null;
   nearConnection: Near | null = null;
 
   private constructor() {
-    this.config = new Map<NetworkID, ConnectConfig>();
-    this.config.set(NetworkID.mainnet, NearConstants.mainConnectionConfig);
-    this.config.set(NetworkID.testnet, NearConstants.testConnectionConfig);
+    var walletConnection = new Map<NetworkID, ConnectConfig>();
+    walletConnection.set(
+      NetworkID.mainnet,
+      NearConstants.walletMainConnectionConfig,
+    );
+    walletConnection.set(
+      NetworkID.testnet,
+      NearConstants.walletTestConnectionConfig,
+    );
+    var defaultConnection = new Map<NetworkID, ConnectConfig>();
+    defaultConnection.set(
+      NetworkID.mainnet,
+      NearConstants.defaultMainConnectionConfig,
+    );
+    defaultConnection.set(
+      NetworkID.testnet,
+      NearConstants.defaultTestConnectionConfig,
+    );
+    this.config = new Map<ConnectionType, Map<NetworkID, ConnectConfig>>();
+    this.config.set(ConnectionType.wallet, walletConnection);
+    this.config.set(ConnectionType.default, defaultConnection);
   }
 
   static getInstance(): NearWallet {
@@ -28,50 +53,118 @@ export default class NearWallet {
     return NearWallet.instance;
   }
 
-  async test() {
-    const keyStore = new keyStores.InMemoryKeyStore();
-    const PRIVATE_KEY = "ed25519:5oSj8pDE7F2vRQtsfnf3ramjDu8wWt4C3msVn1apL22J"; // Приватный ключ, соответствующий публичному ключу
-    const ACCOUNT_ID = "maierr.testnet";
-    const NETWORK_ID = "testnet";
-
-    // Добавляем ключ в keyStore
-    const keyPair = KeyPair.fromString(PRIVATE_KEY);
-    await keyStore.setKey(NETWORK_ID, ACCOUNT_ID, keyPair);
-
-    // Подключаемся к NEAR
-    const near = await connect({
-      networkId: NETWORK_ID,
-      keyStore, // Передаём keyStore с ключом
-      nodeUrl: "https://rpc.testnet.near.org",
-      walletUrl: "https://wallet.testnet.near.org",
-    });
-
-    const account = await near.account(ACCOUNT_ID);
-
-    // Вызываем смарт-контракт
-    const result = await account.functionCall({
-      contractId: "sputnik-v2.testnet",
-      methodName: "create",
-      args: { arg1: "value1" }, // Параметры функции
-      gas: BigInt("100000000000000"), // Лимит газа
-      attachedDeposit: BigInt("1000000000000000000000000"), // (опционально) Депозит
-    });
-    console.log(result);
-  }
-
-  async createWalletConnection({ networkID }: { networkID: NetworkID }) {
-    // connect to NEAR
+  async createConnection({
+    connectionType,
+    networkID,
+    privateKey,
+    accountID,
+  }: {
+    privateKey?: string;
+    accountID?: string;
+    connectionType: ConnectionType;
+    networkID: NetworkID;
+  }) {
     if (!this.config) {
       throw new Error("Configuration is not available.");
     }
+    const typeConfig = this.config.get(connectionType);
+    if (!typeConfig) {
+      throw new Error("Undefaind connectionType");
+    }
+    const config = typeConfig.get(networkID);
+    if (!config) {
+      throw new Error("Undefaind networkID");
+    }
+    if (connectionType == ConnectionType.wallet) {
+      await this.createWalletConnection({ config: config });
+    } else if (connectionType == ConnectionType.default) {
+      if (!privateKey || !accountID) {
+        throw new Error(
+          "For default connection you need input privateKey and accountID",
+        );
+      }
+      await this.createDefaultConnection({
+        config: config,
+        networkID: networkID,
+        privateKey: privateKey,
+        accountID: accountID,
+      });
+    } else {
+      throw new Error("Unexpected action");
+    }
+  }
 
-    const conf = this.config.get(networkID);
-
-    if (!conf) {
-      throw new Error("NetworkID is not defined");
+  async createDefaultConnection({
+    privateKey,
+    accountID,
+    networkID,
+    config,
+  }: {
+    config: ConnectConfig;
+    privateKey: string;
+    accountID: string;
+    networkID: NetworkID;
+  }) {
+    if (
+      !privateKey.startsWith("ed25519:") &&
+      !privateKey.startsWith("secp256k1:")
+    ) {
+      throw new Error("Private key must start with ed25519 or secp256k1");
     }
 
-    this.nearConnection = await connect(conf);
+    try {
+      const keyStore = new keyStores.InMemoryKeyStore();
+
+      const keyPair = KeyPair.fromString(privateKey as KeyPairString);
+
+      await keyStore.setKey(networkID.toString(), accountID, keyPair);
+
+      console.log(keyStore);
+
+      const finalConfig = { ...config, keyStore: keyStore };
+
+      this.nearConnection = await connect(finalConfig);
+    } catch (error) {
+      throw new Error("Error create connection:", error);
+    }
+  }
+
+  async callSmartContract({
+    accountID,
+    contractId,
+    methodName,
+    args = {},
+    gas = "300000000000000",
+    deposit = "0",
+  }: {
+    accountID: string;
+    contractId: string;
+    methodName: string;
+    args?: object;
+    gas?: string;
+    deposit?: string;
+  }): Promise<void> {
+    if (!this.nearConnection) {
+      throw new Error("Absent near connection");
+    }
+    try {
+      const account = await this.nearConnection.account(accountID);
+
+      const result = await account.functionCall({
+        contractId: contractId,
+        methodName: methodName,
+        args: args,
+        gas: BigInt(gas),
+        attachedDeposit: BigInt(deposit),
+      });
+      console.log(result);
+    } catch (error) {
+      throw new Error("Error make smart contract call", error);
+    }
+  }
+
+  async createWalletConnection({ config }: { config: ConnectConfig }) {
+    this.nearConnection = await connect(config);
 
     this.walletConnection = new WalletConnection(this.nearConnection, "my-app");
   }
@@ -83,6 +176,9 @@ export default class NearWallet {
     successUrl?: string;
     failureUrl?: string;
   }) {
+    if (this.walletConnection == null) {
+      throw new Error("You must connect to NEAR");
+    }
     if (!this.walletConnection.isSignedIn()) {
       await this.walletConnection.requestSignIn({
         keyType: "ed25519",
@@ -91,7 +187,7 @@ export default class NearWallet {
       });
     } else {
       console.log(
-        "Пользователь уже авторизован:",
+        "The user is already authorized:",
         this.walletConnection.getAccountId(),
       );
     }
@@ -192,6 +288,8 @@ export default class NearWallet {
   }
 
   async signOut() {
-    await this.walletConnection?.signOut();
+    if (this.walletConnection) {
+      await this.walletConnection?.signOut();
+    }
   }
 }

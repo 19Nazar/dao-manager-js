@@ -1,6 +1,6 @@
 import { keyStores } from "near-api-js";
 export class NearConstants {
-  static mainConnectionConfig = {
+  static walletMainConnectionConfig = {
     networkId: "mainnet",
     keyStore: new keyStores.InMemoryKeyStore(),
     nodeUrl: "https://rpc.mainnet.near.org",
@@ -9,12 +9,26 @@ export class NearConstants {
     explorerUrl: "https://nearblocks.io",
   };
 
-  static testConnectionConfig = {
+  static walletTestConnectionConfig = {
     networkId: "testnet",
     keyStore: new keyStores.InMemoryKeyStore(),
     nodeUrl: "https://rpc.testnet.near.org",
     walletUrl: "https://testnet.mynearwallet.com/",
     helperUrl: "https://helper.testnet.near.org",
     explorerUrl: "https://testnet.nearblocks.io",
+  };
+
+  static defaultMainConnectionConfig = {
+    networkId: "mainnet",
+    nodeUrl: "https://rpc.mainnet.near.org",
+    walletUrl: "https://wallet.mainnet.near.org",
+    helperUrl: "https://helper.mainnet.near.org",
+  };
+
+  static defaultTestConnectionConfig = {
+    networkId: "testnet",
+    nodeUrl: "https://rpc.testnet.near.org",
+    walletUrl: "https://testnet.mynearwallet.com/",
+    helperUrl: "https://helper.testnet.near.org",
   };
 }
