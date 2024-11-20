@@ -38,7 +38,7 @@ export default class DaoService {
     return DaoService.instance;
   }
 
-  async createDaoMeneger({
+  async createDaoManager({
     name,
     purpose,
     metadata = "",
@@ -453,5 +453,12 @@ export default class DaoService {
       methodName: "bounty_done",
       args: { id: id },
     });
+  }
+
+  async getBalance({ accountId }: { accountId: string }): Promise<string> {
+    const account = await this.nearWallet.nearConnection.account(accountId);
+    const balance = await account.getAccountBalance();
+    const test = BigInt(balance.available) - BigInt(balance.staked);
+    return test.toString();
   }
 }

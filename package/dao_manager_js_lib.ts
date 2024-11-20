@@ -51,14 +51,10 @@ export default class DaoManagerJS {
     successUrl?: string;
     failureUrl?: string;
   }) {
-    const res = await this.nearWallet.sigIn({
+    const res = await this.nearWallet.logIn({
       successUrl: successUrl,
       failureUrl: failureUrl,
     });
-  }
-
-  async logOut() {
-    this.nearWallet.signOut();
   }
 
   async checkIsSign(): Promise<boolean> {
@@ -96,7 +92,7 @@ export default class DaoManagerJS {
     metadata?: string;
     policy?: Array<string>;
   }) {
-    const res = await this.daoService.createDaoMeneger({
+    const res = await this.daoService.createDaoManager({
       name: name,
       purpose: purpose,
       metadata: metadata,
@@ -210,5 +206,10 @@ export default class DaoManagerJS {
       contractId: contractId,
       id: id,
     });
+  }
+
+  async getBalance({ accountId }: { accountId: string }) {
+    const balance = await this.daoService.getBalance({ accountId: accountId });
+    return balance;
   }
 }

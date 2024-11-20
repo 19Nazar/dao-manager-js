@@ -41,20 +41,27 @@ export default function Home() {
     });
     localStorage.setItem("network", network);
     localStorage.setItem("connection", "wallet");
-    await daoManagerInstance.logIn({
-      successUrl: UrlDashboard.url + UrlDashboard.profile,
-      failureUrl: UrlDashboard.url + UrlDashboard.login,
-    });
-    router.push(UrlDashboard.profile);
+    const isLogIn = await daoManagerInstance.checkIsSign();
+    if (isLogIn == true) {
+      router.push(UrlDashboard.profile);
+    } else {
+      await daoManagerInstance.logIn({
+        successUrl: UrlDashboard.url + UrlDashboard.profile,
+        failureUrl: UrlDashboard.url + UrlDashboard.login,
+      });
+    }
   }
 
-  //cerate modal window
   async function logInDefault({ network }: { network: string }) {
     if (privateKey.length == 0 || accountId.length == 0) {
       throw new Error("Input accountId and privateKey");
     }
     localStorage.setItem("network", network);
     localStorage.setItem("connection", "default");
+    localStorage.setItem(
+      "my-app_default_auth_key",
+      JSON.stringify({ accountId: accountId, key: privateKey }),
+    );
     await daoManagerInstance.createConnection({
       connectionType: ConnectionType.default,
       networkID: network == "mainnet" ? NetworkID.mainnet : NetworkID.testnet,
@@ -86,6 +93,13 @@ export default function Home() {
 
   return (
     <div>
+      <CustomButton
+        text="Log In By Default"
+        onClick={() => {
+          daoManagerInstance.nearWallet.checkTest();
+        }}
+        style={{ fontSize: "25px" }}
+      />
       <div className={styles.top_right_container}>
         <Dropdown backdrop="blur">
           <DropdownTrigger>

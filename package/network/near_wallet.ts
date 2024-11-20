@@ -169,7 +169,7 @@ export default class NearWallet {
     this.walletConnection = new WalletConnection(this.nearConnection, "my-app");
   }
 
-  async sigIn({
+  async logIn({
     successUrl,
     failureUrl,
   }: {
@@ -211,6 +211,11 @@ export default class NearWallet {
       console.error("Check is unable", error);
       throw new Error("Check is unable", error);
     }
+  }
+
+  checkTest() {
+    const keyStore = new keyStores.InMemoryKeyStore();
+    console.log(keyStore);
   }
 
   async newCallSmartContractFunc({

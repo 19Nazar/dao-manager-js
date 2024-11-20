@@ -1,6 +1,6 @@
 import { utils } from "near-api-js";
 
-class Utils {
+export class Utils {
   static nearToYoctoNEAR(amount: string): string {
     const amountInYocto = utils.format.parseNearAmount(amount);
     if (amountInYocto) {
