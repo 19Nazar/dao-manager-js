@@ -6,16 +6,18 @@ import {
   Near,
   KeyPair,
   keyStores,
+  transactions,
 } from "near-api-js";
 import {
   BlockChainResponse,
   ConnectionType,
   NetworkID,
+  Status,
 } from "../models/near_models";
 import { NearConstants } from "../constants/near_constants";
 import { KeyPairString } from "near-api-js/lib/utils";
 import { promises } from "dns";
-import { error } from "console";
+import { FunctionCall } from "near-api-js/lib/transaction";
 export default class NearWallet {
   private static instance: NearWallet | null = null;
   config: Map<ConnectionType, Map<NetworkID, ConnectConfig>> | null = null;
@@ -213,9 +215,46 @@ export default class NearWallet {
     }
   }
 
+  getAccountID(): string {
+    if (this.walletConnection == null) {
+      throw new Error("Wallet connection is absent");
+    }
+    return this.walletConnection.getAccountId();
+  }
+
   checkTest() {
     const keyStore = new keyStores.InMemoryKeyStore();
     console.log(keyStore);
+  }
+
+  async createAccessKey({
+    nameContract,
+    successUrl,
+  }: {
+    nameContract: string;
+    successUrl?: string;
+  }) {
+    try {
+      if (this.walletConnection == null) {
+        throw new Error("Wallet connection is absent");
+      }
+      // const keyPair = KeyPair.fromRandom("ed25519");
+
+      // const publicKey = keyPair.getPublicKey().toString();
+
+      // await this.walletConnection.account().addKey(publicKey, nameContract);
+
+      // console.log("Access Key create: ", publicKey);
+
+      // return { keyPair, publicKey };
+      await this.walletConnection.requestSignIn({
+        keyType: "ed25519",
+        contractId: nameContract,
+        successUrl: successUrl,
+      });
+    } catch (error) {
+      throw new Error("Error while create access key", error);
+    }
   }
 
   async newCallSmartContractFunc({
@@ -236,8 +275,8 @@ export default class NearWallet {
     }
 
     try {
-      // const currentUrl: string = window.location.href;
-      const res = this.walletConnection.account().functionCall({
+      const account = this.walletConnection.account();
+      const res = await account.functionCall({
         contractId: contractId,
         methodName: methodName,
         args: args,
@@ -275,12 +314,12 @@ export default class NearWallet {
       const respStatus = res.status as any;
       if ("Failure" in respStatus) {
         return new BlockChainResponse({
-          status: "error",
+          status: Status.error,
           data: respStatus.Failure,
         });
       } else if ("SuccessValue" in respStatus) {
         return new BlockChainResponse({
-          status: "success",
+          status: Status.successful,
           data: respStatus.SuccessValue,
         });
       } else {
@@ -295,6 +334,59 @@ export default class NearWallet {
   async signOut() {
     if (this.walletConnection) {
       await this.walletConnection?.signOut();
+    }
+  }
+
+  async callSmartContractFunc({
+    contractId,
+    changeMethodName,
+    viewMethodName,
+    args = {},
+    gas = "300000000000000",
+    deposit = "0",
+  }: {
+    contractId: string;
+    changeMethodName?: string;
+    viewMethodName?: string;
+    args?: object;
+    gas?: string;
+    deposit?: string;
+  }): Promise<BlockChainResponse> {
+    if (this.walletConnection == null) {
+      throw new Error("Wallet connection is absent");
+    }
+    try {
+      const contract = new Contract(
+        this.walletConnection.account(),
+        contractId,
+        {
+          viewMethods: [viewMethodName],
+          changeMethods: [changeMethodName],
+          useLocalViewExecution: false,
+        },
+      );
+      if (contract[changeMethodName ?? viewMethodName]) {
+        try {
+          const result = await contract[changeMethodName ?? viewMethodName]({
+            args: args,
+            gas: gas,
+            amount: deposit,
+          });
+          return new BlockChainResponse({
+            status: Status.successful,
+            data: result,
+          });
+        } catch (error) {
+          throw new Error("Error call smart contract:", error);
+        }
+      } else {
+        throw new Error(
+          `methods not exist: ${changeMethodName ?? viewMethodName}`,
+        );
+      }
+    } catch (error) {
+      console.error("Error call smart contract", error);
+      throw new Error("Error call smart contract", error);
     }
   }
 }

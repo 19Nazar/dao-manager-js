@@ -1,25 +1,23 @@
 "use client";
-import DaoManagerJS from "../../../../package/dao_manager_js_lib";
-import { useState, useEffect, use } from "react";
-import { NetworkID } from "../../../../package/models/near_models";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { UrlDashboard } from "../url_dashboard/url_dashboard";
 import { Spinner } from "@nextui-org/react";
-import { color } from "framer-motion";
 // import DaoManagerJS from "DaoManagerJS";
 
 export default function Home() {
-  const walletInstance = DaoManagerJS.getInstance();
   const router = useRouter();
 
   useEffect(() => {
-    const typeConnection = localStorage.getItem("connection");
-    if (!typeConnection) {
-      router.push(UrlDashboard.login);
-    } else {
+    const my_app_wallet = localStorage.getItem("my-app_wallet_auth_key");
+    const dataDefault = localStorage.getItem("my-app_default_auth_key");
+
+    if (my_app_wallet || dataDefault) {
       router.push(UrlDashboard.profile);
+    } else {
+      router.push(UrlDashboard.login);
     }
-  }, [router]); // Убираем `nearWallet` из зависимостей, чтобы избежать бесконечного рендера
+  }, [router]);
 
   return (
     <div className="centered-container">

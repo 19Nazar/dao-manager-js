@@ -62,6 +62,19 @@ export default class DaoManagerJS {
     return res;
   }
 
+  async createAccessKey({
+    nameContract,
+    successUrl,
+  }: {
+    nameContract: string;
+    successUrl?: string;
+  }) {
+    const createKey = await this.nearWallet.createAccessKey({
+      nameContract: nameContract,
+      successUrl: successUrl,
+    });
+  }
+
   async getResultTxns({
     txnHesh,
     accountId,
@@ -100,8 +113,13 @@ export default class DaoManagerJS {
     });
   }
 
-  async getPolicy({ contractId }: { contractId: string }) {
+  async getPolicy({
+    contractId,
+  }: {
+    contractId: string;
+  }): Promise<BlockChainResponse> {
     const res = await this.daoService.getPolicy({ contractId: contractId });
+    return res;
   }
 
   async addProposal({
@@ -211,5 +229,9 @@ export default class DaoManagerJS {
   async getBalance({ accountId }: { accountId: string }) {
     const balance = await this.daoService.getBalance({ accountId: accountId });
     return balance;
+  }
+
+  getAccountID(): string {
+    return this.nearWallet.getAccountID();
   }
 }
