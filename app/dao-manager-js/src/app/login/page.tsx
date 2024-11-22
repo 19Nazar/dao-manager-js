@@ -71,13 +71,6 @@ export default function Home() {
     router.push(UrlDashboard.profile);
   }
 
-  // async function create() {
-  //   const test = await daoService.createDaoMeneger({
-  //     name: "daotest",
-  //     purpose: "Maier Corp",
-  //     policy: ["maierr.testnet"],
-  //   });
-  // }
 
   // async function checkTxns() {
   //   const check = await nearWallet.getTxnsHeshStatus({
@@ -93,17 +86,12 @@ export default function Home() {
 
   return (
     <div>
-      <CustomButton
-        text="Log In By Default"
-        onClick={() => {
-          daoManagerInstance.nearWallet.checkTest();
-        }}
-        style={{ fontSize: "25px" }}
-      />
       <div className={styles.top_right_container}>
         <Dropdown backdrop="blur">
           <DropdownTrigger>
-            <Button variant="bordered">{selectedKey}</Button>
+            <Button className="bg-white" variant="bordered">
+              {selectedKey}
+            </Button>
           </DropdownTrigger>
           <DropdownMenu
             aria-label="Network Selection"

@@ -6,13 +6,17 @@ export enum NetworkID {
 }
 
 export class BlockChainResponse {
-  status: string;
+  status: Status;
   data: object;
 
-  constructor({ status, data }: { status: string; data: object }) {
+  constructor({ status, data }: { status: Status; data: object }) {
     this.status = status;
     this.data = data;
   }
+}
+export enum Status {
+  successful,
+  error,
 }
 
 export enum ConnectionType {

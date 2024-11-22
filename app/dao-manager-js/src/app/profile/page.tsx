@@ -11,6 +11,10 @@ import {
 import { UrlDashboard } from "../../url_dashboard/url_dashboard";
 import {
   Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Input,
   Link,
   Navbar,
   NavbarBrand,
@@ -23,6 +27,8 @@ import {
 } from "@nextui-org/react";
 import styles from "../style/profile.module.css";
 import { color } from "framer-motion";
+import NavbarComponent from "../../shared_widgets/navbar";
+import { ConstantsDashboard } from "../../const/const";
 
 export default function Profile() {
   const router = useRouter();
@@ -30,8 +36,8 @@ export default function Profile() {
   const network = localStorage.getItem("network");
   const daoManagerJS = DaoManagerJS.getInstance();
   const dataDefault = localStorage.getItem("my-app_default_auth_key");
-  const [accountId, setAccountId] = useState<string | null>();
-  const [balance, setBalance] = useState<string | null>();
+  const [accountID, setAccountID] = useState<string>("");
+  const [isAdd, setIsAdd] = useState<boolean | null>(null);
 
   if (!typeConnection) {
     router.push(UrlDashboard.login);
@@ -56,23 +62,6 @@ export default function Profile() {
   }
 
   useEffect(() => {
-    const fetchBalance = async () => {
-      const accountId = localStorage.getItem("my-app_wallet_auth_key")
-        ? JSON.parse(localStorage.getItem("my-app_wallet_auth_key")).accountId
-        : JSON.parse(dataDefault).accountId;
-      setAccountId(accountId);
-
-      try {
-        await upadateBalance(accountId);
-      } catch (error) {
-        console.error("Error while gat balance:", error);
-      }
-    };
-
-    fetchBalance();
-  }, []);
-
-  useEffect(() => {
     document.body.classList.add(styles.body_profile);
 
     return () => {
@@ -80,119 +69,53 @@ export default function Profile() {
     };
   }, []);
 
-  async function upadateBalance(accountId: string) {
-    const balanceYoctoNear = await daoManagerJS.getBalance({
-      accountId: accountId,
-    });
-    const balanceNear = Utils.yoctoNEARToNear(balanceYoctoNear);
-    setBalance(balanceNear);
+  function addDaoID(accountId: string) {
+    localStorage.setItem(ConstantsDashboard.daoId, accountId);
+    setIsAdd(true);
   }
-
-  function logOut() {
-    daoManagerJS.signOut();
-    localStorage.removeItem("network");
-    localStorage.removeItem("connection");
-    if (localStorage.getItem("app_default_auth_key")) {
-      localStorage.removeItem("app_default_auth_key");
-    }
-    router.push(UrlDashboard.login);
-  }
-
-  const menuItems = ["test"];
 
   return (
     <div>
-      <div className={styles.navBar}>
-        <Navbar disableAnimation isBordered>
-          <NavbarContent className="sm:hidden" justify="start">
-            <NavbarMenuToggle />
-          </NavbarContent>
-
-          <NavbarContent className="sm:hidden pr-3" justify="center">
-            <NavbarBrand>
-              <p className="font-bold text-inherit color-white">DAO-MANAGER</p>
-            </NavbarBrand>
-          </NavbarContent>
-
-          <NavbarContent
-            className="hidden sm:flex justify-center"
-            justify="start"
-          >
-            <NavbarBrand>
-              <p className="font-bold text-inherit">DAO-MANAGER</p>
-            </NavbarBrand>
-          </NavbarContent>
-
-          <NavbarContent className="hidden sm:flex gap-4" justify="center">
-            <NavbarItem>
-              <Link color="foreground" href="#">
-                Create DAO
-              </Link>
-            </NavbarItem>
-            <NavbarItem>
-              <Link href="#" aria-current="page" color="foreground">
-                Add Proposal
-              </Link>
-            </NavbarItem>
-            <NavbarItem>
-              <Link color="foreground" href="#">
-                Settings DAO
-              </Link>
-            </NavbarItem>
-          </NavbarContent>
-
-          <NavbarContent justify="end">
-            <NavbarContent
-              className="hidden sm:flex flex-col justify-center"
-              justify="end"
-            >
-              <NavbarItem>
-                {accountId?.length > 20
-                  ? `${accountId?.slice(0, 20)}...`
-                  : accountId}
-              </NavbarItem>
-              <NavbarItem>
-                {balance?.length > 20 ? `${balance?.slice(0, 20)}...` : balance}
-              </NavbarItem>
-            </NavbarContent>
-            <NavbarItem>
-              <Button className={styles.appBarButtonColor} onClick={logOut}>
-                Log Out
-              </Button>
-            </NavbarItem>
-          </NavbarContent>
-
-          <NavbarMenu className={styles.navBar}>
-            <NavbarMenuItem>
-              <Link color="foreground" href="#">
-                Create DAO
-              </Link>
-            </NavbarMenuItem>
-            <NavbarMenuItem>
-              {" "}
-              <Link href="#" aria-current="page" color="foreground">
-                Add Proposal
-              </Link>
-            </NavbarMenuItem>
-            <NavbarMenuItem>
-              <Link color="foreground" href="#">
-                Settings DAO
-              </Link>
-            </NavbarMenuItem>
-            <NavbarMenuItem>
-              Account ID:
-              {accountId?.length > 20
-                ? `${accountId?.slice(0, 20)}...`
-                : accountId}
-            </NavbarMenuItem>
-            <NavbarMenuItem>
-              Balance:
-              {balance?.length > 20 ? `${balance?.slice(0, 20)}...` : balance}
-            </NavbarMenuItem>
-          </NavbarMenu>
-        </Navbar>
+      <NavbarComponent />
+      <div className="main_profile">
+        <div className="flex flex-col gap-1 items-center justify-center ">
+          <div>
+            <Card className="max-w-full shadow-lg">
+              <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
+                <h4 className="font-bold text-large">DAO init</h4>
+              </CardHeader>
+              <CardBody className="overflow-visible py-2">
+                <h1>
+                  If you have not created a DAO yet, go to create DAO section
+                </h1>
+                <h1>
+                  Input DAO contract id for interact with in (you must have
+                  appropriate privileges)
+                </h1>
+                <Input
+                  className="mt-5"
+                  autoFocus
+                  label="Account id DAO"
+                  placeholder="Enter account id for DAO"
+                  variant="bordered"
+                  value={accountID}
+                  onChange={(e) => setAccountID(e.target.value)}
+                />
+                <CustomButton
+                  style={{ marginTop: 10 }}
+                  text={"Add DAO id"}
+                  onClick={() => {
+                    addDaoID(accountID);
+                  }}
+                />
+                <h1 style={{ textAlign: "center" }}>
+                  {isAdd ? isAdd.toString() : ""}
+                </h1>
+              </CardBody>
+            </Card>
+          </div>
+        </div>
       </div>
-      <div>тест</div>
     </div>
   );
 }

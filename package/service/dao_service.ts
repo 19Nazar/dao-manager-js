@@ -3,6 +3,7 @@ import {
   AddBountyModel,
   AddMemberToRoleModel,
   AddProposalModel,
+  BlockChainResponse,
   BountyDoneModel,
   ChangeConfigModel,
   ChangePolicyAddOrUpdateRoleModel,
@@ -54,25 +55,29 @@ export default class DaoService {
       policy: policy,
     });
     const encodedArgs = Buffer.from(args).toString("base64");
-    const res = this.nearWallet.newCallSmartContractFunc({
+    const res = this.nearWallet.callSmartContractFunc({
       contractId: "sputnik-v2.testnet",
-      methodName: "create",
+      changeMethodName: "create",
       args: {
         name: name,
         args: encodedArgs,
       },
-      deposit: "1000000000000000000000000",
+      deposit: "5000000000000000000000000",
     });
     console.log(res);
   }
 
-  async getPolicy({ contractId }: { contractId: string }) {
-    const resp = await this.nearWallet.newCallSmartContractFunc({
+  async getPolicy({
+    contractId,
+  }: {
+    contractId: string;
+  }): Promise<BlockChainResponse> {
+    const resp = await this.nearWallet.callSmartContractFunc({
       contractId: contractId,
-      methodName: "get_policy",
+      viewMethodName: "get_policy",
       deposit: "0",
     });
-    console.log(resp);
+    return resp;
   }
 
   async addProposal({
@@ -322,9 +327,9 @@ export default class DaoService {
         throw new Error("Not supported proposal type");
     }
 
-    const resp = await this.nearWallet.newCallSmartContractFunc({
+    const resp = await this.nearWallet.callSmartContractFunc({
       contractId: contractId,
-      methodName: "add_proposal",
+      changeMethodName: "add_proposal",
       args: { proposal: { description: description, kind: kind } },
       gas: gas,
       deposit: deposit,
@@ -343,9 +348,9 @@ export default class DaoService {
     contractId: string;
     id: number;
   }) {
-    const res = await this.nearWallet.newCallSmartContractFunc({
+    const res = await this.nearWallet.callSmartContractFunc({
       contractId: contractId,
-      methodName: "get_proposal",
+      viewMethodName: "get_proposal",
       args: { id: id },
       deposit: "0",
     });
@@ -367,9 +372,9 @@ export default class DaoService {
     from_index: number;
     limit: number;
   }) {
-    const res = await this.nearWallet.newCallSmartContractFunc({
+    const res = await this.nearWallet.callSmartContractFunc({
       contractId: contractId,
-      methodName: "get_proposals",
+      viewMethodName: "get_proposals",
       args: { from_index: from_index, limit: limit },
       deposit: "0",
     });
@@ -390,9 +395,9 @@ export default class DaoService {
     id: number;
     action: ActProposalModel;
   }) {
-    const res = await this.nearWallet.newCallSmartContractFunc({
+    const res = await this.nearWallet.callSmartContractFunc({
       contractId: contractId,
-      methodName: "act_proposal",
+      changeMethodName: "act_proposal",
       args: { id: id, action: action.toString() },
     });
   }
@@ -402,9 +407,9 @@ export default class DaoService {
    * @param contractId
    */
   async getBounty({ contractId }: { contractId: string }) {
-    const res = await this.nearWallet.newCallSmartContractFunc({
+    const res = await this.nearWallet.callSmartContractFunc({
       contractId: contractId,
-      methodName: "get_bounties",
+      viewMethodName: "get_bounties",
     });
   }
 
@@ -423,9 +428,9 @@ export default class DaoService {
     id: number;
     deadline: string;
   }) {
-    const res = await this.nearWallet.newCallSmartContractFunc({
+    const res = await this.nearWallet.callSmartContractFunc({
       contractId: contractId,
-      methodName: "bounty_claim",
+      changeMethodName: "bounty_claim",
       args: { id: id, deadline: deadline },
     });
   }
@@ -435,9 +440,9 @@ export default class DaoService {
    * @param id
    */
   async giveUpBounty({ contractId, id }: { contractId: string; id: number }) {
-    const res = await this.nearWallet.newCallSmartContractFunc({
+    const res = await this.nearWallet.callSmartContractFunc({
       contractId: contractId,
-      methodName: "bounty_giveup",
+      changeMethodName: "bounty_giveup",
       args: { id: id },
     });
   }
@@ -448,17 +453,27 @@ export default class DaoService {
    * @param id
    */
   async doneBounty({ contractId, id }: { contractId: string; id: number }) {
-    const res = await this.nearWallet.newCallSmartContractFunc({
+    const res = await this.nearWallet.callSmartContractFunc({
       contractId: contractId,
-      methodName: "bounty_done",
+      changeMethodName: "bounty_done",
       args: { id: id },
     });
   }
 
   async getBalance({ accountId }: { accountId: string }): Promise<string> {
-    const account = await this.nearWallet.nearConnection.account(accountId);
-    const balance = await account.getAccountBalance();
-    const test = BigInt(balance.available) - BigInt(balance.staked);
-    return test.toString();
+    if (this.nearWallet == null) {
+      throw new Error("Wallet connection is absent");
+    }
+    try {
+      const account = await this.nearWallet.nearConnection!.account(accountId);
+      const balance = await account.getAccountBalance();
+      const test =
+        BigInt(balance.available) -
+        BigInt(balance.stateStaked) -
+        BigInt(balance.staked);
+      return test.toString();
+    } catch (error) {
+      throw new Error("Error while get balance", error);
+    }
   }
 }

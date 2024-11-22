@@ -31,4 +31,11 @@ export class NearConstants {
     walletUrl: "https://testnet.mynearwallet.com/",
     helperUrl: "https://helper.testnet.near.org",
   };
+
+  static contractPerNetwork = {
+    testnet: "guestbook.near-examples.testnet",
+  };
+
+  static NetworkId = "testnet";
+  static GuestbookNearContract = this.contractPerNetwork[this.NetworkId];
 }
