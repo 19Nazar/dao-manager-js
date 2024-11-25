@@ -377,7 +377,7 @@ export default class NearWallet {
             data: result,
           });
         } catch (error) {
-          throw new Error("Error call smart contract:", error);
+          throw new Error(`Error call smart contract: ${error.message}`, error);
         }
       } else {
         throw new Error(
@@ -385,8 +385,8 @@ export default class NearWallet {
         );
       }
     } catch (error) {
-      console.error("Error call smart contract", error);
-      throw new Error("Error call smart contract", error);
+      console.error(`Error call smart contract: ${error.message}`, error);
+      throw new Error(`Error call smart contract ${error.message}`, error);
     }
   }
 }
