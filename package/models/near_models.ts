@@ -268,7 +268,7 @@ export class AddBountyModel implements AddProposalModel {
   token: string;
   amount: string;
   times: number;
-  max_deadline: number;
+  max_deadline: string;
   constructor({
     description,
     token,
@@ -280,7 +280,7 @@ export class AddBountyModel implements AddProposalModel {
     token: string;
     amount: string;
     times: number;
-    max_deadline: number;
+    max_deadline: string;
   }) {
     this.description = description;
     this.token = token;

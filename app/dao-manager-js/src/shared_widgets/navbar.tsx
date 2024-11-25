@@ -17,6 +17,7 @@ import DaoManagerJS from "../../../../package/dao_manager_js_lib";
 import { Utils } from "../../../../package/utils/utils";
 import { useRouter } from "next/navigation";
 import { UrlDashboard } from "../url_dashboard/url_dashboard";
+import { ConstantsDashboard } from "../const/const";
 
 const NavbarComponent: React.FC = () => {
   const daoManagerJS = DaoManagerJS.getInstance();
@@ -54,6 +55,7 @@ const NavbarComponent: React.FC = () => {
     daoManagerJS.signOut();
     localStorage.removeItem("network");
     localStorage.removeItem("connection");
+    localStorage.removeItem(ConstantsDashboard.daoId);
     if (localStorage.getItem("my-app_default_auth_key")) {
       localStorage.removeItem("my-app_default_auth_key");
     }

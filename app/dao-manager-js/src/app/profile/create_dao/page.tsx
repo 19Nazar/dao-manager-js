@@ -111,13 +111,6 @@ export default function CreateDao() {
       policy: convertPolicy,
     });
   }
-
-  async function get_police() {
-    const res = await daoManagerJS.getPolicy({
-      contractId: "daotest.sputnik-v2.testnet",
-    });
-    console.log(res);
-  }
   return (
     <div>
       <NavbarComponent />

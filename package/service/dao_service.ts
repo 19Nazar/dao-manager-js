@@ -231,11 +231,13 @@ export default class DaoService {
         const addBountyModel = addProposalModel as AddBountyModel;
         kind = {
           AddBounty: {
-            description: addBountyModel.description,
-            token: addBountyModel.token,
-            amount: addBountyModel.amount,
-            times: addBountyModel.times,
-            max_deadline: addBountyModel.max_deadline,
+            bounty: {
+              description: addBountyModel.description,
+              token: addBountyModel.token,
+              amount: addBountyModel.amount,
+              times: addBountyModel.times,
+              max_deadline: addBountyModel.max_deadline,
+            },
           },
         };
         break;

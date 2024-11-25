@@ -7,11 +7,18 @@ import {
   BlockChainResponse,
   ConnectionType,
   NetworkID,
-  Status,
+  ProposalTypes,
 } from "../../../../../../package/models/near_models";
-import CustomButton from "../../../shared_widgets/custom_button";
-import { Card, CardBody, CardHeader, Input } from "@nextui-org/react";
+import {
+  Button,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+} from "@nextui-org/react";
 import { useEffect, useState } from "react";
+import AddBounty from "./components/add_bounty";
+import { ConstantsDashboard } from "../../../const/const";
 
 export default function CreateDao() {
   const router = useRouter();
@@ -20,12 +27,11 @@ export default function CreateDao() {
   const network = localStorage.getItem("network");
   const daoManagerJS = DaoManagerJS.getInstance();
   const dataDefault = localStorage.getItem("my-app_default_auth_key");
+  const daoID = localStorage.getItem(ConstantsDashboard.daoId);
 
-  const [nameDAO, setNameDAO] = useState<string>("");
-  const [purpose, setPurpose] = useState<string>("");
-  const [policy, setPolicy] = useState<string>("");
-  const [metadata, setMetadata] = useState<string>("");
   const [resData, setResData] = useState<BlockChainResponse | null>(null);
+  const [selectedProposal, setSelectedProposal] = useState<string | null>(null);
+  const [selectLable, setSelectLable] = useState<string | null>(null);
 
   if (!typeConnection) {
     router.push(UrlDashboard.login);
@@ -55,35 +61,19 @@ export default function CreateDao() {
         txnHesh: txnHesh,
         accountId: accountId,
       });
+      console.log(resp);
       setResData(resp);
     }
     const accountID = daoManagerJS.getAccountID();
-    setPolicy(accountID + ",");
     const hesh = searchParams.get("transactionHashes");
     if (hesh) {
       getHesh({ txnHesh: hesh, accountId: accountID });
     }
   }, []);
 
-  async function createDAO({
-    name,
-    purpose,
-    metadata,
-    policy,
-  }: {
-    name: string;
-    purpose: string;
-    metadata?: string;
-    policy?: string;
-  }) {
-    const convertPolicy = policy?.split(",").map((x) => x.trim());
-    const test = await daoManagerJS.createDaoMeneger({
-      name: name.toLocaleLowerCase(),
-      purpose: purpose,
-      metadata: metadata,
-      policy: convertPolicy,
-    });
-  }
+  const proposalsWidgets: Record<string, JSX.Element> = {
+    [ProposalTypes.AddBounty]: <AddBounty daoID={daoID || ""} />,
+  };
 
   return (
     <div>
@@ -92,82 +82,53 @@ export default function CreateDao() {
         <div className="flex flex-col gap-1 items-center justify-center ">
           <div>
             <h4 className="font-bold text-large">Add proposal</h4>
-            <h4>
-              To make a proposal you need to input account id dao, choose type
-              propose and enter the following parameters:
-            </h4>
-            <Card className="max-w-full shadow-lg">
-              <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
-                <h4 className="font-bold text-large">Add proposal</h4>
-              </CardHeader>
-              <CardBody className="overflow-visible py-2">
-                <h4>
-                  To make a proposal you need to input account id dao, choose
-                  type propose and enter the following parameters:
-                </h4>
-                <Input
-                  className="mt-4"
-                  autoFocus
-                  label="Name for DAO"
-                  placeholder="Enter name for DAO"
-                  variant="bordered"
-                  value={nameDAO}
-                  onChange={(e) => setNameDAO(e.target.value)}
-                />
-                <Input
-                  className="mt-5"
-                  autoFocus
-                  label="Purpose for DAO"
-                  placeholder="Enter purpose for DAO"
-                  variant="bordered"
-                  value={purpose}
-                  onChange={(e) => setPurpose(e.target.value)}
-                />
-                <Input
-                  className="mt-5"
-                  autoFocus
-                  label="Policy for DAO"
-                  placeholder="Enter policy for DAO"
-                  variant="bordered"
-                  value={policy}
-                  onChange={(e) => setPolicy(e.target.value)}
-                />
-                <Input
-                  className="mt-5"
-                  autoFocus
-                  label="Metadata for DAO"
-                  placeholder="Enter metadata for DAO"
-                  variant="bordered"
-                  value={metadata}
-                  onChange={(e) => setMetadata(e.target.value)}
-                />
-                <CustomButton
-                  style={{ marginTop: 5 }}
-                  text={"Create DAO"}
-                  onClick={async () => {
-                    await createDAO({
-                      name: nameDAO,
-                      purpose: purpose,
-                      metadata: metadata,
-                      policy: policy,
-                    });
-                  }}
-                />
-                {resData ? (
-                  <h1
-                    className={
-                      resData.status === Status.successful ? "" : "text-red"
-                    }
+            <div>
+              {!daoID ? (
+                <h1>For Interaction you must add DAO smart contract id</h1>
+              ) : (
+                <div>
+                  <h4>
+                    To make a proposal you need choose type propose and enter
+                    the following parameters:
+                  </h4>
+                  <div
+                    style={{
+                      marginTop: 5,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      marginBottom: 10,
+                    }}
                   >
-                    {atob(resData.data?.toString()) || "Absent data"}
-                  </h1>
-                ) : (
-                  ""
-                )}
-              </CardBody>
-            </Card>
+                    <Dropdown>
+                      <DropdownTrigger>
+                        <Button
+                          style={{ backgroundColor: "#4FD1D9" }}
+                          variant="bordered"
+                        >
+                          {selectLable ? selectLable : "Choose propose"}
+                        </Button>
+                      </DropdownTrigger>
+                      <DropdownMenu
+                        aria-label="Action event example"
+                        onAction={(key) => setSelectedProposal(key as string)}
+                      >
+                        <DropdownItem
+                          key={ProposalTypes.AddBounty}
+                          onClick={() => {
+                            setSelectLable("Add bounty");
+                          }}
+                        >
+                          Add bounty
+                        </DropdownItem>
+                      </DropdownMenu>
+                    </Dropdown>
+                  </div>
+                  <div>{proposalsWidgets[selectedProposal]}</div>
+                </div>
+              )}
+            </div>
           </div>
-          <div></div>
         </div>
       </div>
     </div>
