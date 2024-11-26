@@ -19,6 +19,7 @@ import {
 import { useEffect, useState } from "react";
 import AddBounty from "./components/add_bounty";
 import { ConstantsDashboard } from "../../../const/const";
+import AddMemberToRole from "./components/add_member_to_role";
 
 export default function CreateDao() {
   const router = useRouter();
@@ -73,6 +74,7 @@ export default function CreateDao() {
 
   const proposalsWidgets: Record<string, JSX.Element> = {
     [ProposalTypes.AddBounty]: <AddBounty daoID={daoID || ""} />,
+    [ProposalTypes.AddMemberToRole]: <AddMemberToRole daoID={daoID || ""} />,
   };
 
   return (
@@ -120,6 +122,14 @@ export default function CreateDao() {
                           }}
                         >
                           Add bounty
+                        </DropdownItem>
+                        <DropdownItem
+                          key={ProposalTypes.AddMemberToRole}
+                          onClick={() => {
+                            setSelectLable("Add | Remove member to role");
+                          }}
+                        >
+                          Add | Remove member to role
                         </DropdownItem>
                       </DropdownMenu>
                     </Dropdown>

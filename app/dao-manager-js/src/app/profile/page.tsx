@@ -1,32 +1,22 @@
 "use client";
 import { useEffect, useState } from "react";
 import DaoManagerJS from "../../../../../package/dao_manager_js_lib";
-import { Utils } from "../../../../../package/index";
 import CustomButton from "../../shared_widgets/custom_button";
 import { useRouter } from "next/navigation";
 import {
   ConnectionType,
   NetworkID,
+  Status,
 } from "../../../../../package/models/near_models";
 import { UrlDashboard } from "../../url_dashboard/url_dashboard";
 import {
-  Button,
   Card,
   CardBody,
   CardHeader,
   Input,
-  Link,
-  Navbar,
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-  NavbarMenu,
-  NavbarMenuItem,
-  NavbarMenuToggle,
-  Spinner,
+  Pagination,
 } from "@nextui-org/react";
 import styles from "../style/profile.module.css";
-import { color } from "framer-motion";
 import NavbarComponent from "../../shared_widgets/navbar";
 import { ConstantsDashboard } from "../../const/const";
 
@@ -37,7 +27,14 @@ export default function Profile() {
   const daoManagerJS = DaoManagerJS.getInstance();
   const dataDefault = localStorage.getItem("my-app_default_auth_key");
   const [accountID, setAccountID] = useState<string>("");
-  const [isAdd, setIsAdd] = useState<boolean | null>(null);
+  const [daoId, setDaoId] = useState<string | null>(
+    localStorage.getItem(ConstantsDashboard.daoId),
+  );
+  const [outputProposals, setOutputProposals] =
+    useState<Array<JSX.Element> | null>(null);
+  let startId = 0;
+  let limit = 6;
+  let pageNumb = 1;
 
   if (!typeConnection) {
     router.push(UrlDashboard.login);
@@ -61,19 +58,87 @@ export default function Profile() {
     throw new Error("You need log in correctly");
   }
 
-  useEffect(() => {
-    document.body.classList.add(styles.body_profile);
+  // useEffect(() => {
+  //   document.body.classList.add(styles.body_profile);
 
-    return () => {
-      document.body.classList.remove(styles.body_profile);
-    };
+  //   return () => {
+  //     document.body.classList.remove(styles.body_profile);
+  //   };
+  // }, []);
+
+  useEffect(() => {
+    if (daoId) {
+      async function get() {
+        const lastId = (
+          await daoManagerJS.getLastProposalId({ contractId: daoId })
+        ).data;
+        pageNumb = Math.floor(Number(lastId) / 6) + 1;
+        await getProposalsPagination();
+      }
+      get();
+    }
   }, []);
+
+  async function getProposalsPagination() {
+    if (daoId == null) {
+      throw new Error("You must input DAO id");
+    }
+    const res = (await getSixProposals({
+      contractId: daoId,
+      startIdexId: startId,
+      limit: limit,
+    })) as Array<object>;
+    const arrayWidgets = res.map((object) => {
+      return (
+        <Card key={object["id"]}>
+          <CardHeader>{object["description"]}</CardHeader>
+          <CardBody>
+            <h1>{object["proposer"]}</h1>
+            <h1>{Object.keys(object["kind"])[0]}</h1>
+          </CardBody>
+        </Card>
+      );
+    });
+    setOutputProposals(arrayWidgets);
+  }
+
+  async function actionPagination(page: number) {
+    limit = page * 2;
+    startId = limit - 6;
+    await getProposalsPagination();
+  }
+
+  async function getSixProposals({
+    contractId,
+    startIdexId,
+    limit,
+  }: {
+    contractId: string;
+    startIdexId: number;
+    limit: number;
+  }): Promise<object> {
+    const res = await daoManagerJS.getMultipleProposals({
+      contractId: contractId,
+      from_index: startIdexId,
+      limit: limit,
+    });
+    console.log(res);
+    if (res.status == Status.successful) {
+      return res.data;
+    } else {
+      throw new Error(`Incorrect response: ${res.data}`);
+    }
+  }
 
   function addDaoID(accountId: string) {
     localStorage.setItem(ConstantsDashboard.daoId, accountId);
-    setIsAdd(true);
+    setDaoId(accountId);
   }
 
+  async function test() {
+    const test = await daoManagerJS.getBounty({ contractId: daoId });
+    console.log(test);
+  }
   return (
     <div>
       <NavbarComponent />
@@ -108,11 +173,41 @@ export default function Profile() {
                     addDaoID(accountID);
                   }}
                 />
-                <h1 style={{ textAlign: "center" }}>
-                  {isAdd ? isAdd.toString() : ""}
-                </h1>
+                <CustomButton
+                  style={{ marginTop: 10 }}
+                  text={"set"}
+                  onClick={async () => {
+                    await getSixProposals({
+                      contractId: daoId,
+                      startIdexId: 0,
+                      limit: 6,
+                    });
+                  }}
+                />
               </CardBody>
             </Card>
+            {!outputProposals ? (
+              <h1>You don`t have any proposals or data not load</h1>
+            ) : (
+              <div>
+                <div>
+                  {outputProposals.map((proposal) => {
+                    return proposal;
+                  })}
+                </div>
+                <div>
+                  <Pagination
+                    showControls
+                    total={pageNumb}
+                    initialPage={1}
+                    onChange={async (page) => {
+                      await actionPagination(page);
+                    }}
+                    color="success"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
