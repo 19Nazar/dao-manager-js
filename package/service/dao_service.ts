@@ -1,3 +1,4 @@
+import { json } from "stream/consumers";
 import {
   ActProposalModel,
   AddBountyModel,
@@ -72,12 +73,16 @@ export default class DaoService {
   }: {
     contractId: string;
   }): Promise<BlockChainResponse> {
-    const resp = await this.nearWallet.callSmartContractFunc({
-      contractId: contractId,
-      viewMethodName: "get_policy",
-      deposit: "0",
-    });
-    return resp;
+    try {
+      const resp = await this.nearWallet.callSmartContractFunc({
+        contractId: contractId,
+        viewMethodName: "get_policy",
+        deposit: "0",
+      });
+      return resp;
+    } catch (error) {
+      throw new Error(`Error get policy: ${error.message}`, error);
+    }
   }
 
   async addProposal({
@@ -123,6 +128,7 @@ export default class DaoService {
             role: removeMemberFromRoleModel.role,
           },
         };
+        break;
       }
       case ProposalTypes.ChangeConfig: {
         if (!(addProposalModel instanceof ChangeConfigModel)) {
@@ -271,6 +277,7 @@ export default class DaoService {
             factory_info: factoryInfoUpdateModel.factory_info,
           },
         };
+        break;
       }
       case ProposalTypes.ChangePolicyAddOrUpdateRole: {
         if (!(addProposalModel instanceof ChangePolicyAddOrUpdateRoleModel)) {
@@ -324,6 +331,7 @@ export default class DaoService {
         const changePolicyUpdateParametersModel =
           addProposalModel as ChangePolicyUpdateParametersModel;
         kind = changePolicyUpdateParametersModel.parameters;
+        break;
       }
       default:
         throw new Error("Not supported proposal type");
@@ -349,14 +357,17 @@ export default class DaoService {
   }: {
     contractId: string;
     id: number;
-  }) {
-    const res = await this.nearWallet.callSmartContractFunc({
-      contractId: contractId,
-      viewMethodName: "get_proposal",
-      args: { id: id },
-      deposit: "0",
-    });
-    console.log(res);
+  }): Promise<BlockChainResponse> {
+    try {
+      const res = await this.nearWallet.callSmartContractFunc({
+        contractId: contractId,
+        viewMethodName: "get_proposal",
+        args: { id: id },
+      });
+      return res;
+    } catch (error) {
+      throw new Error(`Error get proposal by id: ${error.message}`, error);
+    }
   }
 
   /**
@@ -373,13 +384,38 @@ export default class DaoService {
     contractId: string;
     from_index: number;
     limit: number;
-  }) {
-    const res = await this.nearWallet.callSmartContractFunc({
-      contractId: contractId,
-      viewMethodName: "get_proposals",
-      args: { from_index: from_index, limit: limit },
-      deposit: "0",
-    });
+  }): Promise<BlockChainResponse> {
+    try {
+      const res = await this.nearWallet.callSmartContractFunc({
+        contractId: contractId,
+        viewMethodName: "get_proposals",
+        args: { from_index: from_index, limit: limit },
+      });
+      return res;
+    } catch (error) {
+      throw new Error(`Error get multiple proposals: ${error.message}`, error);
+    }
+  }
+
+  /**
+   * @getLastProposalId Retrieving the last propose ID
+   * @param contractId
+   * @returns
+   */
+  async getLastProposalId({
+    contractId,
+  }: {
+    contractId: string;
+  }): Promise<BlockChainResponse> {
+    try {
+      const res = await this.nearWallet.callSmartContractFunc({
+        contractId: contractId,
+        viewMethodName: "get_last_proposal_id",
+      });
+      return res;
+    } catch (error) {
+      throw new Error(`Error get last proposal id: ${error.message}`, error);
+    }
   }
 
   /**
@@ -408,11 +444,20 @@ export default class DaoService {
    * @getBounty Get bounty list
    * @param contractId
    */
-  async getBounty({ contractId }: { contractId: string }) {
-    const res = await this.nearWallet.callSmartContractFunc({
-      contractId: contractId,
-      viewMethodName: "get_bounties",
-    });
+  async getBounty({
+    contractId,
+  }: {
+    contractId: string;
+  }): Promise<BlockChainResponse> {
+    try {
+      const res = await this.nearWallet.callSmartContractFunc({
+        contractId: contractId,
+        viewMethodName: "get_bounties",
+      });
+      return res;
+    } catch (error) {
+      throw new Error(`Error get bounty: ${error.message}`, error);
+    }
   }
 
   /**

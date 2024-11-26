@@ -10,9 +10,8 @@ export default function Home() {
 
   useEffect(() => {
     const my_app_wallet = localStorage.getItem("my-app_wallet_auth_key");
-    const dataDefault = localStorage.getItem("my-app_default_auth_key");
 
-    if (my_app_wallet || dataDefault) {
+    if (my_app_wallet) {
       router.push(UrlDashboard.profile);
     } else {
       router.push(UrlDashboard.login);

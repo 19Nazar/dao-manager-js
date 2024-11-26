@@ -367,11 +367,16 @@ export default class NearWallet {
       );
       if (contract[changeMethodName ?? viewMethodName]) {
         try {
-          const result = await contract[changeMethodName ?? viewMethodName]({
-            args: args,
-            gas: gas,
-            amount: deposit,
-          });
+          let result;
+          if (viewMethodName) {
+            result = await contract[viewMethodName](args);
+          } else {
+            result = await contract[changeMethodName]({
+              args: args,
+              gas: gas,
+              amount: deposit,
+            });
+          }
           return new BlockChainResponse({
             status: Status.successful,
             data: result,
@@ -381,7 +386,7 @@ export default class NearWallet {
         }
       } else {
         throw new Error(
-          `methods not exist: ${changeMethodName ?? viewMethodName}`,
+          `Methods not exist: ${changeMethodName ?? viewMethodName}`,
         );
       }
     } catch (error) {

@@ -153,11 +153,12 @@ export default class DaoManagerJS {
   }: {
     contractId: string;
     id: number;
-  }) {
+  }): Promise<BlockChainResponse> {
     const res = await this.daoService.getProposalByID({
       contractId: contractId,
       id: id,
     });
+    return res;
   }
 
   async getMultipleProposals({
@@ -168,12 +169,24 @@ export default class DaoManagerJS {
     contractId: string;
     from_index: number;
     limit: number;
-  }) {
+  }): Promise<BlockChainResponse> {
     const res = await this.daoService.getMultipleProposals({
       contractId: contractId,
       from_index: from_index,
       limit: limit,
     });
+    return res;
+  }
+
+  async getLastProposalId({
+    contractId,
+  }: {
+    contractId: string;
+  }): Promise<BlockChainResponse> {
+    const res = await this.daoService.getLastProposalId({
+      contractId: contractId,
+    });
+    return res;
   }
 
   async actProposal({
@@ -192,8 +205,13 @@ export default class DaoManagerJS {
     });
   }
 
-  async getBounty({ contractId }: { contractId: string }) {
+  async getBounty({
+    contractId,
+  }: {
+    contractId: string;
+  }): Promise<BlockChainResponse> {
     const res = await this.daoService.getBounty({ contractId: contractId });
+    return res;
   }
 
   async claimBounty({
