@@ -77,7 +77,7 @@ export default function Profile() {
       }
       get();
     }
-  }, []);
+  }, [daoId]);
 
   async function getProposalsPagination() {
     if (daoId == null) {
@@ -100,6 +100,8 @@ export default function Profile() {
       );
     });
     setOutputProposals(arrayWidgets);
+    const element = document.querySelector("body");
+    element.offsetHeight;
   }
 
   async function actionPagination(page: number) {
@@ -136,11 +138,11 @@ export default function Profile() {
   }
 
   async function test() {
-    const test = await daoManagerJS.getBounty({ contractId: daoId });
+    const test = await daoManagerJS.getBounties({ contractId: daoId });
     console.log(test);
   }
   return (
-    <div>
+    <div style={{ minHeight: 100, height: "auto" }}>
       <NavbarComponent />
       <div className="main_profile">
         <div className="flex flex-col gap-1 items-center justify-center ">
@@ -189,7 +191,7 @@ export default function Profile() {
             {!outputProposals ? (
               <h1>You don`t have any proposals or data not load</h1>
             ) : (
-              <div>
+              <div style={{ height: "auto" }}>
                 <div>
                   {outputProposals.map((proposal) => {
                     return proposal;
