@@ -66,6 +66,7 @@ export class AddMemberToRoleModel implements AddProposalModel {
  * @description  Allows updates to the DAO’s basic information.
  * @param name  The name of the DAO.
  * @param purpose  The purpose or mission of the DAO.
+ * @param metadata The metadata for DAO.
  */
 export class ChangeConfigModel implements AddProposalModel {
   name: string; // Name DAO
@@ -75,60 +76,15 @@ export class ChangeConfigModel implements AddProposalModel {
   constructor({
     name,
     purpose,
-    metadata,
+    metadata = "",
   }: {
     name: string;
     purpose: string;
-    metadata: string;
+    metadata?: string;
   }) {
     this.name = name;
     this.purpose = purpose;
     this.metadata = metadata;
-  }
-}
-
-/**
- * @ChangePolicyModel  Used to update voting rules and access rights within the DAO.
- * @description  Modifies the DAO's governance policy, including roles, voting policies, and bond requirements.
- * @param roles  A list of roles defining DAO participant permissions. Each role specifies associated permissions.
- * @param default_vote_policy  The default voting policy for all proposals, determining voting rights and required approval votes.
- * @param proposal_bond  The deposit (in NEAR tokens) required when creating a proposal.
- * @param proposal_period  The active duration (in nanoseconds) for voting proposals.
- * @param bounty_bond  The required deposit for creating a bounty.
- * @param bounty_forgiveness_period  The forgiveness period for bounties (in nanoseconds), during which the bounty can be canceled.
- */
-export class ChangePolicyModel implements AddProposalModel {
-  roles: Array<any>;
-  default_vote_policy: Map<string, any>;
-  proposal_bond: string;
-  proposal_period: string;
-  bounty_bond: string;
-  bounty_forgiveness_period: string;
-
-  constructor({
-    roles,
-    default_vote_policy,
-    proposal_bond,
-    proposal_period,
-    bounty_bond,
-    bounty_forgiveness_period,
-  }: {
-    roles: Array<Role>;
-    default_vote_policy: Map<string, any>;
-    proposal_bond: string;
-    proposal_period: string;
-    bounty_bond: string;
-    bounty_forgiveness_period: string;
-  }) {
-    this.roles = [];
-    for (var role of roles) {
-      this.roles.push(role.role);
-    }
-    this.default_vote_policy = default_vote_policy;
-    this.proposal_bond = proposal_bond;
-    this.proposal_period = proposal_period;
-    this.bounty_bond = bounty_bond;
-    this.bounty_forgiveness_period = bounty_forgiveness_period;
   }
 }
 
@@ -230,11 +186,11 @@ export class TransferModel implements AddProposalModel {
   amount: string;
 
   constructor({
-    token_id,
+    token_id = "",
     receiver_id,
     amount,
   }: {
-    token_id: string;
+    token_id?: string;
     receiver_id: string;
     amount: string;
   }) {
@@ -457,25 +413,58 @@ export enum WeightKind {
 
 /**
  * @ChangePolicyUpdateParametersModel func. Updates the parameters of the DAO policy.
- * @param parameters  New policy parameters
+ * @param roles  A list of roles defining DAO participant permissions. Each role specifies associated permissions.
+ * @param default_vote_policy  The default voting policy for all proposals, determining voting rights and required approval votes.
+ * @param proposal_bond  The deposit (in NEAR tokens) required when creating a proposal.
+ * @param proposal_period  The active duration (in nanoseconds) for voting proposals.
+ * @param bounty_bond  The required deposit for creating a bounty.
+ * @param bounty_forgiveness_period  The forgiveness period for bounties (in nanoseconds), during which the bounty can be canceled.
  */
 export class ChangePolicyUpdateParametersModel implements AddProposalModel {
-  parameters: object;
-  constructor({ parameters }: { parameters: PolicyParameters }) {
-    this.parameters = parameters.policyParameters;
+  policyParameters: object;
+  constructor({
+    roles,
+    default_vote_policy,
+    bounty_forgiveness_period,
+    bounty_bond,
+    proposal_period,
+    proposal_bond,
+  }: {
+    roles?: Array<Role>;
+    default_vote_policy?: VotePolicy;
+    bounty_forgiveness_period?: string;
+    bounty_bond?: string;
+    proposal_period?: string;
+    proposal_bond?: string;
+  }) {
+    if (roles) {
+      var newRoles: Array<any> = [];
+      for (var role of roles) {
+        newRoles.push(role.role);
+      }
+    }
+    this.policyParameters = {
+      roles: newRoles,
+      default_vote_policy: default_vote_policy.votePolicy,
+      bounty_forgiveness_period: bounty_forgiveness_period,
+      bounty_bond: bounty_bond,
+      proposal_period: proposal_period,
+      proposal_bond: proposal_bond,
+    };
   }
 }
 
 /**
- * @PolicyParameters
- * @param proposal_bond  The deposit in tokens required to create an offer.
- * @param proposal_period  The time (in nanoseconds) that the proposal will be active and available for voting.
- * @param bounty_bond  Deposit to place a bounty (bounty).
- * @param bounty_forgiveness_period  The period (in nanoseconds) during which participants can avoid a penalty for failing to perform on an award.
- * @param default_vote_policy  The default voting policy for DAOs.
- * @param roles  A list of roles (Role structures) that define the rights of participants in the DAO, such as permission to create proposals, vote, and perform other actions.
+ * @ChangePolicyModel  Used to update voting rules and access rights within the DAO.
+ * @description  Modifies the DAO's governance policy, including roles, voting policies, and bond requirements.
+ * @param roles  A list of roles defining DAO participant permissions. Each role specifies associated permissions.
+ * @param default_vote_policy  The default voting policy for all proposals, determining voting rights and required approval votes.
+ * @param proposal_bond  The deposit (in NEAR tokens) required when creating a proposal.
+ * @param proposal_period  The active duration (in nanoseconds) for voting proposals.
+ * @param bounty_bond  The required deposit for creating a bounty.
+ * @param bounty_forgiveness_period  The forgiveness period for bounties (in nanoseconds), during which the bounty can be canceled.
  */
-export class PolicyParameters {
+export class ChangePolicyModel implements AddProposalModel {
   policyParameters: object;
   constructor({
     roles,
@@ -487,10 +476,10 @@ export class PolicyParameters {
   }: {
     roles: Array<Role>;
     default_vote_policy: VotePolicy;
-    bounty_forgiveness_period: BigInt;
-    bounty_bond: BigInt;
-    proposal_period: BigInt;
-    proposal_bond: BigInt;
+    bounty_forgiveness_period: string;
+    bounty_bond: string;
+    proposal_period: string;
+    proposal_bond: string;
   }) {
     var newRoles: Array<any> = [];
     for (var role of roles) {

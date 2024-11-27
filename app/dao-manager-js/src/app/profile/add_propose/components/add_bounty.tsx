@@ -107,7 +107,7 @@ const AddBounty: React.FC<AddBountyProps> = ({ daoID }) => {
           <Input
             className="mt-5"
             autoFocus
-            label="Amount"
+            label="Amount(NEAR)"
             placeholder="Enter amount"
             variant="bordered"
             value={amount}

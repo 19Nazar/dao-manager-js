@@ -137,9 +137,11 @@ export default class DaoService {
         const changeConfigModel = addProposalModel as ChangeConfigModel;
         kind = {
           ChangeConfig: {
-            name: changeConfigModel.name,
-            purpose: changeConfigModel.purpose,
-            metadata: changeConfigModel.metadata,
+            config: {
+              name: changeConfigModel.name,
+              purpose: changeConfigModel.purpose,
+              metadata: changeConfigModel.metadata,
+            },
           },
         };
         break;
@@ -150,15 +152,7 @@ export default class DaoService {
         }
         const changePolicyModel = addProposalModel as ChangePolicyModel;
         kind = {
-          ChangePolicy: {
-            roles: changePolicyModel.roles,
-            default_vote_policy: changePolicyModel.default_vote_policy,
-            proposal_bond: changePolicyModel.proposal_bond,
-            proposal_period: changePolicyModel.proposal_period,
-            bounty_bond: changePolicyModel.bounty_bond,
-            bounty_forgiveness_period:
-              changePolicyModel.bounty_forgiveness_period,
-          },
+          ChangePolicy: changePolicyModel.policyParameters,
         };
         break;
       }
@@ -330,7 +324,10 @@ export default class DaoService {
         }
         const changePolicyUpdateParametersModel =
           addProposalModel as ChangePolicyUpdateParametersModel;
-        kind = changePolicyUpdateParametersModel.parameters;
+        kind = {
+          ChangePolicyUpdateParameters:
+            changePolicyUpdateParametersModel.policyParameters,
+        };
         break;
       }
       default:
@@ -444,7 +441,7 @@ export default class DaoService {
    * @getBounty Get bounty list
    * @param contractId
    */
-  async getBounty({
+  async getBounties({
     contractId,
   }: {
     contractId: string;
@@ -456,7 +453,7 @@ export default class DaoService {
       });
       return res;
     } catch (error) {
-      throw new Error(`Error get bounty: ${error.message}`, error);
+      throw new Error(`Error get bounties: ${error.message}`, error);
     }
   }
 

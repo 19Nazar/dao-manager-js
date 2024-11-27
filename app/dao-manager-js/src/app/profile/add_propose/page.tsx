@@ -19,7 +19,9 @@ import {
 import { useEffect, useState } from "react";
 import AddBounty from "./components/add_bounty";
 import { ConstantsDashboard } from "../../../const/const";
-import AddMemberToRole from "./components/add_member_to_role";
+import AddRemoveMemberToRole from "./components/add_member_to_role";
+import Transfer from "./components/transfer";
+import ChangeConfig from "./components/change_config";
 
 export default function CreateDao() {
   const router = useRouter();
@@ -74,7 +76,11 @@ export default function CreateDao() {
 
   const proposalsWidgets: Record<string, JSX.Element> = {
     [ProposalTypes.AddBounty]: <AddBounty daoID={daoID || ""} />,
-    [ProposalTypes.AddMemberToRole]: <AddMemberToRole daoID={daoID || ""} />,
+    [ProposalTypes.AddMemberToRole]: (
+      <AddRemoveMemberToRole daoID={daoID || ""} />
+    ),
+    [ProposalTypes.Transfer]: <Transfer daoID={daoID || ""} />,
+    [ProposalTypes.ChangeConfig]: <ChangeConfig daoID={daoID || ""} />,
   };
 
   return (
@@ -130,6 +136,22 @@ export default function CreateDao() {
                           }}
                         >
                           Add | Remove member to role
+                        </DropdownItem>
+                        <DropdownItem
+                          key={ProposalTypes.Transfer}
+                          onClick={() => {
+                            setSelectLable("Transfer");
+                          }}
+                        >
+                          Transfer
+                        </DropdownItem>
+                        <DropdownItem
+                          key={ProposalTypes.ChangeConfig}
+                          onClick={() => {
+                            setSelectLable("Change Config");
+                          }}
+                        >
+                          Change Config
                         </DropdownItem>
                       </DropdownMenu>
                     </Dropdown>

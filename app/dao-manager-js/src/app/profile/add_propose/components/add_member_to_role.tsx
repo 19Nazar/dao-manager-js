@@ -8,10 +8,12 @@ import {
 } from "../../../../../../../package/models/near_models";
 import { useState } from "react";
 
-interface AddMemberToRoleProps {
+interface AddRemoveMemberToRoleProps {
   daoID: string;
 }
-const AddMemberToRole: React.FC<AddMemberToRoleProps> = ({ daoID }) => {
+const AddRemoveMemberToRole: React.FC<AddRemoveMemberToRoleProps> = ({
+  daoID,
+}) => {
   const daoManagerJS = DaoManagerJS.getInstance();
   const [description, setDescription] = useState<string | undefined>(undefined);
   const [memberId, setMemberId] = useState<string | undefined>(undefined);
@@ -131,4 +133,4 @@ const AddMemberToRole: React.FC<AddMemberToRoleProps> = ({ daoID }) => {
   );
 };
 
-export default AddMemberToRole;
+export default AddRemoveMemberToRole;
