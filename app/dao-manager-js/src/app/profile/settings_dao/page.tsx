@@ -4,32 +4,23 @@ import NavbarComponent from "../../../shared_widgets/navbar";
 import DaoManagerJS from "../../../../../../package/dao_manager_js_lib";
 import { UrlDashboard } from "../../../url_dashboard/url_dashboard";
 import {
-  ChangePolicyModel,
   ConnectionType,
   NetworkID,
-  ProposalTypes,
-  Role,
-  VotePolicy,
 } from "../../../../../../package/models/near_models";
 import {
-  Button,
   Card,
   CardBody,
   CardHeader,
   Divider,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
+  Spinner,
   useDisclosure,
 } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import { ConstantsDashboard } from "../../../const/const";
 import CustomButton from "../../../shared_widgets/custom_button";
+import SettingsModal from "./components/setting_modal";
 
-export default function CreateDao() {
+export default function SettingsDao() {
   const router = useRouter();
   const typeConnection = localStorage.getItem("connection");
   const network = localStorage.getItem("network");
@@ -82,40 +73,6 @@ export default function CreateDao() {
     return <span>{data}</span>;
   }
 
-  async function createPolicy({
-    contractId,
-    description,
-    roles,
-    default_vote_policy,
-    bounty_forgiveness_period,
-    bounty_bond,
-    proposal_period,
-    proposal_bond,
-  }: {
-    contractId: string;
-    description: string;
-    roles: Array<Role>;
-    default_vote_policy: VotePolicy;
-    bounty_forgiveness_period: string;
-    bounty_bond: string;
-    proposal_period: string;
-    proposal_bond: string;
-  }) {
-    const res = await daoManagerJS.addProposal({
-      contractId: contractId,
-      description: description,
-      proposalTypes: ProposalTypes.ChangePolicy,
-      addProposalModel: new ChangePolicyModel({
-        roles: roles,
-        default_vote_policy: default_vote_policy,
-        bounty_forgiveness_period: bounty_forgiveness_period,
-        bounty_bond: bounty_bond,
-        proposal_period: proposal_period,
-        proposal_bond: proposal_bond,
-      }),
-    });
-  }
-
   useEffect(() => {
     async function getSettings(contractId: string) {
       const settings = await daoManagerJS.getPolicy({ contractId: contractId });
@@ -141,55 +98,19 @@ export default function CreateDao() {
               <CardBody className="overflow-visible py-2">
                 {!daoID ? (
                   <h1>For Interaction you must add DAO smart contract id</h1>
-                ) : (
+                ) : settings ? (
                   <RenderObject data={settings} />
+                ) : (
+                  <Spinner>Load data</Spinner>
                 )}
 
                 <div className="flex justify-end w-full mt-4">
                   <CustomButton text="Change Policy" onClick={onOpen} />
-                </div>
-                <div className="flex justify-center">
-                  <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-                    <ModalContent>
-                      {(onClose) => (
-                        <>
-                          <ModalHeader className="flex flex-col gap-1">
-                            Change policy
-                          </ModalHeader>
-                          <ModalBody>
-                            <p>
-                              Lorem ipsum dolor sit amet, consectetur adipiscing
-                              elit. Nullam pulvinar risus non risus hendrerit
-                              venenatis. Pellentesque sit amet hendrerit risus,
-                              sed porttitor quam.
-                            </p>
-                            <p>
-                              Lorem ipsum dolor sit amet, consectetur adipiscing
-                              elit. Nullam pulvinar risus non risus hendrerit
-                              venenatis. Pellentesque sit amet hendrerit risus,
-                              sed porttitor quam.
-                            </p>
-                            <p>
-                              Magna exercitation reprehenderit magna aute tempor
-                              cupidatat consequat elit dolor adipisicing. Mollit
-                              dolor eiusmod sunt ex incididunt cillum quis.
-                              Velit duis sit officia eiusmod Lorem aliqua enim
-                              laboris do dolor eiusmod. Et mollit incididunt
-                              nisi consectetur esse laborum eiusmod pariatur
-                              proident Lorem eiusmod et. Culpa deserunt nostrud
-                              ad veniam.
-                            </p>
-                          </ModalBody>
-                          <ModalFooter>
-                            <CustomButton
-                              text="Change Policy"
-                              onClick={onClose}
-                            />
-                          </ModalFooter>
-                        </>
-                      )}
-                    </ModalContent>
-                  </Modal>
+                  <SettingsModal
+                    daoID={daoID}
+                    onOpenChange={onOpenChange}
+                    isOpen={isOpen}
+                  />
                 </div>
               </CardBody>
             </Card>

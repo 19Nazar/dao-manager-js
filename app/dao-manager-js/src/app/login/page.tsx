@@ -71,19 +71,6 @@ export default function Home() {
     router.push(UrlDashboard.profile);
   }
 
-
-  // async function checkTxns() {
-  //   const check = await nearWallet.getTxnsHeshStatus({
-  //     txnHesh: "6Cic1sM2KjKgee7xNsppEQr37y2vRh8cz5gdcpL9PnDM",
-  //     accountId: "maierr.testnet",
-  //   });
-  //   console.log(check);
-  // }
-
-  // async function policy() {
-  //   await daoService.getPolicy({ contractId: "daotest.sputnik-v2.testnet" });
-  // }
-
   return (
     <div>
       <div className={styles.top_right_container}>
