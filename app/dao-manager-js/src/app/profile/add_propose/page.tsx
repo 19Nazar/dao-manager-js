@@ -23,7 +23,7 @@ import AddRemoveMemberToRole from "./components/add_member_to_role";
 import Transfer from "./components/transfer";
 import ChangeConfig from "./components/change_config";
 
-export default function CreateDao() {
+export default function AddProposeDao() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const typeConnection = localStorage.getItem("connection");

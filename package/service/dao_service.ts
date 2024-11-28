@@ -152,7 +152,9 @@ export default class DaoService {
         }
         const changePolicyModel = addProposalModel as ChangePolicyModel;
         kind = {
-          ChangePolicy: changePolicyModel.policyParameters,
+          ChangePolicy: {
+            policy: { Current: changePolicyModel.policyParameters },
+          },
         };
         break;
       }

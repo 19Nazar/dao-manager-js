@@ -302,13 +302,13 @@ export class Role {
     name,
     kind,
     permissions,
-    vote_policy,
+    vote_policy = {},
     balance,
   }: {
     name: string;
     kind: AllKind;
     permissions: Array<string>;
-    vote_policy: Map<string, any>;
+    vote_policy?: object;
     balance?: string;
   }) {
     this.role = {
@@ -341,6 +341,9 @@ export class AllKind {
   }
 
   getKind(): any {
+    if ((!this.kind && !this.group) || (this.kind && this.group)) {
+      throw new Error("You must input one parameter");
+    }
     const res = this.kind ? this.kind.toString() : this.group;
     return res;
   }
