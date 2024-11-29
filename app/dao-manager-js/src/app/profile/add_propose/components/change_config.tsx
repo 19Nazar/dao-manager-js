@@ -89,7 +89,7 @@ const ChangeConfig: React.FC<ChangeConfigProps> = ({ daoID }) => {
 
           <CustomButton
             style={{ marginTop: 17 }}
-            text={"Add member"}
+            text={"Change Config"}
             onClick={async () => {
               await changeConfig({
                 description: description,

@@ -294,7 +294,6 @@ export class ChangePolicyAddOrUpdateRoleModel implements AddProposalModel {
  * @param kind  Role Type. This is an enumeration that defines how the membership of the role will be defined:
  * @param permissions  A list of permissions that defines what actions role members can perform.
  * @param vote_policy  Voting policy for certain types of proposals
- * @param balance  An optional parameter that specifies the minimum balance required for a member to perform certain actions described in permissions.
  */
 export class Role {
   role: object;
@@ -303,20 +302,17 @@ export class Role {
     kind,
     permissions,
     vote_policy = {},
-    balance,
   }: {
     name: string;
     kind: AllKind;
     permissions: Array<string>;
     vote_policy?: object;
-    balance?: string;
   }) {
     this.role = {
       kind: kind.getKind(),
       name: name,
       permissions: permissions,
       vote_policy: vote_policy,
-      balance: balance,
     };
   }
 }
@@ -392,7 +388,7 @@ export class VotePolicy {
   }: {
     weight_kind: WeightKind;
     threshold: Array<number>;
-    quorum?: number;
+    quorum?: string;
     weight?: number;
   }) {
     this.votePolicy = {

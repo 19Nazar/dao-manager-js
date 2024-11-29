@@ -58,14 +58,6 @@ export default function Profile() {
     throw new Error("You need log in correctly");
   }
 
-  // useEffect(() => {
-  //   document.body.classList.add(styles.body_profile);
-
-  //   return () => {
-  //     document.body.classList.remove(styles.body_profile);
-  //   };
-  // }, []);
-
   useEffect(() => {
     if (daoId) {
       async function get() {
@@ -90,7 +82,7 @@ export default function Profile() {
     })) as Array<object>;
     const arrayWidgets = res.map((object) => {
       return (
-        <Card key={object["id"]}>
+        <Card key={object["id"]} style={{ margin: 10 }}>
           <CardHeader>{object["description"]}</CardHeader>
           <CardBody>
             <h1>{object["proposer"]}</h1>
@@ -191,13 +183,26 @@ export default function Profile() {
             {!outputProposals ? (
               <h1>You don`t have any proposals or data not load</h1>
             ) : (
-              <div style={{ height: "auto" }}>
-                <div>
+              <div
+                style={{
+                  height: "auto",
+                  display: "flex",
+                  flexDirection: "column",
+                  padding: "20px",
+                }}
+              >
+                <div className={styles.cardGrid}>
                   {outputProposals.map((proposal) => {
                     return proposal;
                   })}
                 </div>
-                <div>
+                <div
+                  style={{
+                    marginTop: 15,
+                    display: "flex",
+                    justifyContent: "flex-end",
+                  }}
+                >
                   <Pagination
                     showControls
                     total={pageNumb}
