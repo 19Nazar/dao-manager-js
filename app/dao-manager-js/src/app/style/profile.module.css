@@ -10,3 +10,15 @@
   background-color: #6b6ef9;
   color: white;
 }
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 35px;
+}
+
+@media (max-width: 780px) {
+  .cardGrid {
+    grid-template-columns: 1fr; /* Переход к одной колонке */
+  }
+}

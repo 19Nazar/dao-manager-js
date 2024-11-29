@@ -26,12 +26,12 @@ import {
 import { useState } from "react";
 import { Utils } from "../../../../../../../package/index";
 
-interface SettingsModalProps {
+interface ChangePolicyProps {
   daoID: string;
   onOpenChange: () => void;
   isOpen: boolean;
 }
-const SettingsModal: React.FC<SettingsModalProps> = ({
+const ChangePolicy: React.FC<ChangePolicyProps> = ({
   daoID,
   onOpenChange,
   isOpen,
@@ -53,7 +53,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   // to numb
   const [threshold, setThreshold] = useState<Array<string>>([]);
   // to numb
-  const [quorum, setQuorum] = useState<number | undefined>(undefined);
+  const [quorum, setQuorum] = useState<string | undefined>(undefined);
 
   interface roleI {
     name: string | undefined;
@@ -61,7 +61,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     permissions: Array<string> | undefined;
     //create in future
     vote_policy?: object | undefined;
-    balance?: string | undefined;
   }
 
   const [roles, setRoles] = useState<roleI[]>([]);
@@ -74,7 +73,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         kind: undefined,
         permissions: undefined,
         vote_policy: undefined,
-        balance: undefined,
       },
     ]);
   }
@@ -98,7 +96,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     threshold,
     quorum,
   }: {
-    quorum: number;
+    quorum: string;
     threshold: Array<string>;
     weightKind: string;
     contractId: string;
@@ -115,7 +113,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         kind: role.kind,
         permissions: role.permissions,
         vote_policy: role.vote_policy,
-        balance: role.balance,
       });
     });
     const defaultVotePolicy = new VotePolicy({
@@ -233,7 +230,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   placeholder="Enter threshold"
                   variant="bordered"
                   value={threshold.join(",")}
-                  onChange={(e) => setThreshold(e.target.value.split(","))}
+                  onChange={(e) =>
+                    setThreshold(
+                      e.target.value.split(",").map((item) => item.trim()),
+                    )
+                  }
                 />
                 <Input
                   className="mt-3"
@@ -241,8 +242,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   label="Quorum"
                   placeholder="Enter quorum"
                   variant="bordered"
-                  value={quorum?.toString()}
-                  onChange={(e) => setQuorum(Number(e.target.value))}
+                  value={quorum}
+                  onChange={(e) => setQuorum(e.target.value)}
                 />
                 <h1 className="mt-4">Roles</h1>
                 {roles.map((role, index) => (
@@ -269,7 +270,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                         updateRole(
                           index,
                           "permissions",
-                          e.target.value.split(","),
+                          e.target.value.split(",").map((item) => item.trim()),
                         )
                       }
                     />
@@ -324,22 +325,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                           updateRole(
                             index,
                             "kind",
-                            new AllKind({ group: e.target.value.split(",") }),
+                            new AllKind({
+                              group: e.target.value
+                                .split(",")
+                                .map((item) => item.trim()),
+                            }),
                           )
                         }
                       />
                     </div>
-                    <Input
-                      className="mt-3"
-                      autoFocus
-                      label="Balance(optional)"
-                      placeholder="Enter balance"
-                      variant="bordered"
-                      value={role.balance}
-                      onChange={(e) =>
-                        updateRole(index, "balance", e.target.value)
-                      }
-                    />
                   </div>
                 ))}
                 <CustomButton text="Add lable for role" onClick={addRole} />
@@ -371,4 +365,4 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   );
 };
 
-export default SettingsModal;
+export default ChangePolicy;

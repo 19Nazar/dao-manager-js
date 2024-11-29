@@ -18,7 +18,8 @@ import {
 import { useEffect, useState } from "react";
 import { ConstantsDashboard } from "../../../const/const";
 import CustomButton from "../../../shared_widgets/custom_button";
-import SettingsModal from "./components/setting_modal";
+import ChangePolicy from "./components/change_policy";
+import AddUpdateRole from "./components/add_update_role";
 
 export default function SettingsDao() {
   const router = useRouter();
@@ -27,7 +28,10 @@ export default function SettingsDao() {
   const daoManagerJS = DaoManagerJS.getInstance();
   const dataDefault = localStorage.getItem("my-app_default_auth_key");
   const daoID = localStorage.getItem(ConstantsDashboard.daoId);
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  const { onOpen, onOpenChange } = useDisclosure();
+  const [isChangePolicyOpen, setIsChangePolicyOpen] = useState(false);
+  const [isAddUpdateRoleOpen, setIsAddUpdateRoleOpen] = useState(false);
 
   const [settings, setSettings] = useState<object | null>(null);
 
@@ -104,12 +108,31 @@ export default function SettingsDao() {
                   <Spinner>Load data</Spinner>
                 )}
 
-                <div className="flex justify-end w-full mt-4">
-                  <CustomButton text="Change Policy" onClick={onOpen} />
-                  <SettingsModal
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                    marginTop: 10,
+                  }}
+                >
+                  <CustomButton
+                    text="Change Policy"
+                    onClick={() => setIsChangePolicyOpen(true)}
+                  />
+                  <ChangePolicy
                     daoID={daoID}
-                    onOpenChange={onOpenChange}
-                    isOpen={isOpen}
+                    onOpenChange={() => setIsChangePolicyOpen(false)}
+                    isOpen={isChangePolicyOpen}
+                  />
+                  <CustomButton
+                    text="Add | Update Role"
+                    onClick={() => setIsAddUpdateRoleOpen(true)}
+                  />
+                  <AddUpdateRole
+                    daoID={daoID}
+                    onOpenChange={() => setIsAddUpdateRoleOpen(false)}
+                    isOpen={isAddUpdateRoleOpen}
                   />
                 </div>
               </CardBody>

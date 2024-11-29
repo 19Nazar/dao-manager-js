@@ -127,7 +127,7 @@ const AddBounty: React.FC<AddBountyProps> = ({ daoID }) => {
           </div>
           <CustomButton
             style={{ marginTop: 17 }}
-            text={"Add propose"}
+            text={"Add Bounty"}
             onClick={async () => {
               await addBounty({
                 description: description,

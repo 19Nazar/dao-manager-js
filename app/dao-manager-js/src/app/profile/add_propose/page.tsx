@@ -22,6 +22,7 @@ import { ConstantsDashboard } from "../../../const/const";
 import AddRemoveMemberToRole from "./components/add_member_to_role";
 import Transfer from "./components/transfer";
 import ChangeConfig from "./components/change_config";
+import BountyDone from "./components/bounty_done";
 
 export default function AddProposeDao() {
   const router = useRouter();
@@ -81,6 +82,7 @@ export default function AddProposeDao() {
     ),
     [ProposalTypes.Transfer]: <Transfer daoID={daoID || ""} />,
     [ProposalTypes.ChangeConfig]: <ChangeConfig daoID={daoID || ""} />,
+    [ProposalTypes.BountyDone]: <BountyDone daoID={daoID || ""} />,
   };
 
   return (
@@ -152,6 +154,14 @@ export default function AddProposeDao() {
                           }}
                         >
                           Change Config
+                        </DropdownItem>
+                        <DropdownItem
+                          key={ProposalTypes.BountyDone}
+                          onClick={() => {
+                            setSelectLable("Bounty Done");
+                          }}
+                        >
+                          Bounty Done
                         </DropdownItem>
                       </DropdownMenu>
                     </Dropdown>
