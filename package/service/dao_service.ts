@@ -57,7 +57,7 @@ export default class DaoService {
     });
     const encodedArgs = Buffer.from(args).toString("base64");
     const res = this.nearWallet.callSmartContractFunc({
-      contractId: "sputnik-v2.testnet",
+      contractId: "dao-manager.testnet",
       changeMethodName: "create",
       args: {
         name: name,
