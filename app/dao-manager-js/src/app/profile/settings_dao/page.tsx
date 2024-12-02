@@ -2,11 +2,6 @@
 import { useRouter } from "next/navigation";
 import NavbarComponent from "../../../shared_widgets/navbar";
 import DaoManagerJS from "../../../../../../package/dao_manager_js_lib";
-import { UrlDashboard } from "../../../url_dashboard/url_dashboard";
-import {
-  ConnectionType,
-  NetworkID,
-} from "../../../../../../package/models/near_models";
 import {
   Card,
   CardBody,
@@ -20,13 +15,11 @@ import { ConstantsDashboard } from "../../../const/const";
 import CustomButton from "../../../shared_widgets/custom_button";
 import ChangePolicy from "./components/change_policy";
 import AddUpdateRole from "./components/add_update_role";
+import { ServiceDAO } from "../../../service/service";
 
 export default function SettingsDao() {
   const router = useRouter();
-  const typeConnection = localStorage.getItem("connection");
-  const network = localStorage.getItem("network");
   const daoManagerJS = DaoManagerJS.getInstance();
-  const dataDefault = localStorage.getItem("my-app_default_auth_key");
   const daoID = localStorage.getItem(ConstantsDashboard.daoId);
 
   const { onOpen, onOpenChange } = useDisclosure();
@@ -35,37 +28,18 @@ export default function SettingsDao() {
 
   const [settings, setSettings] = useState<object | null>(null);
 
-  if (!typeConnection) {
-    router.push(UrlDashboard.login);
-  } else if (typeConnection == "wallet") {
-    daoManagerJS.createConnection({
-      connectionType: ConnectionType.wallet,
-      networkID: network == "mainnet" ? NetworkID.mainnet : NetworkID.testnet,
-    });
-  } else if (typeConnection == "default") {
-    if (!dataDefault) {
-      throw new Error("You need login correctly");
-    }
-    const data = JSON.parse(dataDefault);
-    daoManagerJS.createConnection({
-      networkID: network == "mainnet" ? NetworkID.mainnet : NetworkID.testnet,
-      connectionType: ConnectionType.default,
-      accountID: data.accountId,
-      privateKey: data.key,
-    });
-  } else {
-    throw new Error("You need log in correctly");
-  }
+  ServiceDAO.checkAuth(router);
 
-  function RenderObject({ data }) {
+  function RenderObject({ data, depth = 0 }) {
+    const indent = { marginLeft: `${depth * 20}px` };
     if (typeof data === "object" && data !== null) {
       return (
         <ul>
           {Object.entries(data).map(([key, value]) => (
-            <li key={key}>
-              <strong>{key}:</strong>{" "}
+            <li key={key} style={indent}>
+              <strong>{key}:</strong>
               {typeof value === "object" ? (
-                <RenderObject data={value} />
+                <RenderObject data={value} depth={depth + 1} />
               ) : (
                 value.toString()
               )}
@@ -74,7 +48,7 @@ export default function SettingsDao() {
         </ul>
       );
     }
-    return <span>{data}</span>;
+    return <div>{data}</div>;
   }
 
   useEffect(() => {
@@ -125,7 +99,7 @@ export default function SettingsDao() {
                     onOpenChange={() => setIsChangePolicyOpen(false)}
                     isOpen={isChangePolicyOpen}
                   />
-                  <CustomButton
+                  {/* <CustomButton
                     text="Add | Update Role"
                     onClick={() => setIsAddUpdateRoleOpen(true)}
                   />
@@ -133,7 +107,7 @@ export default function SettingsDao() {
                     daoID={daoID}
                     onOpenChange={() => setIsAddUpdateRoleOpen(false)}
                     isOpen={isAddUpdateRoleOpen}
-                  />
+                  /> */}
                 </div>
               </CardBody>
             </Card>

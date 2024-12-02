@@ -11,13 +11,6 @@ import {
   DropdownMenu,
   DropdownItem,
   Button,
-  useDisclosure,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  Input,
-  ModalFooter,
 } from "@nextui-org/react";
 import { NetworkID, ConnectionType } from "../../../../../package/index";
 
@@ -26,9 +19,6 @@ export default function Home() {
   const path = usePathname();
   const daoManagerInstance = DaoManagerJS.getInstance();
   const [selectedKey, setSelectedKey] = useState<string>("testnet");
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [accountId, setAccountId] = useState("");
-  const [privateKey, setPrivateKey] = useState("");
 
   useEffect(() => {
     console.log(path);
@@ -40,7 +30,6 @@ export default function Home() {
       connectionType: ConnectionType.wallet,
     });
     localStorage.setItem("network", network);
-    localStorage.setItem("connection", "wallet");
     const isLogIn = await daoManagerInstance.checkIsSign();
     if (isLogIn == true) {
       router.push(UrlDashboard.profile);
@@ -50,25 +39,6 @@ export default function Home() {
         failureUrl: UrlDashboard.url + UrlDashboard.login,
       });
     }
-  }
-
-  async function logInDefault({ network }: { network: string }) {
-    if (privateKey.length == 0 || accountId.length == 0) {
-      throw new Error("Input accountId and privateKey");
-    }
-    localStorage.setItem("network", network);
-    localStorage.setItem("connection", "default");
-    localStorage.setItem(
-      "my-app_default_auth_key",
-      JSON.stringify({ accountId: accountId, key: privateKey }),
-    );
-    await daoManagerInstance.createConnection({
-      connectionType: ConnectionType.default,
-      networkID: network == "mainnet" ? NetworkID.mainnet : NetworkID.testnet,
-      privateKey: privateKey,
-      accountID: accountId,
-    });
-    router.push(UrlDashboard.profile);
   }
 
   return (
@@ -104,59 +74,6 @@ export default function Home() {
           }}
           style={{ fontSize: "25px" }}
         />
-        <div className="m-5">
-          <CustomButton
-            text="Log In By Default"
-            onClick={onOpen}
-            style={{ fontSize: "25px" }}
-          />
-        </div>
-        <Modal
-          isOpen={isOpen}
-          onOpenChange={onOpenChange}
-          placement="top-center"
-        >
-          <ModalContent>
-            {(onClose) => (
-              <>
-                <ModalHeader className="flex flex-col gap-1">
-                  Log in
-                </ModalHeader>
-                <ModalBody>
-                  <Input
-                    autoFocus
-                    label="Account ID"
-                    placeholder="Enter your account id"
-                    variant="bordered"
-                    value={accountId}
-                    onChange={(e) => setAccountId(e.target.value)}
-                  />
-                  <Input
-                    label="Privet key"
-                    placeholder="Enter your privet key"
-                    type="password"
-                    variant="bordered"
-                    value={privateKey}
-                    onChange={(e) => setPrivateKey(e.target.value)}
-                  />
-                </ModalBody>
-                <ModalFooter>
-                  <Button color="danger" variant="flat" onPress={onClose}>
-                    Close
-                  </Button>
-                  <Button
-                    color="primary"
-                    onPress={async () => {
-                      await logInDefault({ network: selectedKey });
-                    }}
-                  >
-                    Sign in
-                  </Button>
-                </ModalFooter>
-              </>
-            )}
-          </ModalContent>
-        </Modal>
       </div>
     </div>
   );

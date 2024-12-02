@@ -2,11 +2,8 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import NavbarComponent from "../../../shared_widgets/navbar";
 import DaoManagerJS from "../../../../../../package/dao_manager_js_lib";
-import { UrlDashboard } from "../../../url_dashboard/url_dashboard";
 import {
   BlockChainResponse,
-  ConnectionType,
-  NetworkID,
   ProposalTypes,
 } from "../../../../../../package/models/near_models";
 import {
@@ -23,41 +20,19 @@ import AddRemoveMemberToRole from "./components/add_member_to_role";
 import Transfer from "./components/transfer";
 import ChangeConfig from "./components/change_config";
 import BountyDone from "./components/bounty_done";
+import { ServiceDAO } from "../../../service/service";
 
 export default function AddProposeDao() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const typeConnection = localStorage.getItem("connection");
-  const network = localStorage.getItem("network");
   const daoManagerJS = DaoManagerJS.getInstance();
-  const dataDefault = localStorage.getItem("my-app_default_auth_key");
   const daoID = localStorage.getItem(ConstantsDashboard.daoId);
 
   const [resData, setResData] = useState<BlockChainResponse | null>(null);
   const [selectedProposal, setSelectedProposal] = useState<string | null>(null);
   const [selectLable, setSelectLable] = useState<string | null>(null);
 
-  if (!typeConnection) {
-    router.push(UrlDashboard.login);
-  } else if (typeConnection == "wallet") {
-    daoManagerJS.createConnection({
-      connectionType: ConnectionType.wallet,
-      networkID: network == "mainnet" ? NetworkID.mainnet : NetworkID.testnet,
-    });
-  } else if (typeConnection == "default") {
-    if (!dataDefault) {
-      throw new Error("You need login correctly");
-    }
-    const data = JSON.parse(dataDefault);
-    daoManagerJS.createConnection({
-      networkID: network == "mainnet" ? NetworkID.mainnet : NetworkID.testnet,
-      connectionType: ConnectionType.default,
-      accountID: data.accountId,
-      privateKey: data.key,
-    });
-  } else {
-    throw new Error("You need log in correctly");
-  }
+  ServiceDAO.checkAuth(router);
 
   useEffect(() => {
     async function getHesh({ txnHesh, accountId }) {

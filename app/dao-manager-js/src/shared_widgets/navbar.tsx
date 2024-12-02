@@ -10,9 +10,9 @@ import {
   NavbarMenuToggle,
   Spinner,
 } from "@nextui-org/react";
-import Link from "next/link"; // Или используйте ваш компонент Link
-import { Button } from "@nextui-org/react"; // Подставьте вашу библиотеку кнопок
-import styles from "../app/style/profile.module.css"; // Стили, если они есть
+import Link from "next/link";
+import { Button } from "@nextui-org/react";
+import styles from "../app/style/profile.module.css";
 import DaoManagerJS from "../../../../package/dao_manager_js_lib";
 import { Utils } from "../../../../package/utils/utils";
 import { useRouter } from "next/navigation";
@@ -22,15 +22,12 @@ import { ConstantsDashboard } from "../const/const";
 const NavbarComponent: React.FC = () => {
   const daoManagerJS = DaoManagerJS.getInstance();
   const router = useRouter();
-  const dataDefault = localStorage.getItem("my-app_default_auth_key");
   const [accountId, setAccountId] = useState<string | null>();
   const [balance, setBalance] = useState<string | null>();
 
   useEffect(() => {
     const fetchBalance = async () => {
-      const accountID = localStorage.getItem("my-app_wallet_auth_key")
-        ? JSON.parse(localStorage.getItem("my-app_wallet_auth_key")).accountId
-        : JSON.parse(dataDefault).accountId;
+      const accountID = daoManagerJS.getAccountID();
       setAccountId(accountID);
 
       try {
@@ -54,11 +51,7 @@ const NavbarComponent: React.FC = () => {
   function logOut() {
     daoManagerJS.signOut();
     localStorage.removeItem("network");
-    localStorage.removeItem("connection");
     localStorage.removeItem(ConstantsDashboard.daoId);
-    if (localStorage.getItem("my-app_default_auth_key")) {
-      localStorage.removeItem("my-app_default_auth_key");
-    }
     router.push(UrlDashboard.login);
   }
 

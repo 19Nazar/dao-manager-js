@@ -2,24 +2,19 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import NavbarComponent from "../../../shared_widgets/navbar";
 import DaoManagerJS from "../../../../../../package/dao_manager_js_lib";
-import { UrlDashboard } from "../../../url_dashboard/url_dashboard";
 import {
   BlockChainResponse,
-  ConnectionType,
-  NetworkID,
   Status,
 } from "../../../../../../package/models/near_models";
 import CustomButton from "../../../shared_widgets/custom_button";
 import { Card, CardBody, CardHeader, Input } from "@nextui-org/react";
 import { useEffect, useState } from "react";
+import { ServiceDAO } from "../../../service/service";
 
 export default function CreateDao() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const typeConnection = localStorage.getItem("connection");
-  const network = localStorage.getItem("network");
   const daoManagerJS = DaoManagerJS.getInstance();
-  const dataDefault = localStorage.getItem("my-app_default_auth_key");
 
   const [nameDAO, setNameDAO] = useState<string>("");
   const [purpose, setPurpose] = useState<string>("");
@@ -27,27 +22,7 @@ export default function CreateDao() {
   const [metadata, setMetadata] = useState<string>("");
   const [resData, setResData] = useState<BlockChainResponse | null>(null);
 
-  if (!typeConnection) {
-    router.push(UrlDashboard.login);
-  } else if (typeConnection == "wallet") {
-    daoManagerJS.createConnection({
-      connectionType: ConnectionType.wallet,
-      networkID: network == "mainnet" ? NetworkID.mainnet : NetworkID.testnet,
-    });
-  } else if (typeConnection == "default") {
-    if (!dataDefault) {
-      throw new Error("You need login correctly");
-    }
-    const data = JSON.parse(dataDefault);
-    daoManagerJS.createConnection({
-      networkID: network == "mainnet" ? NetworkID.mainnet : NetworkID.testnet,
-      connectionType: ConnectionType.default,
-      accountID: data.accountId,
-      privateKey: data.key,
-    });
-  } else {
-    throw new Error("You need log in correctly");
-  }
+  ServiceDAO.checkAuth(router);
 
   useEffect(() => {
     async function getHesh({ txnHesh, accountId }) {
@@ -58,39 +33,19 @@ export default function CreateDao() {
       setResData(resp);
     }
     const accountID = daoManagerJS.getAccountID();
-    setPolicy(accountID + ",");
+    setPolicy(accountID);
     const hesh = searchParams.get("transactionHashes");
     if (hesh) {
       getHesh({ txnHesh: hesh, accountId: accountID });
     }
   }, []);
 
-  async function createAccessKey() {
-    const key = await daoManagerJS.createAccessKey({
-      nameContract: "daotest.sputnik-v2.testnet",
-      successUrl: UrlDashboard.url + UrlDashboard.create_dao,
-    });
-  }
-
-  async function getMultipleProposals() {
-    const res = await daoManagerJS.getMultipleProposals({
-      contractId: "daotest.sputnik-v2.testnet",
-      from_index: 0,
-      limit: 2,
-    });
-    console.log(res);
-  }
-
-  async function test() {
-    const res = await daoManagerJS.nearWallet.callSmartContractFunc({
-      contractId: "daotest.sputnik-v2.testnet",
-      viewMethodName: "get_proposals",
-      args: {
-        from_index: 0,
-        limit: 2,
-      },
-    });
-  }
+  // async function createAccessKey() {
+  //   const key = await daoManagerJS.createAccessKey({
+  //     nameContract: "daotest.sputnik-v2.testnet",
+  //     successUrl: UrlDashboard.url + UrlDashboard.create_dao,
+  //   });
+  // }
 
   async function createDAO({
     name,
@@ -146,7 +101,7 @@ export default function CreateDao() {
                 <Input
                   className="mt-5"
                   autoFocus
-                  label="Policy for DAO"
+                  label="Policy for DAO(write whit comma ',')"
                   placeholder="Enter policy for DAO"
                   variant="bordered"
                   value={policy}
