@@ -3,16 +3,12 @@ import { useEffect, useState } from "react";
 import DaoManagerJS from "../../../../../package/dao_manager_js_lib";
 import CustomButton from "../../shared_widgets/custom_button";
 import { useRouter } from "next/navigation";
-import {
-  ConnectionType,
-  NetworkID,
-  Status,
-} from "../../../../../package/models/near_models";
-import { UrlDashboard } from "../../url_dashboard/url_dashboard";
+import { Status } from "../../../../../package/models/near_models";
 import {
   Card,
   CardBody,
   CardHeader,
+  CircularProgress,
   Input,
   Pagination,
 } from "@nextui-org/react";
@@ -20,13 +16,11 @@ import styles from "../style/profile.module.css";
 import NavbarComponent from "../../shared_widgets/navbar";
 import { ConstantsDashboard } from "../../const/const";
 import ModelPropose from "./component/modal_for_proposal";
+import { ServiceDAO } from "../../service/service";
 
 export default function Profile() {
   const router = useRouter();
-  const typeConnection = localStorage.getItem("connection");
-  const network = localStorage.getItem("network");
   const daoManagerJS = DaoManagerJS.getInstance();
-  const dataDefault = localStorage.getItem("my-app_default_auth_key");
   const [accountID, setAccountID] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<object>();
   const [daoId, setDaoId] = useState<string | null>(
@@ -37,28 +31,7 @@ export default function Profile() {
   const [startId, setStartId] = useState<number>(0);
   const [limit, setLimit] = useState<number>(6);
   const [pageNumb, setPageNumb] = useState<number>(1);
-
-  if (!typeConnection) {
-    router.push(UrlDashboard.login);
-  } else if (typeConnection == "wallet") {
-    daoManagerJS.createConnection({
-      connectionType: ConnectionType.wallet,
-      networkID: network == "mainnet" ? NetworkID.mainnet : NetworkID.testnet,
-    });
-  } else if (typeConnection == "default") {
-    if (!dataDefault) {
-      throw new Error("You need login correctly");
-    }
-    const data = JSON.parse(dataDefault);
-    daoManagerJS.createConnection({
-      networkID: network == "mainnet" ? NetworkID.mainnet : NetworkID.testnet,
-      connectionType: ConnectionType.default,
-      accountID: data.accountId,
-      privateKey: data.key,
-    });
-  } else {
-    throw new Error("You need log in correctly");
-  }
+  ServiceDAO.checkAuth(router);
 
   useEffect(() => {
     if (daoId) {
@@ -74,17 +47,19 @@ export default function Profile() {
   }, [daoId]);
 
   async function getProposalsPagination({
+    newDaoid,
     newStartId,
     newLimit,
   }: {
+    newDaoid?: string;
     newStartId?: number;
     newLimit?: number;
   }) {
-    if (daoId == null) {
+    if (daoId == null && newDaoid == null) {
       throw new Error("You must input DAO id");
     }
     const res = (await getSixProposals({
-      contractId: daoId,
+      contractId: newDaoid ?? daoId,
       startIdexId: newStartId ?? startId,
       limit: newLimit ?? limit,
     })) as Array<object>;
@@ -143,9 +118,11 @@ export default function Profile() {
     }
   }
 
-  function addDaoID(accountId: string) {
-    localStorage.setItem(ConstantsDashboard.daoId, accountId);
-    setDaoId(accountId);
+  async function addDaoID(accountId: string) {
+    const correctID = accountId.trim();
+    localStorage.setItem(ConstantsDashboard.daoId, correctID);
+    setDaoId(correctID);
+    // await getProposalsPagination({ newDaoid: correctID });
   }
 
   if (selectedModel) {
@@ -195,8 +172,8 @@ export default function Profile() {
               <CustomButton
                 style={{ marginTop: 10 }}
                 text={"Add DAO id"}
-                onClick={() => {
-                  addDaoID(accountID);
+                onClick={async () => {
+                  await addDaoID(accountID);
                 }}
               />
               <CustomButton
@@ -214,8 +191,10 @@ export default function Profile() {
           </Card>
         </div>
         <div>
-          {!outputProposals ? (
-            <h1>You don`t have any proposals or data not load</h1>
+          {!daoId ? (
+            <h1>To see the proposals you have to enter the DAO id</h1>
+          ) : !outputProposals ? (
+            <CircularProgress label="Loading..." />
           ) : (
             <div
               style={{

@@ -10,7 +10,6 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
-  useDisclosure,
 } from "@nextui-org/react";
 import CustomButton from "../../../../shared_widgets/custom_button";
 import DaoManagerJS from "../../../../../../../package/dao_manager_js_lib";
@@ -48,11 +47,8 @@ const ChangePolicy: React.FC<ChangePolicyProps> = ({
   const [proposalBond, setProposalBond] = useState<string | undefined>(
     undefined,
   );
-  //default vote policy
   const [weightKind, setWeight_kind] = useState<string | undefined>(undefined);
-  // to numb
   const [threshold, setThreshold] = useState<Array<string>>([]);
-  // to numb
   const [quorum, setQuorum] = useState<string | undefined>(undefined);
 
   interface roleI {
