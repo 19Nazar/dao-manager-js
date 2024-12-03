@@ -16,11 +16,14 @@ export default function CreateDao() {
   const searchParams = useSearchParams();
   const daoManagerJS = DaoManagerJS.getInstance();
 
-  const [nameDAO, setNameDAO] = useState<string>("");
-  const [purpose, setPurpose] = useState<string>("");
-  const [policy, setPolicy] = useState<string>("");
-  const [metadata, setMetadata] = useState<string>("");
-  const [resData, setResData] = useState<BlockChainResponse | null>(null);
+  const [nameDAO, setNameDAO] = useState<string | undefined>(undefined);
+  const [purpose, setPurpose] = useState<string | undefined>(undefined);
+  const [policy, setPolicy] = useState<string | undefined>(undefined);
+  const [metadata, setMetadata] = useState<string | undefined>(undefined);
+  const [deposit, setDeposit] = useState<string | undefined>(undefined);
+  const [resData, setResData] = useState<BlockChainResponse | undefined>(
+    undefined,
+  );
 
   ServiceDAO.checkAuth(router);
 
@@ -52,7 +55,9 @@ export default function CreateDao() {
     purpose,
     metadata,
     policy,
+    deposit,
   }: {
+    deposit?: string;
     name: string;
     purpose: string;
     metadata?: string;
@@ -64,6 +69,7 @@ export default function CreateDao() {
       purpose: purpose,
       metadata: metadata,
       policy: convertPolicy,
+      deposit: deposit,
     });
   }
   return (
@@ -110,11 +116,20 @@ export default function CreateDao() {
                 <Input
                   className="mt-5"
                   autoFocus
-                  label="Metadata for DAO"
+                  label="Metadata for DAO(optional)"
                   placeholder="Enter metadata for DAO"
                   variant="bordered"
                   value={metadata}
                   onChange={(e) => setMetadata(e.target.value)}
+                />
+                <Input
+                  className="mt-5"
+                  autoFocus
+                  label="Deposit(if the deposit is insufficient)"
+                  placeholder="Enter amount deposit"
+                  variant="bordered"
+                  value={deposit}
+                  onChange={(e) => setDeposit(e.target.value)}
                 />
                 <CustomButton
                   style={{ marginTop: 5 }}
@@ -125,6 +140,7 @@ export default function CreateDao() {
                       purpose: purpose,
                       metadata: metadata,
                       policy: policy,
+                      deposit: deposit,
                     });
                   }}
                 />

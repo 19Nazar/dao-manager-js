@@ -27,8 +27,10 @@ const BountyDone: React.FC<BountyDoneProps> = ({ daoID }) => {
     bounty_id: number;
     receiver_id: string;
   }) {
+    const settings = await daoManagerJS.getPolicy({ contractId: daoID });
+
     await daoManagerJS.addProposal({
-      deposit: "1000000000000000000000000",
+      deposit: settings.data["proposal_bond"],
       contractId: daoID,
       description: description,
       proposalTypes: ProposalTypes.BountyDone,

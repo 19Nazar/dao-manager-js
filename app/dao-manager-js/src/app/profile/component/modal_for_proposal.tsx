@@ -30,8 +30,12 @@ const ModelPropose: React.FC<ModelProposeProps> = ({
     if (data["submission_time"]) {
       const milliseconds = data["submission_time"] / 1000000;
       const date = new Date(milliseconds);
+      console.log(date);
 
-      const newData = { ...data, submission_time: date.toDateString() };
+      const newData = {
+        ...data,
+        submission_time: date.toDateString() + " time:" + date.toTimeString(),
+      };
       setUpdatedData(newData);
     }
   }, [data]);

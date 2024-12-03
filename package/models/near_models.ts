@@ -211,6 +211,8 @@ export class SetStakingContractModel implements AddProposalModel {
   }
 }
 
+export class VoteModel implements AddProposalModel {}
+
 /**
  * @AddBountyModel  Used to add a new task with a reward.
  * @description  Adds a new task that rewards participants upon completion.
@@ -393,7 +395,7 @@ export class VotePolicy {
   }) {
     this.votePolicy = {
       weight_kind: weight_kind.toString(),
-      threshold: threshold,
+      threshold: threshold.length > 1 ? threshold : threshold[0],
       quorum: quorum,
       weight: weight,
     };
@@ -422,29 +424,17 @@ export enum WeightKind {
 export class ChangePolicyUpdateParametersModel implements AddProposalModel {
   policyParameters: object;
   constructor({
-    roles,
-    default_vote_policy,
     bounty_forgiveness_period,
     bounty_bond,
     proposal_period,
     proposal_bond,
   }: {
-    roles?: Array<Role>;
-    default_vote_policy?: VotePolicy;
     bounty_forgiveness_period?: string;
     bounty_bond?: string;
     proposal_period?: string;
-    proposal_bond?: string;
+    proposal_bond: string;
   }) {
-    if (roles) {
-      var newRoles: Array<any> = [];
-      for (var role of roles) {
-        newRoles.push(role.role);
-      }
-    }
     this.policyParameters = {
-      roles: newRoles,
-      default_vote_policy: default_vote_policy.votePolicy,
       bounty_forgiveness_period: bounty_forgiveness_period,
       bounty_bond: bounty_bond,
       proposal_period: proposal_period,

@@ -22,3 +22,9 @@
     grid-template-columns: 1fr; /* Переход к одной колонке */
   }
 }
+
+.settings_model {
+  display: "flex";
+  justify-content: center;
+  flex-direction: column;
+}

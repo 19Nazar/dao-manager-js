@@ -45,10 +45,12 @@ const AddBounty: React.FC<AddBountyProps> = ({ daoID }) => {
     descriptionPropose: string;
   }) {
     const yctoNear = Utils.nearToYoctoNEAR(amount);
+    const settings = await daoManagerJS.getPolicy({ contractId: daoID });
+
     daoManagerJS.addProposal({
       contractId: daoID,
       description: description,
-      deposit: yctoNear,
+      deposit: settings.data["proposal_bond"],
       proposalTypes: ProposalTypes.AddBounty,
       addProposalModel: new AddBountyModel({
         description: descriptionPropose,

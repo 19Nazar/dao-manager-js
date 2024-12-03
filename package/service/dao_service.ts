@@ -45,7 +45,9 @@ export default class DaoService {
     purpose,
     metadata = "",
     policy = [],
+    deposit = "5000000000000000000000000",
   }: {
+    deposit?: string;
     name: string;
     purpose: string;
     metadata?: string;
@@ -63,7 +65,7 @@ export default class DaoService {
         name: name,
         args: encodedArgs,
       },
-      deposit: "5000000000000000000000000",
+      deposit: deposit,
     });
     console.log(res);
   }
@@ -327,8 +329,9 @@ export default class DaoService {
         const changePolicyUpdateParametersModel =
           addProposalModel as ChangePolicyUpdateParametersModel;
         kind = {
-          ChangePolicyUpdateParameters:
-            changePolicyUpdateParametersModel.policyParameters,
+          ChangePolicyUpdateParameters: {
+            parameters: changePolicyUpdateParametersModel.policyParameters,
+          },
         };
         break;
       }
