@@ -99,7 +99,9 @@ export default class DaoManagerJS {
     purpose,
     metadata,
     policy,
+    deposit,
   }: {
+    deposit?: string;
     name: string;
     purpose: string;
     metadata?: string;
@@ -110,6 +112,7 @@ export default class DaoManagerJS {
       purpose: purpose,
       metadata: metadata,
       policy: policy,
+      deposit: deposit,
     });
   }
 

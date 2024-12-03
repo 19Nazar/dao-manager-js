@@ -28,8 +28,10 @@ const AddRemoveMemberToRole: React.FC<AddRemoveMemberToRoleProps> = ({
     member_id: string;
     role: string;
   }) {
+    const settings = await daoManagerJS.getPolicy({ contractId: daoID });
+
     await daoManagerJS.addProposal({
-      deposit: "1000000000000000000000000",
+      deposit: settings.data["proposal_bond"],
       contractId: daoID,
       description: description,
       proposalTypes: ProposalTypes.AddMemberToRole,

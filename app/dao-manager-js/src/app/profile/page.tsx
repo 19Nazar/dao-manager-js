@@ -77,6 +77,7 @@ export default function Profile() {
           <CardHeader>{object["description"]}</CardHeader>
           <CardBody>
             <h1>{object["proposer"]}</h1>
+            <h1>{object["status"]}</h1>
             <h1>{Object.keys(object["kind"])[0]}</h1>
           </CardBody>
         </Card>
@@ -176,25 +177,18 @@ export default function Profile() {
                   await addDaoID(accountID);
                 }}
               />
-              <CustomButton
-                style={{ marginTop: 10 }}
-                text={"set"}
-                onClick={async () => {
-                  await getSixProposals({
-                    contractId: daoId,
-                    startIdexId: 0,
-                    limit: 6,
-                  });
-                }}
-              />
             </CardBody>
           </Card>
         </div>
         <div>
           {!daoId ? (
-            <h1>To see the proposals you have to enter the DAO id</h1>
+            <h1 style={{ margin: 20 }}>
+              To see the proposals you have to enter the DAO id
+            </h1>
           ) : !outputProposals ? (
             <CircularProgress label="Loading..." />
+          ) : outputProposals.length == 0 ? (
+            <h1 style={{ margin: 20 }}>You don`t have proposals</h1>
           ) : (
             <div
               style={{
