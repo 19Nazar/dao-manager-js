@@ -448,17 +448,67 @@ export default class DaoService {
    */
   async getBounties({
     contractId,
+    from_index,
+    limit,
+  }: {
+    contractId: string;
+    from_index: number;
+    limit: number;
+  }): Promise<BlockChainResponse> {
+    try {
+      const res = await this.nearWallet.callSmartContractFunc({
+        contractId: contractId,
+        viewMethodName: "get_bounties",
+        args: { from_index: from_index, limit: limit },
+      });
+      return res;
+    } catch (error) {
+      throw new Error(`Error get bounties: ${error.message}`, error);
+    }
+  }
+
+  /**
+   * @getBountyByID Bounty details by passing the ID or index of a given bounty.
+   * @param contractId
+   * @param id
+   */
+  async getBountyByID({
+    contractId,
+    id,
+  }: {
+    contractId: string;
+    id: number;
+  }): Promise<BlockChainResponse> {
+    try {
+      const res = await this.nearWallet.callSmartContractFunc({
+        contractId: contractId,
+        viewMethodName: "get_bounty",
+        args: { id: id },
+      });
+      return res;
+    } catch (error) {
+      throw new Error(`Error get proposal by id: ${error.message}`, error);
+    }
+  }
+
+  /**
+   * @getLastProposalId Retrieving the last bounty ID
+   * @param contractId
+   * @returns
+   */
+  async getLastBountyId({
+    contractId,
   }: {
     contractId: string;
   }): Promise<BlockChainResponse> {
     try {
       const res = await this.nearWallet.callSmartContractFunc({
         contractId: contractId,
-        viewMethodName: "get_bounties",
+        viewMethodName: "get_last_bounty_id",
       });
       return res;
     } catch (error) {
-      throw new Error(`Error get bounties: ${error.message}`, error);
+      throw new Error(`Error get last proposal id: ${error.message}`, error);
     }
   }
 
@@ -472,12 +522,15 @@ export default class DaoService {
     contractId,
     id,
     deadline,
+    deposit,
   }: {
+    deposit: string;
     contractId: string;
     id: number;
     deadline: string;
   }) {
     const res = await this.nearWallet.callSmartContractFunc({
+      deposit: deposit,
       contractId: contractId,
       changeMethodName: "bounty_claim",
       args: { id: id, deadline: deadline },
@@ -488,8 +541,17 @@ export default class DaoService {
    * @giveupBounty If the performer decides to withdraw from the assignment
    * @param id
    */
-  async giveUpBounty({ contractId, id }: { contractId: string; id: number }) {
+  async giveUpBounty({
+    contractId,
+    id,
+    deposit,
+  }: {
+    deposit: string;
+    contractId: string;
+    id: number;
+  }) {
     const res = await this.nearWallet.callSmartContractFunc({
+      deposit: deposit,
       contractId: contractId,
       changeMethodName: "bounty_giveup",
       args: { id: id },
@@ -501,8 +563,17 @@ export default class DaoService {
    * @param contractId
    * @param id
    */
-  async doneBounty({ contractId, id }: { contractId: string; id: number }) {
+  async doneBounty({
+    contractId,
+    id,
+    deposit,
+  }: {
+    deposit: string;
+    contractId: string;
+    id: number;
+  }) {
     const res = await this.nearWallet.callSmartContractFunc({
+      deposit: deposit,
       contractId: contractId,
       changeMethodName: "bounty_done",
       args: { id: id },

@@ -5,13 +5,19 @@ import DaoManagerJS from "../../../../../../package/dao_manager_js_lib";
 import {
   BlockChainResponse,
   ProposalTypes,
+  Status,
 } from "../../../../../../package/models/near_models";
 import {
   Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CircularProgress,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
+  Pagination,
 } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import AddBounty from "./components/add_bounty";
@@ -21,6 +27,9 @@ import Transfer from "./components/transfer";
 import ChangeConfig from "./components/change_config";
 import BountyDone from "./components/bounty_done";
 import { ServiceDAO } from "../../../service/service";
+import styles from "../../style/profile.module.css";
+import { Utils } from "../../../../../../package/utils/utils";
+import ModelBounty from "./components/modal_for_bounty";
 
 export default function AddProposeDao() {
   const router = useRouter();
@@ -31,6 +40,13 @@ export default function AddProposeDao() {
   const [resData, setResData] = useState<BlockChainResponse | null>(null);
   const [selectedProposal, setSelectedProposal] = useState<string | null>(null);
   const [selectLable, setSelectLable] = useState<string | null>(null);
+  const [startId, setStartId] = useState<number>(0);
+  const [limit, setLimit] = useState<number>(6);
+  const [outputBounty, setOutputBounty] = useState<Array<JSX.Element> | null>(
+    null,
+  );
+  const [selectedModel, setSelectedModel] = useState<object>();
+  const [pageNumb, setPageNumb] = useState<number>(1);
 
   ServiceDAO.checkAuth(router);
 
@@ -50,6 +66,92 @@ export default function AddProposeDao() {
     }
   }, []);
 
+  useEffect(() => {
+    if (daoID) {
+      async function get() {
+        const lastId = (
+          await daoManagerJS.getLastProposalId({ contractId: daoID })
+        ).data;
+        setPageNumb(Math.floor(Number(lastId) / 6) + 1);
+        await getBountyPagination({});
+      }
+      get();
+    }
+  }, [daoID]);
+
+  async function getBountyPagination({
+    newDaoid,
+    newStartId,
+    newLimit,
+  }: {
+    newDaoid?: string;
+    newStartId?: number;
+    newLimit?: number;
+  }) {
+    if (daoID == null && newDaoid == null) {
+      throw new Error("You must input DAO id");
+    }
+    const res = (await getSixBounty({
+      contractId: newDaoid ?? daoID,
+      startIdexId: newStartId ?? startId,
+      limit: newLimit ?? limit,
+    })) as Array<object>;
+    const arrayWidgets = res.map((object) => {
+      object["amount"] = Utils.yoctoNEARToNear(object["amount"]);
+      return (
+        <Card
+          shadow="sm"
+          isPressable
+          key={object["id"]}
+          style={{ margin: 10 }}
+          onPress={() => {
+            setSelectedModel(object);
+          }}
+        >
+          <CardHeader>{object["description"]}</CardHeader>
+          <CardBody>
+            <div>
+              <h1>Amount: {object["amount"]} Near</h1>
+            </div>
+          </CardBody>
+        </Card>
+      );
+    });
+    setOutputBounty(arrayWidgets);
+  }
+
+  async function actionPagination(page: number) {
+    const newLimit = page * 6;
+    const newStartId = newLimit - 6;
+    setLimit(newLimit);
+    setStartId(newStartId);
+    await getBountyPagination({
+      newStartId: newStartId,
+      newLimit: newLimit,
+    });
+  }
+
+  async function getSixBounty({
+    contractId,
+    startIdexId,
+    limit,
+  }: {
+    contractId: string;
+    startIdexId: number;
+    limit: number;
+  }): Promise<object> {
+    const res = await daoManagerJS.getBounties({
+      contractId: contractId,
+      from_index: startIdexId,
+      limit: limit,
+    });
+    if (res.status == Status.successful) {
+      return res.data;
+    } else {
+      throw new Error(`Incorrect response: ${res.data}`);
+    }
+  }
+
   const proposalsWidgets: Record<string, JSX.Element> = {
     [ProposalTypes.AddBounty]: <AddBounty daoID={daoID || ""} />,
     [ProposalTypes.AddMemberToRole]: (
@@ -59,6 +161,17 @@ export default function AddProposeDao() {
     [ProposalTypes.ChangeConfig]: <ChangeConfig daoID={daoID || ""} />,
     [ProposalTypes.BountyDone]: <BountyDone daoID={daoID || ""} />,
   };
+
+  if (selectedModel) {
+    return (
+      <ModelBounty
+        daoID={daoID}
+        data={selectedModel}
+        onOpenChange={() => setSelectedModel(null)}
+        isOpen={true}
+      />
+    );
+  }
 
   return (
     <div>
@@ -142,6 +255,56 @@ export default function AddProposeDao() {
                     </Dropdown>
                   </div>
                   <div>{proposalsWidgets[selectedProposal]}</div>
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    {!daoID ? (
+                      <h1 style={{ margin: 20 }}>
+                        To see the bounty you have to enter the DAO id
+                      </h1>
+                    ) : !outputBounty ? (
+                      <CircularProgress label="Loading..." />
+                    ) : outputBounty.length == 0 ? (
+                      <h1 style={{ margin: 20 }}>You don`t have bounty</h1>
+                    ) : (
+                      <div
+                        style={{
+                          height: "auto",
+                          display: "flex",
+                          flexDirection: "column",
+                          padding: "20px",
+                        }}
+                      >
+                        <div className={styles.cardGrid}>
+                          {outputBounty.map((proposal) => {
+                            return proposal;
+                          })}
+                        </div>
+                        <div
+                          style={{
+                            marginTop: 15,
+                            display: "flex",
+                            justifyContent: "flex-end",
+                          }}
+                        >
+                          <Pagination
+                            showControls
+                            total={pageNumb}
+                            initialPage={1}
+                            onChange={(page) => {
+                              async function updateDATA(page: number) {
+                                if (page <= -1) {
+                                  await actionPagination(page * -1);
+                                } else {
+                                  await actionPagination(page);
+                                }
+                              }
+                              updateDATA(page);
+                            }}
+                            color="success"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
