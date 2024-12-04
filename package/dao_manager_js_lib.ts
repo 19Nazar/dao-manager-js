@@ -210,10 +210,18 @@ export default class DaoManagerJS {
 
   async getBounties({
     contractId,
+    from_index,
+    limit,
   }: {
     contractId: string;
+    from_index: number;
+    limit: number;
   }): Promise<BlockChainResponse> {
-    const res = await this.daoService.getBounties({ contractId: contractId });
+    const res = await this.daoService.getBounties({
+      contractId: contractId,
+      from_index: from_index,
+      limit: limit,
+    });
     return res;
   }
 
@@ -221,27 +229,48 @@ export default class DaoManagerJS {
     contractId,
     id,
     deadline,
+    deposit,
   }: {
     contractId: string;
+    deposit: string;
     id: number;
     deadline: string;
   }) {
     const res = await this.daoService.claimBounty({
+      deposit: deposit,
       contractId: contractId,
       id: id,
       deadline: deadline,
     });
   }
 
-  async giveUpBounty({ contractId, id }: { contractId: string; id: number }) {
+  async giveUpBounty({
+    contractId,
+    id,
+    deposit,
+  }: {
+    deposit: string;
+    contractId: string;
+    id: number;
+  }) {
     const res = await this.daoService.giveUpBounty({
+      deposit: deposit,
       contractId: contractId,
       id: id,
     });
   }
 
-  async doneBounty({ contractId, id }: { contractId: string; id: number }) {
+  async doneBounty({
+    contractId,
+    id,
+    deposit,
+  }: {
+    deposit: string;
+    contractId: string;
+    id: number;
+  }) {
     const res = await this.daoService.doneBounty({
+      deposit: deposit,
       contractId: contractId,
       id: id,
     });
