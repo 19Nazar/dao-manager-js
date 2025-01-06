@@ -120,7 +120,9 @@ const NavbarComponent: React.FC = () => {
                 : accountId}
             </NavbarItem>
             <NavbarItem>
-              {balance?.length > 20 ? `${balance?.slice(0, 20)}...` : balance}
+              {balance?.length > 10
+                ? `${balance?.slice(0, 10)}... NEAR`
+                : balance + " NEAR"}
             </NavbarItem>
           </NavbarContent>
           <NavbarItem>
@@ -159,10 +161,10 @@ const NavbarComponent: React.FC = () => {
           <NavbarMenuItem>
             Balance:
             {balance ? (
-              balance?.length > 20 ? (
-                `${balance?.slice(0, 20)}...`
+              balance?.length > 10 ? (
+                `${balance?.slice(0, 10)}... NEAR`
               ) : (
-                balance
+                balance + " NEAR"
               )
             ) : (
               <Spinner size="sm" />

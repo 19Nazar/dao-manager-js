@@ -225,6 +225,16 @@ export default class DaoManagerJS {
     return res;
   }
 
+  async getLastBountyId({
+    contractId,
+  }: {
+    contractId: string;
+  }): Promise<BlockChainResponse> {
+    const res = await this.daoService.getLastBountyId({
+      contractId: contractId,
+    });
+    return res;
+  }
   async claimBounty({
     contractId,
     id,

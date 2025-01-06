@@ -20,6 +20,7 @@ import {
   Pagination,
 } from "@nextui-org/react";
 import { useEffect, useState } from "react";
+
 import AddBounty from "./components/add_bounty";
 import { ConstantsDashboard } from "../../../const/const";
 import AddRemoveMemberToRole from "./components/add_member_to_role";
@@ -30,6 +31,8 @@ import { ServiceDAO } from "../../../service/service";
 import styles from "../../style/profile.module.css";
 import { Utils } from "../../../../../../package/utils/utils";
 import ModelBounty from "./components/modal_for_bounty";
+import ResponseModal from "../../../shared_widgets/respone_modal";
+import useTransactionStatus from "../../../service/useTransactionStatus";
 
 export default function AddProposeDao() {
   const router = useRouter();
@@ -37,7 +40,8 @@ export default function AddProposeDao() {
   const daoManagerJS = DaoManagerJS.getInstance();
   const daoID = localStorage.getItem(ConstantsDashboard.daoId);
 
-  const [resData, setResData] = useState<BlockChainResponse | null>(null);
+  const [resSuccessData, setResSuccessData] = useState<string | null>(null);
+  const [resFailureData, setResFailureData] = useState<string | null>(null);
   const [selectedProposal, setSelectedProposal] = useState<string | null>(null);
   const [selectLable, setSelectLable] = useState<string | null>(null);
   const [startId, setStartId] = useState<number>(0);
@@ -50,27 +54,13 @@ export default function AddProposeDao() {
 
   ServiceDAO.checkAuth(router);
 
-  useEffect(() => {
-    async function getHesh({ txnHesh, accountId }) {
-      const resp = await daoManagerJS.getResultTxns({
-        txnHesh: txnHesh,
-        accountId: accountId,
-      });
-      console.log(resp);
-      setResData(resp);
-    }
-    const accountID = daoManagerJS.getAccountID();
-    const hesh = searchParams.get("transactionHashes");
-    if (hesh) {
-      getHesh({ txnHesh: hesh, accountId: accountID });
-    }
-  }, []);
+  useTransactionStatus(setResSuccessData, setResFailureData);
 
   useEffect(() => {
     if (daoID) {
       async function get() {
         const lastId = (
-          await daoManagerJS.getLastProposalId({ contractId: daoID })
+          await daoManagerJS.getLastBountyId({ contractId: daoID })
         ).data;
         setPageNumb(Math.floor(Number(lastId) / 6) + 1);
         await getBountyPagination({});
@@ -161,6 +151,19 @@ export default function AddProposeDao() {
     [ProposalTypes.ChangeConfig]: <ChangeConfig daoID={daoID || ""} />,
     [ProposalTypes.BountyDone]: <BountyDone daoID={daoID || ""} />,
   };
+
+  if (resFailureData || resSuccessData) {
+    return (
+      <div style={{ display: "flex" }}>
+        <ResponseModal
+          resFailureData={resFailureData}
+          resSuccessData={resSuccessData}
+          setResFailureData={setResFailureData}
+          setResSuccessData={setResSuccessData}
+        />
+      </div>
+    );
+  }
 
   if (selectedModel) {
     return (

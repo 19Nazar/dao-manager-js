@@ -7,7 +7,7 @@ import {
   Tabs,
 } from "@nextui-org/react";
 import DaoManagerJS from "../../../../../../../package/dao_manager_js_lib";
-import ChangeAllPolicy from "./variant_change_policy/change_all_policy";
+import ChangeAllPolicy from "./variant_change_policy/change_all_settings";
 import AddUpdateRole from "./variant_change_policy/add_update_role";
 import RemoveRole from "./variant_change_policy/remove_role";
 import UpdateParameters from "./variant_change_policy/update_parameters";
@@ -47,7 +47,7 @@ const ChangePolicy: React.FC<ChangePolicyProps> = ({
                 aria-label="Options"
                 style={{ overflow: "visible", width: "auto" }}
               >
-                <Tab key="ChangeAllPolicyProps" title="Change All Policy">
+                <Tab key="ChangeAllPolicyProps" title="Change All Settings">
                   <ChangeAllPolicy proposalCost={proposalCost} daoID={daoID} />
                 </Tab>
                 <Tab key="AddUpdateRole" title="Add | Update Role">
