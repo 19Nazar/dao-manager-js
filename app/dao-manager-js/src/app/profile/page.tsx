@@ -29,8 +29,8 @@ export default function Profile() {
   const [outputProposals, setOutputProposals] =
     useState<Array<JSX.Element> | null>(null);
   const [startId, setStartId] = useState<number>(0);
-  const [limit, setLimit] = useState<number>(6);
   const [pageNumb, setPageNumb] = useState<number>(1);
+  const limit = 6;
   ServiceDAO.checkAuth(router);
 
   useEffect(() => {
@@ -49,11 +49,9 @@ export default function Profile() {
   async function getProposalsPagination({
     newDaoid,
     newStartId,
-    newLimit,
   }: {
     newDaoid?: string;
     newStartId?: number;
-    newLimit?: number;
   }) {
     if (daoId == null && newDaoid == null) {
       throw new Error("You must input DAO id");
@@ -61,22 +59,42 @@ export default function Profile() {
     const res = (await getSixProposals({
       contractId: newDaoid ?? daoId,
       startIdexId: newStartId ?? startId,
-      limit: newLimit ?? limit,
     })) as Array<object>;
     const arrayWidgets = res.map((object) => {
       return (
         <Card
           shadow="sm"
           isPressable
-          key={object["id"]}
-          style={{ margin: 10 }}
+          key={`${startId}-${object["id"]}`}
+          style={{ margin: 10, width: 300 }}
           onPress={() => {
             setSelectedModel(object);
           }}
         >
-          <CardHeader>{object["description"]}</CardHeader>
+          <CardHeader>
+            <h1
+              style={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                width: "100%",
+              }}
+            >
+              {object["description"]}
+            </h1>
+          </CardHeader>
           <CardBody>
-            <h1>{object["proposer"]}</h1>
+            <h1
+              style={{
+                textAlign: "left",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                width: "100%",
+              }}
+            >
+              {object["proposer"]}
+            </h1>
             <h1>{object["status"]}</h1>
             <h1>{Object.keys(object["kind"])[0]}</h1>
           </CardBody>
@@ -87,24 +105,19 @@ export default function Profile() {
   }
 
   async function actionPagination(page: number) {
-    const newLimit = page * 6;
-    const newStartId = newLimit - 6;
-    setLimit(newLimit);
+    const newStartId = page * 6 - limit;
     setStartId(newStartId);
     await getProposalsPagination({
       newStartId: newStartId,
-      newLimit: newLimit,
     });
   }
 
   async function getSixProposals({
     contractId,
     startIdexId,
-    limit,
   }: {
     contractId: string;
     startIdexId: number;
-    limit: number;
   }): Promise<object> {
     const res = await daoManagerJS.getMultipleProposals({
       contractId: contractId,
@@ -198,8 +211,8 @@ export default function Profile() {
                 padding: "20px",
               }}
             >
-              <div className={styles.cardGrid}>
-                {outputProposals.map((proposal) => {
+              <div className={styles.cardGrid} key={startId}>
+                {outputProposals.map((proposal, startId) => {
                   return proposal;
                 })}
               </div>

@@ -10,11 +10,16 @@ import CustomButton from "../../../shared_widgets/custom_button";
 import { Card, CardBody, CardHeader, Input } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import { ServiceDAO } from "../../../service/service";
+import useTransactionStatus from "../../../service/useTransactionStatus";
+import ResponseModal from "../../../shared_widgets/respone_modal";
 
 export default function CreateDao() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const daoManagerJS = DaoManagerJS.getInstance();
+
+  const [resSuccessData, setResSuccessData] = useState<string | null>(null);
+  const [resFailureData, setResFailureData] = useState<string | null>(null);
 
   const [nameDAO, setNameDAO] = useState<string | undefined>(undefined);
   const [purpose, setPurpose] = useState<string | undefined>(undefined);
@@ -27,28 +32,7 @@ export default function CreateDao() {
 
   ServiceDAO.checkAuth(router);
 
-  useEffect(() => {
-    async function getHesh({ txnHesh, accountId }) {
-      const resp = await daoManagerJS.getResultTxns({
-        txnHesh: txnHesh,
-        accountId: accountId,
-      });
-      setResData(resp);
-    }
-    const accountID = daoManagerJS.getAccountID();
-    setPolicy(accountID);
-    const hesh = searchParams.get("transactionHashes");
-    if (hesh) {
-      getHesh({ txnHesh: hesh, accountId: accountID });
-    }
-  }, []);
-
-  // async function createAccessKey() {
-  //   const key = await daoManagerJS.createAccessKey({
-  //     nameContract: "daotest.sputnik-v2.testnet",
-  //     successUrl: UrlDashboard.url + UrlDashboard.create_dao,
-  //   });
-  // }
+  useTransactionStatus(setResSuccessData, setResFailureData);
 
   async function createDAO({
     name,
@@ -71,6 +55,19 @@ export default function CreateDao() {
       policy: convertPolicy,
       deposit: deposit,
     });
+  }
+
+  if (resFailureData || resSuccessData) {
+    return (
+      <div style={{ display: "flex" }}>
+        <ResponseModal
+          resFailureData={resFailureData}
+          resSuccessData={resSuccessData}
+          setResFailureData={setResFailureData}
+          setResSuccessData={setResSuccessData}
+        />
+      </div>
+    );
   }
   return (
     <div>

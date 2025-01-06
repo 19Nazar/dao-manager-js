@@ -16,6 +16,8 @@ import CustomButton from "../../../shared_widgets/custom_button";
 import ChangePolicy from "./components/change_policy";
 import { ServiceDAO } from "../../../service/service";
 import { Utils } from "../../../../../../package/utils/utils";
+import useTransactionStatus from "../../../service/useTransactionStatus";
+import ResponseModal from "../../../shared_widgets/respone_modal";
 
 export default function SettingsDao() {
   const router = useRouter();
@@ -25,11 +27,16 @@ export default function SettingsDao() {
   const { onOpen, onOpenChange } = useDisclosure();
   const [isChangePolicyOpen, setIsChangePolicyOpen] = useState(false);
 
+  const [resSuccessData, setResSuccessData] = useState<string | null>(null);
+  const [resFailureData, setResFailureData] = useState<string | null>(null);
+
   const [settings, setSettings] = useState<object | null>(null);
   const [proposalBond, setProposalBond] = useState<string | null>(null);
   const [bountyBond, setBountyBond] = useState<string | null>(null);
 
   ServiceDAO.checkAuth(router);
+
+  useTransactionStatus(setResSuccessData, setResFailureData);
 
   function RenderObject({ data, depth = 0 }) {
     const indent = { marginLeft: `${depth * 20}px` };
@@ -102,6 +109,19 @@ export default function SettingsDao() {
     return `${days ? "Days: " + days : ""} ${hours ? "Hours: " + hours : ""} ${minutes ? "Minutes: " + minutes : ""} ${seconds ? "Seconds: " + seconds : ""}`;
   }
 
+  if (resFailureData || resSuccessData) {
+    return (
+      <div style={{ display: "flex" }}>
+        <ResponseModal
+          resFailureData={resFailureData}
+          resSuccessData={resSuccessData}
+          setResFailureData={setResFailureData}
+          setResSuccessData={setResSuccessData}
+        />
+      </div>
+    );
+  }
+
   return (
     <div>
       <NavbarComponent />
@@ -132,7 +152,7 @@ export default function SettingsDao() {
                   }}
                 >
                   <CustomButton
-                    text="Change Policy"
+                    text="Change settings"
                     onClick={() => setIsChangePolicyOpen(true)}
                   />
                 </div>

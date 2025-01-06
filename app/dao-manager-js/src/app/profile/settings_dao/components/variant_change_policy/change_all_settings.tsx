@@ -398,7 +398,7 @@ const ChangeAllPolicy: React.FC<ChangeAllPolicyProps> = ({
       </ModalBody>
       <ModalFooter>
         <CustomButton
-          text="Change All Policy"
+          text="Change All Settings"
           onClick={async () => {
             await createPolicy({
               contractId: daoID,
