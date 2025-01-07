@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { ServiceDAO } from "../../../service/service";
 import useTransactionStatus from "../../../service/useTransactionStatus";
 import ResponseModal from "../../../shared_widgets/respone_modal";
+import { ConstantsDashboard } from "../../../const/const";
 
 export default function CreateDao() {
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function CreateDao() {
   const [nameDAO, setNameDAO] = useState<string | undefined>(undefined);
   const [purpose, setPurpose] = useState<string | undefined>(undefined);
   const [policy, setPolicy] = useState<string | undefined>(undefined);
-  const [metadata, setMetadata] = useState<string | undefined>(undefined);
+  const [imageBase64, setImageBase64] = useState(null);
   const [deposit, setDeposit] = useState<string | undefined>(undefined);
   const [resData, setResData] = useState<BlockChainResponse | undefined>(
     undefined,
@@ -37,25 +38,53 @@ export default function CreateDao() {
   async function createDAO({
     name,
     purpose,
-    metadata,
+    iconImage,
     policy,
     deposit,
   }: {
     deposit?: string;
     name: string;
     purpose: string;
-    metadata?: string;
+    iconImage?: string;
     policy?: string;
   }) {
-    const convertPolicy = policy?.split(",").map((x) => x.trim());
-    const test = await daoManagerJS.createDaoMeneger({
-      name: name.toLocaleLowerCase(),
-      purpose: purpose,
-      metadata: metadata,
-      policy: convertPolicy,
-      deposit: deposit,
-    });
+    try {
+      iconImage = iconImage ?? ConstantsDashboard.defaultImage;
+      const convertPolicy = policy?.split(",").map((x) => x.trim());
+      const test = await daoManagerJS.createDaoManager({
+        name: name.toLocaleLowerCase(),
+        purpose: purpose,
+        metadata: JSON.stringify({ icon: iconImage }),
+        policy: convertPolicy,
+        deposit: deposit,
+      });
+    } catch (error) {
+      setResFailureData(error.message);
+    }
   }
+
+  useEffect(() => {
+    console.log(imageBase64);
+  }, [imageBase64]);
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const MAX_SIZE = 500 * 1024;
+      if (file.size > MAX_SIZE) {
+        setResFailureData(
+          "The file size exceeds 500 KB. Please upload a smaller file.",
+        );
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImageBase64(JSON.stringify(reader.result));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   if (resFailureData || resSuccessData) {
     return (
@@ -104,20 +133,12 @@ export default function CreateDao() {
                 <Input
                   className="mt-5"
                   autoFocus
-                  label="Policy for DAO(write whit comma ',')"
-                  placeholder="Enter policy for DAO"
+                  label="Council (Who will have all rights. Write whit
+                  comma ',')"
+                  placeholder="Enter council"
                   variant="bordered"
                   value={policy}
                   onChange={(e) => setPolicy(e.target.value)}
-                />
-                <Input
-                  className="mt-5"
-                  autoFocus
-                  label="Metadata for DAO(optional)"
-                  placeholder="Enter metadata for DAO"
-                  variant="bordered"
-                  value={metadata}
-                  onChange={(e) => setMetadata(e.target.value)}
                 />
                 <Input
                   className="mt-5"
@@ -128,6 +149,11 @@ export default function CreateDao() {
                   value={deposit}
                   onChange={(e) => setDeposit(e.target.value)}
                 />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                />
                 <CustomButton
                   style={{ marginTop: 5 }}
                   text={"Create DAO"}
@@ -135,7 +161,7 @@ export default function CreateDao() {
                     await createDAO({
                       name: nameDAO,
                       purpose: purpose,
-                      metadata: metadata,
+                      iconImage: imageBase64,
                       policy: policy,
                       deposit: deposit,
                     });

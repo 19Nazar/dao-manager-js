@@ -182,32 +182,47 @@ export default function AddProposeDao() {
       <div className="main_profile">
         <div className="flex flex-col gap-1 items-center justify-center ">
           <div>
-            <h4 className="font-bold text-large">Add proposal</h4>
             <div>
               {!daoID ? (
-                <h1>For Interaction you must add DAO smart contract id</h1>
+                <div>
+                  <Card>
+                    <CardBody>
+                      <h4 className="font-bold text-large">Add proposal</h4>
+                      <h1>
+                        For Interaction you must add DAO smart contract id
+                      </h1>
+                    </CardBody>
+                  </Card>
+                </div>
               ) : (
                 <div>
-                  <h4>
-                    To make a proposal you need choose type propose and enter
-                    the following parameters:
-                  </h4>
+                  <Card>
+                    <CardBody>
+                      <h4 className="font-bold text-large">Add proposal</h4>
+                      <h4>
+                        To make a proposal you need choose type propose and
+                        enter the following parameters:
+                      </h4>
+                    </CardBody>
+                  </Card>
                   <div
                     style={{
-                      marginTop: 5,
+                      marginTop: 20,
                       display: "flex",
                       justifyContent: "center",
                       alignItems: "center",
-                      marginBottom: 10,
+                      marginBottom: 20,
                     }}
                   >
                     <Dropdown>
                       <DropdownTrigger>
                         <Button
-                          style={{ backgroundColor: "#4FD1D9" }}
+                          style={{ backgroundColor: "#262626" }}
                           variant="bordered"
                         >
-                          {selectLable ? selectLable : "Choose propose"}
+                          <h1 style={{ color: "white" }}>
+                            {selectLable ? selectLable : "Choose propose"}
+                          </h1>
                         </Button>
                       </DropdownTrigger>
                       <DropdownMenu
