@@ -164,7 +164,7 @@ export default function Profile() {
         <div style={{ maxWidth: 500 }}>
           <Card className="max-w-full shadow-lg">
             <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
-              <h4 className="font-bold text-large">DAO init</h4>
+              <h4 className="font-bold text-large">DAO initialization</h4>
             </CardHeader>
             <CardBody className="overflow-visible py-2">
               <h1>

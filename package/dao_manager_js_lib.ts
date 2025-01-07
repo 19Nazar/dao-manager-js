@@ -94,7 +94,7 @@ export default class DaoManagerJS {
   }
 
   //DAO interaction
-  async createDaoMeneger({
+  async createDaoManager({
     name,
     purpose,
     metadata,
