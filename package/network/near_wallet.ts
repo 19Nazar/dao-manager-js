@@ -75,7 +75,7 @@ export default class NearWallet {
     }
     const config = typeConfig.get(networkID);
     if (!config) {
-      throw new Error("Undefaind networkID");
+      throw new Error("Undefined networkID");
     }
     if (connectionType == ConnectionType.wallet) {
       await this.createWalletConnection({ config: config });

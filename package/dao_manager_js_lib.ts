@@ -35,13 +35,14 @@ export default class DaoManagerJS {
     accountID?: string;
     connectionType: ConnectionType;
     networkID: NetworkID;
-  }) {
+  }): Promise<boolean> {
     const res = await this.nearWallet.createConnection({
       connectionType: connectionType,
       privateKey: privateKey,
       accountID: accountID,
       networkID: networkID,
     });
+    return true;
   }
 
   async logIn({

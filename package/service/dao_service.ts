@@ -45,7 +45,7 @@ export default class DaoService {
     purpose,
     metadata = "",
     policy = [],
-    deposit = "5000000000000000000000000",
+    deposit = "5500000000000000000000000",
   }: {
     deposit?: string;
     name: string;
