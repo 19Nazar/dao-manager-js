@@ -13,6 +13,7 @@ import {
 import Link from "next/link";
 import { Button } from "@nextui-org/react";
 import styles from "../app/style/profile.module.css";
+import { ServiceDAO } from "../service/service";
 import DaoManagerJS from "../../../../package/dao_manager_js_lib";
 import { Utils } from "../../../../package/utils/utils";
 import { useRouter } from "next/navigation";
@@ -24,6 +25,8 @@ const NavbarComponent: React.FC = () => {
   const router = useRouter();
   const [accountId, setAccountId] = useState<string | null>();
   const [balance, setBalance] = useState<string | null>();
+
+  ServiceDAO.checkAuth(router);
 
   useEffect(() => {
     const fetchBalance = async () => {
@@ -41,11 +44,15 @@ const NavbarComponent: React.FC = () => {
   }, []);
 
   async function upadateBalance({ accountId }: { accountId: string }) {
-    const balanceYoctoNear = await daoManagerJS.getBalance({
-      accountId: accountId,
-    });
-    const balanceNear = Utils.yoctoNEARToNear(balanceYoctoNear);
-    setBalance(balanceNear);
+    try {
+      const balanceYoctoNear = await daoManagerJS.getBalance({
+        accountId: accountId,
+      });
+      const balanceNear = Utils.yoctoNEARToNear(balanceYoctoNear);
+      setBalance(balanceNear);
+    } catch (error) {
+      console.error("Error while get balance:", error);
+    }
   }
 
   function logOut() {
@@ -114,16 +121,30 @@ const NavbarComponent: React.FC = () => {
             className="hidden md:flex flex-col justify-center"
             justify="end"
           >
-            <NavbarItem>
-              {accountId?.length > 20
-                ? `${accountId?.slice(0, 20)}...`
-                : accountId}
-            </NavbarItem>
-            <NavbarItem>
-              {balance?.length > 10
-                ? `${balance?.slice(0, 10)}... NEAR`
-                : balance + " NEAR"}
-            </NavbarItem>
+            {accountId == null ? (
+              <NavbarItem>
+                <Spinner />
+              </NavbarItem>
+            ) : (
+              <>
+                <NavbarItem>
+                  {accountId?.length > 20
+                    ? `${accountId?.slice(0, 20)}...`
+                    : accountId}
+                </NavbarItem>
+                <NavbarItem>
+                  {balance ? (
+                    balance?.length > 10 ? (
+                      `${balance?.slice(0, 10)}... NEAR`
+                    ) : (
+                      balance + " NEAR"
+                    )
+                  ) : (
+                    <Spinner size="sm" />
+                  )}
+                </NavbarItem>
+              </>
+            )}
           </NavbarContent>
           <NavbarItem>
             <Button className={styles.appBarButtonColor} onClick={logOut}>
@@ -152,24 +173,32 @@ const NavbarComponent: React.FC = () => {
               Settings DAO
             </Link>
           </NavbarMenuItem>
-          <NavbarMenuItem>
-            Account ID:
-            {accountId?.length > 20
-              ? `${accountId?.slice(0, 20)}...`
-              : accountId}
-          </NavbarMenuItem>
-          <NavbarMenuItem>
-            Balance:
-            {balance ? (
-              balance?.length > 10 ? (
-                `${balance?.slice(0, 10)}... NEAR`
-              ) : (
-                balance + " NEAR"
-              )
-            ) : (
-              <Spinner size="sm" />
-            )}
-          </NavbarMenuItem>
+          {accountId == null ? (
+            <NavbarItem>
+              <Spinner />
+            </NavbarItem>
+          ) : (
+            <>
+              <NavbarMenuItem>
+                Account ID:
+                {accountId?.length > 20
+                  ? `${accountId?.slice(0, 20)}...`
+                  : accountId}
+              </NavbarMenuItem>
+              <NavbarMenuItem>
+                Balance:
+                {balance ? (
+                  balance?.length > 10 ? (
+                    `${balance?.slice(0, 10)}... NEAR`
+                  ) : (
+                    balance + " NEAR"
+                  )
+                ) : (
+                  <Spinner size="sm" />
+                )}
+              </NavbarMenuItem>
+            </>
+          )}
         </NavbarMenu>
       </Navbar>
     </div>

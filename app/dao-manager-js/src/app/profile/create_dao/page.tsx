@@ -7,12 +7,15 @@ import {
   Status,
 } from "../../../../../../package/models/near_models";
 import CustomButton from "../../../shared_widgets/custom_button";
-import { Card, CardBody, CardHeader, Input } from "@nextui-org/react";
+import { Card, CardBody, CardHeader, Input, Spinner } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import { ServiceDAO } from "../../../service/service";
 import useTransactionStatus from "../../../service/useTransactionStatus";
 import ResponseModal from "../../../shared_widgets/respone_modal";
 import { ConstantsDashboard } from "../../../const/const";
+import style from "../../style/profile.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUpload, faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 
 export default function CreateDao() {
   const router = useRouter();
@@ -26,23 +29,27 @@ export default function CreateDao() {
   const [purpose, setPurpose] = useState<string | undefined>(undefined);
   const [policy, setPolicy] = useState<string | undefined>(undefined);
   const [imageBase64, setImageBase64] = useState(null);
-  const [deposit, setDeposit] = useState<string | undefined>(undefined);
   const [resData, setResData] = useState<BlockChainResponse | undefined>(
     undefined,
   );
+  const [isLoadingImage, setIsLoadingImage] = useState<boolean>(false);
+
+  const [filename, setFilename] = useState<string | undefined>(undefined);
 
   ServiceDAO.checkAuth(router);
 
   useTransactionStatus(setResSuccessData, setResFailureData);
+
+  useEffect(() => {
+    console.log("imageBase64", imageBase64);
+  }, [imageBase64]);
 
   async function createDAO({
     name,
     purpose,
     iconImage,
     policy,
-    deposit,
   }: {
-    deposit?: string;
     name: string;
     purpose: string;
     iconImage?: string;
@@ -54,21 +61,19 @@ export default function CreateDao() {
       const test = await daoManagerJS.createDaoManager({
         name: name.toLocaleLowerCase(),
         purpose: purpose,
-        metadata: JSON.stringify({ icon: iconImage }),
+        metadata: JSON.stringify(iconImage),
         policy: convertPolicy,
-        deposit: deposit,
       });
     } catch (error) {
       setResFailureData(error.message);
     }
   }
 
-  useEffect(() => {
-    console.log(imageBase64);
-  }, [imageBase64]);
-
   const handleImageUpload = async (event) => {
+    setIsLoadingImage(true);
     const file = event.target.files[0];
+    console.log(file.size);
+    setFilename(file.name);
     if (file) {
       const MAX_SIZE = 500 * 1024;
       if (file.size > MAX_SIZE) {
@@ -83,6 +88,7 @@ export default function CreateDao() {
         setImageBase64(JSON.stringify(reader.result));
       };
       reader.readAsDataURL(file);
+      setIsLoadingImage(false);
     }
   };
 
@@ -110,7 +116,8 @@ export default function CreateDao() {
               </CardHeader>
               <CardBody className="overflow-visible py-2">
                 <h4>
-                  To create a DAO you need to enter the following parameters:
+                  To create a DAO, you need 5.5 NEAR. Also you need to enter the
+                  following parameters:
                 </h4>
                 <Input
                   className="mt-4"
@@ -133,27 +140,63 @@ export default function CreateDao() {
                 <Input
                   className="mt-5"
                   autoFocus
-                  label="Council (Who will have all rights. Write whit
-                  comma ',')"
+                  label="Council (Who will have all rights. Put ',' separated by a comma.)"
                   placeholder="Enter council"
                   variant="bordered"
                   value={policy}
                   onChange={(e) => setPolicy(e.target.value)}
                 />
-                <Input
-                  className="mt-5"
-                  autoFocus
-                  label="Deposit(if the deposit is insufficient)"
-                  placeholder="Enter amount deposit"
-                  variant="bordered"
-                  value={deposit}
-                  onChange={(e) => setDeposit(e.target.value)}
-                />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                />
+                <h1 style={{ marginTop: 20 }}>Add image icon (optional)</h1>
+                <div className={style.upload_container}>
+                  <label className={style.upload_box}>
+                    {isLoadingImage ? (
+                      <Spinner />
+                    ) : imageBase64 != null ? (
+                      <>
+                        <FontAwesomeIcon
+                          icon={faCheckCircle}
+                          style={{ fontSize: "24px" }}
+                        />
+                        <h1
+                          style={{
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            maxWidth: 250,
+                          }}
+                        >
+                          File add successful. Name file: {filename}
+                        </h1>
+                      </>
+                    ) : (
+                      <>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className={style.file_input}
+                        />
+                        <div className={style.upload_text}>
+                          <p>Drag the image or press to select</p>
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            maxHeight: 20,
+                            height: "auto",
+                            maxWidth: 20,
+                            width: "auto",
+                          }}
+                        >
+                          <FontAwesomeIcon
+                            icon={faUpload}
+                            style={{ fontSize: "24px" }}
+                          />
+                        </div>
+                      </>
+                    )}
+                  </label>
+                </div>
                 <CustomButton
                   style={{ marginTop: 5 }}
                   text={"Create DAO"}
@@ -163,7 +206,6 @@ export default function CreateDao() {
                       purpose: purpose,
                       iconImage: imageBase64,
                       policy: policy,
-                      deposit: deposit,
                     });
                   }}
                 />
