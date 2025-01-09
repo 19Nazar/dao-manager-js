@@ -6,29 +6,26 @@ import {
   NetworkID,
 } from "../../../../package/models/near_models";
 import DaoManagerJS from "../../../../package/dao_manager_js_lib";
-import useTransactionStatus from "./useTransactionStatus";
 
 class Service {
-  async checkAuth(router: ReturnType<typeof useRouter>) {
+  async checkAuth(router: ReturnType<typeof useRouter>): Promise<boolean> {
     try {
       const network = localStorage.getItem("network");
 
       if (!network) {
         router.push(UrlDashboard.login);
       } else if (network) {
-        await DaoManagerJS.getInstance().createConnection({
+        const res = await DaoManagerJS.getInstance().createConnection({
           connectionType: ConnectionType.wallet,
           networkID:
             network == "mainnet" ? NetworkID.mainnet : NetworkID.testnet,
         });
+        return res;
       } else {
         throw new Error("You need log in correctly");
       }
     } catch (error) {
-      useTransactionStatus(
-        () => {},
-        () => error.message,
-      );
+      throw new Error(error);
     }
   }
 }

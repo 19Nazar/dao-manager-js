@@ -124,8 +124,9 @@ const AddBounty: React.FC<AddBountyProps> = ({ daoID }) => {
             value={times}
             onChange={(e) => setTimes(e.target.value)}
           />
-          <div>
-            <DatePicker className="mt-5" onChange={handleDateChange} />
+          <div style={{ marginTop: 15 }}>
+            <h1>Deadline</h1>
+            <DatePicker className="mt-1" onChange={handleDateChange} />
           </div>
           <CustomButton
             style={{ marginTop: 17 }}

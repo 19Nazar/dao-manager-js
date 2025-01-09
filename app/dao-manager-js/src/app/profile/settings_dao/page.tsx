@@ -1,5 +1,5 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import NavbarComponent from "../../../shared_widgets/navbar";
 import DaoManagerJS from "../../../../../../package/dao_manager_js_lib";
 import {
@@ -22,7 +22,9 @@ import ResponseModal from "../../../shared_widgets/respone_modal";
 export default function SettingsDao() {
   const router = useRouter();
   const daoManagerJS = DaoManagerJS.getInstance();
-  const daoID = localStorage.getItem(ConstantsDashboard.daoId);
+  const searchParams = useSearchParams();
+
+  const [daoID, setDaoId] = useState<string | null>(null);
 
   const { onOpen, onOpenChange } = useDisclosure();
   const [isChangePolicyOpen, setIsChangePolicyOpen] = useState(false);
@@ -34,9 +36,20 @@ export default function SettingsDao() {
   const [proposalBond, setProposalBond] = useState<string | null>(null);
   const [bountyBond, setBountyBond] = useState<string | null>(null);
 
-  ServiceDAO.checkAuth(router);
+  const [connection, setConnection] = useState<boolean | null>(null);
 
-  useTransactionStatus(setResSuccessData, setResFailureData);
+  useEffect(() => {
+    async function init() {
+      const connection = await ServiceDAO.checkAuth(router);
+      setConnection(connection);
+      useTransactionStatus(setResSuccessData, setResFailureData, searchParams);
+      const daoID = localStorage.getItem(ConstantsDashboard.daoId);
+      if (daoID) {
+        setDaoId(daoID);
+      }
+    }
+    init();
+  }, []);
 
   function RenderObject({ data, depth = 0 }) {
     const indent = { marginLeft: `${depth * 20}px` };
@@ -61,6 +74,7 @@ export default function SettingsDao() {
 
   useEffect(() => {
     async function getSettings(contractId: string) {
+      console.log(1);
       const settings = await daoManagerJS.getPolicy({ contractId: contractId });
       setProposalBond(settings.data["proposal_bond"]);
       setBountyBond(settings.data["bounty_bond"]);
@@ -84,10 +98,10 @@ export default function SettingsDao() {
       console.log(settings);
       setSettings(newSettings);
     }
-    if (daoID) {
+    if (daoID && connection) {
       getSettings(daoID);
     }
-  }, []);
+  }, [daoID, connection]);
 
   function getData(dataNanosecund: string): string {
     let seconds = Number(dataNanosecund) / 1e9;
@@ -109,6 +123,23 @@ export default function SettingsDao() {
     return `${days ? "Days: " + days : ""} ${hours ? "Hours: " + hours : ""} ${minutes ? "Minutes: " + minutes : ""} ${seconds ? "Seconds: " + seconds : ""}`;
   }
 
+  if (connection == null) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          width: "100%",
+        }}
+      >
+        <Spinner size="lg" color="white">
+          Load page
+        </Spinner>
+      </div>
+    );
+  }
   if (resFailureData || resSuccessData) {
     return (
       <div style={{ display: "flex" }}>
@@ -134,7 +165,7 @@ export default function SettingsDao() {
               </CardHeader>
               <Divider className="my-4" />
               <CardBody className="overflow-visible py-2">
-                {!daoID ? (
+                {daoID == null ? (
                   <h1>For Interaction you must add DAO smart contract id</h1>
                 ) : settings ? (
                   <RenderObject data={settings} />

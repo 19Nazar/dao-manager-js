@@ -123,7 +123,7 @@ const NavbarComponent: React.FC = () => {
           >
             {accountId == null ? (
               <NavbarItem>
-                <Spinner />
+                <Spinner color="white" />
               </NavbarItem>
             ) : (
               <>
@@ -140,7 +140,7 @@ const NavbarComponent: React.FC = () => {
                       balance + " NEAR"
                     )
                   ) : (
-                    <Spinner size="sm" />
+                    <Spinner size="sm" color="white" />
                   )}
                 </NavbarItem>
               </>
@@ -175,7 +175,7 @@ const NavbarComponent: React.FC = () => {
           </NavbarMenuItem>
           {accountId == null ? (
             <NavbarItem>
-              <Spinner />
+              <Spinner color="white" />
             </NavbarItem>
           ) : (
             <>
@@ -194,7 +194,7 @@ const NavbarComponent: React.FC = () => {
                     balance + " NEAR"
                   )
                 ) : (
-                  <Spinner size="sm" />
+                  <Spinner size="sm" color="white" />
                 )}
               </NavbarMenuItem>
             </>

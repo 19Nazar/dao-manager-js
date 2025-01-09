@@ -18,6 +18,7 @@ import {
   DropdownMenu,
   DropdownTrigger,
   Pagination,
+  Spinner,
 } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 
@@ -38,7 +39,7 @@ export default function AddProposeDao() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const daoManagerJS = DaoManagerJS.getInstance();
-  const daoID = localStorage.getItem(ConstantsDashboard.daoId);
+  const [daoID, setDaoId] = useState<string | null>(null);
 
   const [resSuccessData, setResSuccessData] = useState<string | null>(null);
   const [resFailureData, setResFailureData] = useState<string | null>(null);
@@ -49,25 +50,34 @@ export default function AddProposeDao() {
   const [outputBounty, setOutputBounty] = useState<Array<JSX.Element> | null>(
     null,
   );
+  const [connection, setConnection] = useState<boolean | null>(null);
   const [selectedModel, setSelectedModel] = useState<object>();
   const [pageNumb, setPageNumb] = useState<number>(1);
 
-  ServiceDAO.checkAuth(router);
-
-  useTransactionStatus(setResSuccessData, setResFailureData);
+  useEffect(() => {
+    async function init() {
+      const connection = await ServiceDAO.checkAuth(router);
+      setConnection(connection);
+      useTransactionStatus(setResSuccessData, setResFailureData, searchParams);
+      const daoID = localStorage.getItem(ConstantsDashboard.daoId);
+      if (daoID) {
+        setDaoId(daoID);
+      }
+    }
+    init();
+  }, []);
 
   useEffect(() => {
-    if (daoID) {
-      async function get() {
-        const lastId = (
-          await daoManagerJS.getLastBountyId({ contractId: daoID })
-        ).data;
-        setPageNumb(Math.floor(Number(lastId) / 6) + 1);
-        await getBountyPagination({});
-      }
+    async function get() {
+      const lastId = (await daoManagerJS.getLastBountyId({ contractId: daoID }))
+        .data;
+      setPageNumb(Math.floor(Number(lastId) / 6) + 1);
+      await getBountyPagination({});
+    }
+    if (daoID && connection) {
       get();
     }
-  }, [daoID]);
+  }, [daoID, connection]);
 
   async function getBountyPagination({
     newDaoid,
@@ -90,19 +100,34 @@ export default function AddProposeDao() {
       object["amount"] = Utils.yoctoNEARToNear(object["amount"]);
       return (
         <Card
-          shadow="sm"
+          shadow="md"
           isPressable
           key={object["id"]}
-          style={{ margin: 10 }}
+          style={{
+            margin: 10,
+            width: 300,
+            borderWidth: "2px",
+            borderStyle: "solid",
+            borderColor: "#4b4f53",
+          }}
           onPress={() => {
             setSelectedModel(object);
           }}
         >
-          <CardHeader>{object["description"]}</CardHeader>
+          <CardHeader>
+            <h1
+              style={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                width: "100%",
+              }}
+            >
+              {object["description"]}
+            </h1>
+          </CardHeader>
           <CardBody>
-            <div>
-              <h1>Amount: {object["amount"]} Near</h1>
-            </div>
+            <h1>Amount: {object["amount"]} Near</h1>
           </CardBody>
         </Card>
       );
@@ -152,6 +177,24 @@ export default function AddProposeDao() {
     [ProposalTypes.BountyDone]: <BountyDone daoID={daoID || ""} />,
   };
 
+  if (connection == null) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          width: "100%",
+        }}
+      >
+        <Spinner size="lg" color="white">
+          Load page
+        </Spinner>
+      </div>
+    );
+  }
+
   if (resFailureData || resSuccessData) {
     return (
       <div style={{ display: "flex" }}>
@@ -177,109 +220,127 @@ export default function AddProposeDao() {
   }
 
   return (
-    <div>
+    <div style={{ minHeight: 100, height: "auto" }}>
       <NavbarComponent />
-      <div className="main_profile">
-        <div className="flex flex-col gap-1 items-center justify-center ">
+      <div
+        className="main_profile"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        {!daoID ? (
           <div>
-            <div>
-              {!daoID ? (
-                <div>
-                  <Card>
-                    <CardBody>
-                      <h4 className="font-bold text-large">Add proposal</h4>
-                      <h1>
-                        For Interaction you must add DAO smart contract id
-                      </h1>
-                    </CardBody>
-                  </Card>
-                </div>
-              ) : (
-                <div>
-                  <Card>
-                    <CardBody>
-                      <h4 className="font-bold text-large">Add proposal</h4>
-                      <h4>
-                        To make a proposal you need choose type propose and
-                        enter the following parameters:
-                      </h4>
-                    </CardBody>
-                  </Card>
-                  <div
-                    style={{
-                      marginTop: 20,
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      marginBottom: 20,
+            <Card>
+              <CardBody>
+                <h4 className="font-bold text-large">Add proposal</h4>
+                <h1>For Interaction you must add DAO smart contract id</h1>
+              </CardBody>
+            </Card>
+          </div>
+        ) : (
+          <div>
+            <Card>
+              <CardBody>
+                <h4 className="font-bold text-large">Add proposal</h4>
+                <h4>
+                  To make a proposal you need choose type propose and enter the
+                  following parameters:
+                </h4>
+              </CardBody>
+            </Card>
+            <div
+              style={{
+                marginTop: 20,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                marginBottom: 20,
+              }}
+            >
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button
+                    style={{ backgroundColor: "#262626" }}
+                    variant="bordered"
+                  >
+                    <h1 style={{ color: "white" }}>
+                      {selectLable ? selectLable : "Choose propose"}
+                    </h1>
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu
+                  aria-label="Action event example"
+                  onAction={(key) => setSelectedProposal(key as string)}
+                >
+                  <DropdownItem
+                    key={ProposalTypes.AddBounty}
+                    onClick={() => {
+                      setSelectLable("Add bounty");
                     }}
                   >
-                    <Dropdown>
-                      <DropdownTrigger>
-                        <Button
-                          style={{ backgroundColor: "#262626" }}
-                          variant="bordered"
-                        >
-                          <h1 style={{ color: "white" }}>
-                            {selectLable ? selectLable : "Choose propose"}
-                          </h1>
-                        </Button>
-                      </DropdownTrigger>
-                      <DropdownMenu
-                        aria-label="Action event example"
-                        onAction={(key) => setSelectedProposal(key as string)}
-                      >
-                        <DropdownItem
-                          key={ProposalTypes.AddBounty}
-                          onClick={() => {
-                            setSelectLable("Add bounty");
-                          }}
-                        >
-                          Add bounty
-                        </DropdownItem>
-                        <DropdownItem
-                          key={ProposalTypes.AddMemberToRole}
-                          onClick={() => {
-                            setSelectLable("Add | Remove member to role");
-                          }}
-                        >
-                          Add | Remove member to role
-                        </DropdownItem>
-                        <DropdownItem
-                          key={ProposalTypes.Transfer}
-                          onClick={() => {
-                            setSelectLable("Transfer");
-                          }}
-                        >
-                          Transfer
-                        </DropdownItem>
-                        <DropdownItem
-                          key={ProposalTypes.ChangeConfig}
-                          onClick={() => {
-                            setSelectLable("Change Config");
-                          }}
-                        >
-                          Change Config
-                        </DropdownItem>
-                        <DropdownItem
-                          key={ProposalTypes.BountyDone}
-                          onClick={() => {
-                            setSelectLable("Bounty Done");
-                          }}
-                        >
-                          Bounty Done
-                        </DropdownItem>
-                      </DropdownMenu>
-                    </Dropdown>
-                  </div>
-                  <div>{proposalsWidgets[selectedProposal]}</div>
-                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    Add bounty
+                  </DropdownItem>
+                  <DropdownItem
+                    key={ProposalTypes.AddMemberToRole}
+                    onClick={() => {
+                      setSelectLable("Add | Remove member to role");
+                    }}
+                  >
+                    Add | Remove member to role
+                  </DropdownItem>
+                  <DropdownItem
+                    key={ProposalTypes.Transfer}
+                    onClick={() => {
+                      setSelectLable("Transfer");
+                    }}
+                  >
+                    Transfer
+                  </DropdownItem>
+                  <DropdownItem
+                    key={ProposalTypes.ChangeConfig}
+                    onClick={() => {
+                      setSelectLable("Change Config");
+                    }}
+                  >
+                    Change Config
+                  </DropdownItem>
+                  <DropdownItem
+                    key={ProposalTypes.BountyDone}
+                    onClick={() => {
+                      setSelectLable("Bounty Done");
+                    }}
+                  >
+                    Bounty Done
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            </div>
+            <div>{proposalsWidgets[selectedProposal]}</div>
+            <div style={{ marginTop: 20 }}>
+              <Card>
+                <CardHeader>
+                  <h3 className="font-bold text-large">
+                    This is list of all bounty
+                  </h3>
+                </CardHeader>
+                <CardBody>
+                  <div>
                     {!daoID ? (
                       <h1 style={{ margin: 20 }}>
                         To see the bounty you have to enter the DAO id
                       </h1>
                     ) : !outputBounty ? (
-                      <CircularProgress label="Loading..." />
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <CircularProgress label="Loading..." />
+                      </div>
                     ) : outputBounty.length == 0 ? (
                       <h1 style={{ margin: 20 }}>You don`t have bounty</h1>
                     ) : (
@@ -291,43 +352,57 @@ export default function AddProposeDao() {
                           padding: "20px",
                         }}
                       >
-                        <div className={styles.cardGrid}>
-                          {outputBounty.map((proposal) => {
-                            return proposal;
-                          })}
-                        </div>
                         <div
                           style={{
-                            marginTop: 15,
                             display: "flex",
-                            justifyContent: "flex-end",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            flexDirection: "column",
+                            width: "100%",
                           }}
                         >
-                          <Pagination
-                            showControls
-                            total={pageNumb}
-                            initialPage={1}
-                            onChange={(page) => {
-                              async function updateDATA(page: number) {
-                                if (page <= -1) {
-                                  await actionPagination(page * -1);
-                                } else {
-                                  await actionPagination(page);
-                                }
-                              }
-                              updateDATA(page);
+                          <div
+                            className={styles.cardGrid}
+                            style={{ justifyContent: "center" }}
+                          >
+                            {outputBounty.map((proposal) => {
+                              return proposal;
+                            })}
+                          </div>
+                          <div
+                            style={{
+                              marginTop: 15,
+                              display: "flex",
+                              justifyContent: "flex-end",
+                              width: "100%",
                             }}
-                            color="success"
-                          />
+                          >
+                            <Pagination
+                              showControls
+                              total={pageNumb}
+                              initialPage={1}
+                              onChange={(page) => {
+                                async function updateDATA(page: number) {
+                                  if (page <= -1) {
+                                    await actionPagination(page * -1);
+                                  } else {
+                                    await actionPagination(page);
+                                  }
+                                }
+                                updateDATA(page);
+                              }}
+                              color="success"
+                            />
+                          </div>
                         </div>
                       </div>
                     )}
                   </div>
-                </div>
-              )}
+                </CardBody>
+              </Card>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
