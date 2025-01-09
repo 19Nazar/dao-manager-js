@@ -19,7 +19,7 @@
   grid-gap: 35px;
 }
 
-@media (max-width: 1020px) {
+@media (max-width: 1070px) {
   .cardGrid {
     grid-template-columns: repeat(2, 1fr);
   }

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import DaoManagerJS from "../../../../../package/dao_manager_js_lib";
 import CustomButton from "../../shared_widgets/custom_button";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Status } from "../../../../../package/models/near_models";
 import {
   Card,
@@ -11,40 +11,58 @@ import {
   CircularProgress,
   Input,
   Pagination,
+  Spinner,
 } from "@nextui-org/react";
 import styles from "../style/profile.module.css";
 import NavbarComponent from "../../shared_widgets/navbar";
 import { ConstantsDashboard } from "../../const/const";
 import ModelPropose from "./component/modal_for_proposal";
 import { ServiceDAO } from "../../service/service";
+import useTransactionStatus from "../../service/useTransactionStatus";
+import ResponseModal from "../../shared_widgets/respone_modal";
 
 export default function Profile() {
   const router = useRouter();
   const daoManagerJS = DaoManagerJS.getInstance();
+  const searchParams = useSearchParams();
+
   const [accountID, setAccountID] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<object>();
-  const [daoId, setDaoId] = useState<string | null>(
-    localStorage.getItem(ConstantsDashboard.daoId),
-  );
+  const [daoId, setDaoId] = useState<string | null>(null);
+  const [resSuccessData, setResSuccessData] = useState<string | null>(null);
+  const [resFailureData, setResFailureData] = useState<string | null>(null);
   const [outputProposals, setOutputProposals] =
     useState<Array<JSX.Element> | null>(null);
   const [startId, setStartId] = useState<number>(0);
   const [pageNumb, setPageNumb] = useState<number>(1);
   const limit = 6;
-  ServiceDAO.checkAuth(router);
+  const [connection, setConnection] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (daoId) {
-      async function get() {
-        const lastId = (
-          await daoManagerJS.getLastProposalId({ contractId: daoId })
-        ).data;
-        setPageNumb(Math.floor(Number(lastId) / 6) + 1);
-        await getProposalsPagination({});
+    async function init() {
+      const connection = await ServiceDAO.checkAuth(router);
+      setConnection(connection);
+      useTransactionStatus(setResSuccessData, setResFailureData, searchParams);
+      const daoID = localStorage.getItem(ConstantsDashboard.daoId);
+      if (daoID) {
+        setDaoId(daoID);
       }
+    }
+    init();
+  }, []);
+
+  useEffect(() => {
+    async function get() {
+      const lastId = (
+        await daoManagerJS.getLastProposalId({ contractId: daoId })
+      ).data;
+      setPageNumb(Math.floor(Number(lastId) / 6) + 1);
+      await getProposalsPagination({});
+    }
+    if (daoId && connection) {
       get();
     }
-  }, [daoId]);
+  }, [daoId, connection]);
 
   async function getProposalsPagination({
     newDaoid,
@@ -63,10 +81,16 @@ export default function Profile() {
     const arrayWidgets = res.map((object) => {
       return (
         <Card
-          shadow="sm"
+          shadow="md"
           isPressable
           key={`${startId}-${object["id"]}`}
-          style={{ margin: 10, width: 300 }}
+          style={{
+            margin: 10,
+            width: 300,
+            borderWidth: "2px",
+            borderStyle: "solid",
+            borderColor: "#4b4f53",
+          }}
           onPress={() => {
             setSelectedModel(object);
           }}
@@ -139,6 +163,37 @@ export default function Profile() {
     // await getProposalsPagination({ newDaoid: correctID });
   }
 
+  if (connection == null) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          width: "100%",
+        }}
+      >
+        <Spinner size="lg" color="white">
+          Load page
+        </Spinner>
+      </div>
+    );
+  }
+
+  if (resFailureData || resSuccessData) {
+    return (
+      <div style={{ display: "flex" }}>
+        <ResponseModal
+          resFailureData={resFailureData}
+          resSuccessData={resSuccessData}
+          setResFailureData={setResFailureData}
+          setResSuccessData={setResSuccessData}
+        />
+      </div>
+    );
+  }
+
   if (selectedModel) {
     return (
       <ModelPropose
@@ -193,55 +248,68 @@ export default function Profile() {
             </CardBody>
           </Card>
         </div>
-        <div>
-          {!daoId ? (
-            <h1 style={{ margin: 20 }}>
-              To see the proposals you have to enter the DAO id
-            </h1>
-          ) : !outputProposals ? (
-            <CircularProgress label="Loading..." />
-          ) : outputProposals.length == 0 ? (
-            <h1 style={{ margin: 20 }}>You don`t have proposals</h1>
-          ) : (
-            <div
-              style={{
-                height: "auto",
-                display: "flex",
-                flexDirection: "column",
-                padding: "20px",
-              }}
-            >
-              <div className={styles.cardGrid} key={startId}>
-                {outputProposals.map((proposal, startId) => {
-                  return proposal;
-                })}
+        <div style={{ marginTop: 20 }}>
+          <Card>
+            <CardHeader>
+              <h3 className="font-bold text-large">
+                This is list of all proposals
+              </h3>
+            </CardHeader>
+            <CardBody>
+              <div>
+                {!daoId ? (
+                  <h1 style={{ margin: 20 }}>
+                    To see the proposals you have to enter the DAO id
+                  </h1>
+                ) : !outputProposals ? (
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <CircularProgress label="Loading..." />
+                  </div>
+                ) : outputProposals.length == 0 ? (
+                  <h1 style={{ margin: 20 }}>You don`t have proposals</h1>
+                ) : (
+                  <div
+                    style={{
+                      height: "auto",
+                      display: "flex",
+                      flexDirection: "column",
+                      padding: "20px",
+                    }}
+                  >
+                    <div className={styles.cardGrid} key={startId}>
+                      {outputProposals.map((proposal, startId) => {
+                        return proposal;
+                      })}
+                    </div>
+                    <div
+                      style={{
+                        marginTop: 15,
+                        display: "flex",
+                        justifyContent: "flex-end",
+                      }}
+                    >
+                      <Pagination
+                        showControls
+                        total={pageNumb}
+                        initialPage={1}
+                        onChange={(page) => {
+                          async function updateDATA(page: number) {
+                            if (page <= -1) {
+                              await actionPagination(page * -1);
+                            } else {
+                              await actionPagination(page);
+                            }
+                          }
+                          updateDATA(page);
+                        }}
+                        color="success"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
-              <div
-                style={{
-                  marginTop: 15,
-                  display: "flex",
-                  justifyContent: "flex-end",
-                }}
-              >
-                <Pagination
-                  showControls
-                  total={pageNumb}
-                  initialPage={1}
-                  onChange={(page) => {
-                    async function updateDATA(page: number) {
-                      if (page <= -1) {
-                        await actionPagination(page * -1);
-                      } else {
-                        await actionPagination(page);
-                      }
-                    }
-                    updateDATA(page);
-                  }}
-                  color="success"
-                />
-              </div>
-            </div>
-          )}
+            </CardBody>
+          </Card>
         </div>
       </div>
     </div>

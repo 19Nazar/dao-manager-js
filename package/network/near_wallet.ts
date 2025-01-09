@@ -132,37 +132,37 @@ export default class NearWallet {
   }
 
   async callSmartContract({
-    accountID,
     contractId,
-    methodName,
-    args = {},
-    gas = "300000000000000",
+    changeMethodName,
+    args,
     deposit = "0",
+    gas = "30000000000000",
   }: {
-    accountID: string;
     contractId: string;
-    methodName: string;
-    args?: object;
-    gas?: string;
+    changeMethodName: string;
+    args: any;
     deposit?: string;
-  }): Promise<void> {
-    if (!this.nearConnection) {
-      throw new Error("Absent near connection");
+    gas?: string;
+  }) {
+    const accountId = this.getAccountID();
+    if (!accountId) {
+      throw new Error("Wallet connection is absent");
     }
-    try {
-      const account = await this.nearConnection.account(accountID);
 
-      const result = await account.functionCall({
-        contractId: contractId,
-        methodName: methodName,
-        args: args,
-        gas: BigInt(gas),
-        attachedDeposit: BigInt(deposit),
-      });
-      console.log(result);
-    } catch (error) {
-      throw new Error("Error make smart contract call", error);
-    }
+    const account = await this.nearConnection!.account(accountId);
+    const functionCall = transactions.functionCall(
+      changeMethodName,
+      args,
+      BigInt(gas),
+      BigInt(deposit),
+    );
+
+    const result = await account.signAndSendTransaction({
+      receiverId: contractId,
+      actions: [functionCall],
+    });
+
+    return result;
   }
 
   async createWalletConnection({ config }: { config: ConnectConfig }) {

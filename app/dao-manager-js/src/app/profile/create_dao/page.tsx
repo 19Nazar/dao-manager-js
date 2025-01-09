@@ -36,13 +36,20 @@ export default function CreateDao() {
 
   const [filename, setFilename] = useState<string | undefined>(undefined);
 
-  ServiceDAO.checkAuth(router);
-
-  useTransactionStatus(setResSuccessData, setResFailureData);
+  const [connection, setConnection] = useState<boolean | null>(null);
 
   useEffect(() => {
-    console.log("imageBase64", imageBase64);
-  }, [imageBase64]);
+    async function init() {
+      const connection = await ServiceDAO.checkAuth(router);
+      setConnection(connection);
+      useTransactionStatus(setResSuccessData, setResFailureData, searchParams);
+      const daoID = localStorage.getItem(ConstantsDashboard.daoId);
+      if (daoID) {
+        setNameDAO(daoID);
+      }
+    }
+    init();
+  }, []);
 
   async function createDAO({
     name,
@@ -56,12 +63,12 @@ export default function CreateDao() {
     policy?: string;
   }) {
     try {
-      iconImage = iconImage ?? ConstantsDashboard.defaultImage;
+      // iconImage = iconImage ?? ConstantsDashboard.defaultImage;
       const convertPolicy = policy?.split(",").map((x) => x.trim());
       const test = await daoManagerJS.createDaoManager({
         name: name.toLocaleLowerCase(),
         purpose: purpose,
-        metadata: JSON.stringify(iconImage),
+        metadata: "",
         policy: convertPolicy,
       });
     } catch (error) {
@@ -91,6 +98,24 @@ export default function CreateDao() {
       setIsLoadingImage(false);
     }
   };
+
+  if (connection == null) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          width: "100%",
+        }}
+      >
+        <Spinner size="lg" color="white">
+          Load page
+        </Spinner>
+      </div>
+    );
+  }
 
   if (resFailureData || resSuccessData) {
     return (
@@ -146,8 +171,8 @@ export default function CreateDao() {
                   value={policy}
                   onChange={(e) => setPolicy(e.target.value)}
                 />
-                <h1 style={{ marginTop: 20 }}>Add image icon (optional)</h1>
-                <div className={style.upload_container}>
+                {/* <h1 style={{ marginTop: 20 }}>Add image icon (optional)</h1> */}
+                {/* <div className={style.upload_container}>
                   <label className={style.upload_box}>
                     {isLoadingImage ? (
                       <Spinner />
@@ -196,9 +221,9 @@ export default function CreateDao() {
                       </>
                     )}
                   </label>
-                </div>
+                </div> */}
                 <CustomButton
-                  style={{ marginTop: 5 }}
+                  style={{ marginTop: "20px" }}
                   text={"Create DAO"}
                   onClick={async () => {
                     await createDAO({
