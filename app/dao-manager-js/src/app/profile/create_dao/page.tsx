@@ -16,6 +16,7 @@ import { ConstantsDashboard } from "../../../const/const";
 import style from "../../style/profile.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload, faCheckCircle } from "@fortawesome/free-solid-svg-icons";
+import { json } from "stream/consumers";
 
 export default function CreateDao() {
   const router = useRouter();
@@ -25,6 +26,7 @@ export default function CreateDao() {
   const [resSuccessData, setResSuccessData] = useState<string | null>(null);
   const [resFailureData, setResFailureData] = useState<string | null>(null);
 
+  const [DAOID, setDAOID] = useState<string | undefined>(undefined);
   const [nameDAO, setNameDAO] = useState<string | undefined>(undefined);
   const [purpose, setPurpose] = useState<string | undefined>(undefined);
   const [policy, setPolicy] = useState<string | undefined>(undefined);
@@ -45,7 +47,7 @@ export default function CreateDao() {
       useTransactionStatus(setResSuccessData, setResFailureData, searchParams);
       const daoID = localStorage.getItem(ConstantsDashboard.daoId);
       if (daoID) {
-        setNameDAO(daoID);
+        setDAOID(daoID);
       }
     }
     init();
@@ -63,12 +65,12 @@ export default function CreateDao() {
     policy?: string;
   }) {
     try {
-      // iconImage = iconImage ?? ConstantsDashboard.defaultImage;
+      iconImage = iconImage ?? ConstantsDashboard.defaultImage;
       const convertPolicy = policy?.split(",").map((x) => x.trim());
       const test = await daoManagerJS.createDaoManager({
         name: name.toLocaleLowerCase(),
         purpose: purpose,
-        metadata: "",
+        metadata: JSON.stringify({ iconImage: iconImage }),
         policy: convertPolicy,
       });
     } catch (error) {
@@ -81,22 +83,41 @@ export default function CreateDao() {
     const file = event.target.files[0];
     console.log(file.size);
     setFilename(file.name);
-    if (file) {
-      const MAX_SIZE = 500 * 1024;
-      if (file.size > MAX_SIZE) {
-        setResFailureData(
-          "The file size exceeds 500 KB. Please upload a smaller file.",
-        );
-        return;
-      }
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImageBase64(JSON.stringify(reader.result));
-      };
-      reader.readAsDataURL(file);
-      setIsLoadingImage(false);
+    if (!file) return;
+
+    const MAX_SIZE = 500 * 1024;
+    if (file.size > MAX_SIZE) {
+      setResFailureData(
+        "The file size exceeds 500 KB. Please upload a smaller file.",
+      );
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result;
+      if (typeof result === "string") {
+        const img = new Image();
+        img.src = result;
+
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = 32;
+          canvas.height = 32;
+
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, 32, 32);
+
+          const resizedBase64 = canvas.toDataURL("image/png");
+          console.log(JSON.stringify(resizedBase64));
+        };
+      } else {
+        console.error("FileReader result is not a string");
+      }
+    };
+    reader.readAsDataURL(file);
+    setIsLoadingImage(false);
   };
 
   if (connection == null) {
@@ -171,8 +192,8 @@ export default function CreateDao() {
                   value={policy}
                   onChange={(e) => setPolicy(e.target.value)}
                 />
-                {/* <h1 style={{ marginTop: 20 }}>Add image icon (optional)</h1> */}
-                {/* <div className={style.upload_container}>
+                <h1 style={{ marginTop: 20 }}>Add image icon (optional)</h1>
+                <div className={style.upload_container}>
                   <label className={style.upload_box}>
                     {isLoadingImage ? (
                       <Spinner />
@@ -221,7 +242,7 @@ export default function CreateDao() {
                       </>
                     )}
                   </label>
-                </div> */}
+                </div>
                 <CustomButton
                   style={{ marginTop: "20px" }}
                   text={"Create DAO"}
