@@ -31,6 +31,20 @@
   }
 }
 
+.profile_dao {
+  display: flex;
+  justify-content: space-around;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+}
+
+@media (max-width: 1070px) {
+  .profile_dao {
+    flex-direction: column;
+  }
+}
+
 .settings_model {
   display: "flex";
   justify-content: center;

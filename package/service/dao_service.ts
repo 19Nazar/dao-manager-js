@@ -54,7 +54,11 @@ export default class DaoService {
     policy?: Array<string>;
   }) {
     const args = JSON.stringify({
-      config: { name: name, purpose: purpose, metadata: metadata },
+      config: {
+        name: name,
+        purpose: purpose,
+        metadata: Buffer.from(metadata).toString("base64"),
+      },
       policy: policy,
     });
     const encodedArgs = Buffer.from(args).toString("base64");
@@ -594,6 +598,22 @@ export default class DaoService {
       return test.toString();
     } catch (error) {
       throw new Error("Error while get balance", error);
+    }
+  }
+
+  async getDAOConfig({
+    daoID,
+  }: {
+    daoID: string;
+  }): Promise<BlockChainResponse> {
+    try {
+      const res = await this.nearWallet.callSmartContractFunc({
+        contractId: daoID,
+        viewMethodName: "get_config",
+      });
+      return res;
+    } catch (error) {
+      throw new Error(`Error get proposal by id: ${error.message}`, error);
     }
   }
 }
