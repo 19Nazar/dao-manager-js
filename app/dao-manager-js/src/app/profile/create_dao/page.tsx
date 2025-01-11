@@ -46,8 +46,10 @@ export default function CreateDao() {
       setConnection(connection);
       useTransactionStatus(setResSuccessData, setResFailureData, searchParams);
       const daoID = localStorage.getItem(ConstantsDashboard.daoId);
+      const userID = daoManagerJS.getAccountID();
       if (daoID) {
         setDAOID(daoID);
+        setPolicy(userID);
       }
     }
     init();
@@ -110,7 +112,7 @@ export default function CreateDao() {
           ctx.drawImage(img, 0, 0, 32, 32);
 
           const resizedBase64 = canvas.toDataURL("image/png");
-          console.log(JSON.stringify(resizedBase64));
+          setImageBase64(JSON.stringify(resizedBase64));
         };
       } else {
         console.error("FileReader result is not a string");
@@ -165,8 +167,9 @@ export default function CreateDao() {
                   To create a DAO, you need 5.5 NEAR. Also you need to enter the
                   following parameters:
                 </h4>
+                <h1 className="mt-4">Purpose for DAO</h1>
                 <Input
-                  className="mt-4"
+                  className="mt-1"
                   autoFocus
                   label="Name for DAO"
                   placeholder="Enter name for DAO"
@@ -174,28 +177,31 @@ export default function CreateDao() {
                   value={nameDAO}
                   onChange={(e) => setNameDAO(e.target.value)}
                 />
+                <h1 className="mt-4">Purpose for DAO</h1>
                 <Input
-                  className="mt-5"
+                  className="mt-1"
                   autoFocus
-                  label="Purpose for DAO"
                   placeholder="Enter purpose for DAO"
                   variant="bordered"
                   value={purpose}
                   onChange={(e) => setPurpose(e.target.value)}
                 />
+                <h1 className="mt-4">Council. Who will have all rights</h1>
                 <Input
-                  className="mt-5"
+                  className="mt-1"
                   autoFocus
-                  label="Council (Who will have all rights. Put ',' separated by a comma.)"
+                  label="Put ',' separated by a comma"
                   placeholder="Enter council"
                   variant="bordered"
                   value={policy}
                   onChange={(e) => setPolicy(e.target.value)}
                 />
-                <h1 style={{ marginTop: 20 }}>Add image icon (optional)</h1>
+                <h1 style={{ marginTop: 20 }}>
+                  Add image icon. Maximum size is 500kb.(optional)
+                </h1>
                 <div className={style.upload_container}>
                   <label className={style.upload_box}>
-                    {isLoadingImage ? (
+                    {isLoadingImage == true ? (
                       <Spinner />
                     ) : imageBase64 != null ? (
                       <>

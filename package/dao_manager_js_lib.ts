@@ -295,4 +295,13 @@ export default class DaoManagerJS {
   getAccountID(): string {
     return this.nearWallet.getAccountID();
   }
+
+  async getDAOConfig({
+    daoID,
+  }: {
+    daoID: string;
+  }): Promise<BlockChainResponse> {
+    const res = await this.daoService.getDAOConfig({ daoID: daoID });
+    return res;
+  }
 }

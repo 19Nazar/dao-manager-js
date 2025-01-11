@@ -20,6 +20,7 @@ import ModelPropose from "./component/modal_for_proposal";
 import { ServiceDAO } from "../../service/service";
 import useTransactionStatus from "../../service/useTransactionStatus";
 import ResponseModal from "../../shared_widgets/respone_modal";
+import ProfileDAOCard from "./component/profile_dao_card";
 
 export default function Profile() {
   const router = useRouter();
@@ -216,37 +217,55 @@ export default function Profile() {
           alignItems: "center",
         }}
       >
-        <div style={{ maxWidth: 500 }}>
-          <Card className="max-w-full shadow-lg">
-            <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
-              <h4 className="font-bold text-large">DAO initialization</h4>
-            </CardHeader>
-            <CardBody className="overflow-visible py-2">
-              <h1>
-                If you have not created a DAO yet, go to create DAO section
-              </h1>
-              <h1>
-                Input DAO contract id for interact with in (you must have
-                appropriate privileges)
-              </h1>
-              <Input
-                className="mt-5"
-                autoFocus
-                label="Account id DAO"
-                placeholder="Enter account id for DAO"
-                variant="bordered"
-                value={accountID}
-                onChange={(e) => setAccountID(e.target.value)}
-              />
-              <CustomButton
-                style={{ marginTop: 10 }}
-                text={"Add DAO id"}
-                onClick={async () => {
-                  await addDaoID(accountID);
-                }}
-              />
-            </CardBody>
-          </Card>
+        <div className={styles.profile_dao}>
+          <div style={{ maxWidth: 500 }}>
+            <Card className="max-w-full shadow-lg">
+              <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
+                <h4 className="font-bold text-large">DAO initialization</h4>
+              </CardHeader>
+              <CardBody className="overflow-visible py-2">
+                <h1>
+                  If you have not created a DAO yet, go to create DAO section
+                </h1>
+                <h1>
+                  Input DAO contract id for interact with in (you must have
+                  appropriate privileges)
+                </h1>
+                <Input
+                  className="mt-5"
+                  autoFocus
+                  label="Account id DAO"
+                  placeholder="Enter account id for DAO"
+                  variant="bordered"
+                  value={accountID}
+                  onChange={(e) => setAccountID(e.target.value)}
+                />
+                <CustomButton
+                  style={{ marginTop: 10 }}
+                  text={"Add DAO id"}
+                  onClick={async () => {
+                    await addDaoID(accountID);
+                  }}
+                />
+              </CardBody>
+            </Card>
+          </div>
+          {daoId == null ? (
+            <Card>
+              <CardHeader>
+                <h3 className="font-bold text-large">DAO profile</h3>
+              </CardHeader>
+              <CardBody>
+                <h1 style={{ margin: 20 }}>
+                  To see the profile DAO you have to enter the DAO id
+                </h1>
+              </CardBody>
+            </Card>
+          ) : (
+            <div style={{ maxWidth: 500 }}>
+              <ProfileDAOCard daoID={daoId} />
+            </div>
+          )}
         </div>
         <div style={{ marginTop: 20 }}>
           <Card>
