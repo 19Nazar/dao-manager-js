@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import DaoManagerJS from "../../../../../package/dao_manager_js_lib";
+// import DaoManagerJS from "../../../../../package/dao_manager_js_lib";
 import CustomButton from "../../shared_widgets/custom_button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Status } from "../../../../../package/models/near_models";
@@ -21,10 +21,11 @@ import { ServiceDAO } from "../../service/service";
 import useTransactionStatus from "../../service/useTransactionStatus";
 import ResponseModal from "../../shared_widgets/respone_modal";
 import ProfileDAOCard from "./component/profile_dao_card";
+import { DaoManagerJS } from "dao-manager-js";
 
 export default function Profile() {
   const router = useRouter();
-  const daoManagerJS = DaoManagerJS.getInstance();
+  const daoManagerJS = new DaoManagerJS.default();
   const searchParams = useSearchParams();
 
   const [accountID, setAccountID] = useState<string>("");
@@ -251,18 +252,20 @@ export default function Profile() {
             </Card>
           </div>
           {daoId == null ? (
-            <Card>
-              <CardHeader>
-                <h3 className="font-bold text-large">DAO profile</h3>
-              </CardHeader>
-              <CardBody>
-                <h1 style={{ margin: 20 }}>
-                  To see the profile DAO you have to enter the DAO id
-                </h1>
-              </CardBody>
-            </Card>
+            <div style={{ marginTop: 20 }}>
+              <Card>
+                <CardHeader>
+                  <h3 className="font-bold text-large">DAO profile</h3>
+                </CardHeader>
+                <CardBody>
+                  <h1 style={{ margin: 20 }}>
+                    To see the profile DAO you have to enter the DAO id
+                  </h1>
+                </CardBody>
+              </Card>
+            </div>
           ) : (
-            <div style={{ maxWidth: 500 }}>
+            <div style={{ marginTop: 20, maxWidth: "500px" }}>
               <ProfileDAOCard daoID={daoId} />
             </div>
           )}
@@ -285,7 +288,13 @@ export default function Profile() {
                     <CircularProgress label="Loading..." />
                   </div>
                 ) : outputProposals.length == 0 ? (
-                  <h1 style={{ margin: 20 }}>You don`t have proposals</h1>
+                  <div style={{ margin: 20 }}>
+                    <h1>You don`t have proposals.</h1>
+                    <h1>
+                      In order to make the first proposal, you need to go to the
+                      Add Proposal tab and select the appropriate proposal.
+                    </h1>
+                  </div>
                 ) : (
                   <div
                     style={{
