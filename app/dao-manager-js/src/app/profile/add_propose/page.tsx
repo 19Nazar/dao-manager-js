@@ -342,7 +342,13 @@ export default function AddProposeDao() {
                         <CircularProgress label="Loading..." />
                       </div>
                     ) : outputBounty.length == 0 ? (
-                      <h1 style={{ margin: 20 }}>You don`t have bounty</h1>
+                      <div style={{ margin: 20 }}>
+                        <h1>You don`t have bounty</h1>
+                        <h1>
+                          To interact with bounty you need to first make a
+                          proposal to create bounty, then validate it.
+                        </h1>
+                      </div>
                     ) : (
                       <div
                         style={{

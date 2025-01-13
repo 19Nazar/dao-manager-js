@@ -1,7 +1,14 @@
 "use client";
-import { Card, CardBody, CardHeader, Skeleton } from "@nextui-org/react";
+import {
+  Avatar,
+  Card,
+  CardBody,
+  CardHeader,
+  Skeleton,
+} from "@nextui-org/react";
 import React, { useEffect, useState } from "react";
 import DaoManagerJS from "../../../../../../package/dao_manager_js_lib";
+import ResponseModal from "../../../shared_widgets/respone_modal";
 
 interface ProfileDAOCardProps {
   daoID: string;
@@ -10,16 +17,54 @@ interface ProfileDAOCardProps {
 const ProfileDAOCard: React.FC<ProfileDAOCardProps> = ({ daoID }) => {
   const daoManagerJS = DaoManagerJS.getInstance();
   const [daoProfileData, setDaoProfileData] = useState<object | null>(null);
+  const [iconData, setIconData] = useState<string | null>(null);
+  const [numberOfProposals, setNumberOfProposals] = useState<string | null>(
+    null,
+  );
+  const [numberOfBounty, setNumberOfBounty] = useState<string | null>(null);
+  const [resFailureData, setResFailureData] = useState<string | null>(null);
+
+  useEffect(() => {
+    console.log(iconData);
+  }, [iconData]);
 
   async function getDaoProfileData() {
-    const daoProfileData = await daoManagerJS.getDAOConfig({ daoID });
-    console.log(daoProfileData);
-    setDaoProfileData(daoProfileData);
+    try {
+      const daoProfileData = await daoManagerJS.getDAOConfig({ daoID });
+      console.log(daoProfileData);
+      const metadata = atob(daoProfileData["data"]["metadata"]);
+      const metadataDecode = JSON.parse(metadata);
+      const numberOfProposals = await daoManagerJS.getLastProposalId({
+        contractId: daoID,
+      });
+      const numberOfBounty = await daoManagerJS.getLastBountyId({
+        contractId: daoID,
+      });
+      setIconData(metadataDecode["iconImage"]);
+      setDaoProfileData(daoProfileData["data"]);
+      setNumberOfProposals(numberOfProposals.data.toString());
+      setNumberOfBounty(numberOfBounty.data.toString());
+    } catch (error) {
+      setResFailureData(error.message);
+    }
   }
 
   useEffect(() => {
     getDaoProfileData();
   }, [daoID]);
+
+  if (resFailureData) {
+    return (
+      <div style={{ display: "flex" }}>
+        <ResponseModal
+          resFailureData={resFailureData}
+          resSuccessData={null}
+          setResFailureData={setResFailureData}
+          setResSuccessData={() => {}}
+        />
+      </div>
+    );
+  }
 
   return daoProfileData == null ? (
     <Card>
@@ -38,7 +83,64 @@ const ProfileDAOCard: React.FC<ProfileDAOCardProps> = ({ daoID }) => {
     <Card>
       <CardHeader className="font-bold text-large">DAO profile</CardHeader>
       <CardBody>
-        <h1>Proposal: {daoProfileData["data"]["purpose"]}</h1>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            alignContent: "center",
+          }}
+        >
+          <Avatar size="lg" src={iconData} />
+          <h1
+            style={{
+              marginLeft: "10px",
+              whiteSpace: "normal",
+              wordWrap: "break-word",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              maxWidth: "100%",
+            }}
+          >
+            {daoProfileData["name"]}
+          </h1>
+        </div>
+        <h1
+          style={{
+            marginTop: "10px",
+            whiteSpace: "normal",
+            wordWrap: "break-word",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            maxWidth: "100%",
+          }}
+        >
+          Proposal: {daoProfileData["purpose"]}
+        </h1>
+        <h1
+          style={{
+            marginTop: "10px",
+            whiteSpace: "normal",
+            wordWrap: "break-word",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            maxWidth: "100%",
+          }}
+        >
+          Number of proposals: {numberOfProposals}
+        </h1>
+        <h1
+          style={{
+            marginTop: "10px",
+            whiteSpace: "normal",
+            wordWrap: "break-word",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            maxWidth: "100%",
+          }}
+        >
+          Number of bounty: {numberOfBounty}
+        </h1>
       </CardBody>
     </Card>
   );
