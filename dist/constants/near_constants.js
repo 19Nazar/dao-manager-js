@@ -1,41 +1,40 @@
-import { keyStores } from "near-api-js";
-export class NearConstants {
-  static walletMainConnectionConfig = {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.NearConstants = void 0;
+const near_api_js_1 = require("near-api-js");
+class NearConstants {
+}
+exports.NearConstants = NearConstants;
+NearConstants.walletMainConnectionConfig = {
     networkId: "mainnet",
-    keyStore: new keyStores.InMemoryKeyStore(),
+    keyStore: new near_api_js_1.keyStores.InMemoryKeyStore(),
     nodeUrl: "https://rpc.mainnet.near.org",
     walletUrl: "https://wallet.mainnet.near.org",
     helperUrl: "https://helper.mainnet.near.org",
     explorerUrl: "https://nearblocks.io",
-  };
-
-  static walletTestConnectionConfig = {
+};
+NearConstants.walletTestConnectionConfig = {
     networkId: "testnet",
-    keyStore: new keyStores.InMemoryKeyStore(),
+    keyStore: new near_api_js_1.keyStores.InMemoryKeyStore(),
     nodeUrl: "https://rpc.testnet.near.org",
     walletUrl: "https://testnet.mynearwallet.com/",
     helperUrl: "https://helper.testnet.near.org",
     explorerUrl: "https://testnet.nearblocks.io",
-  };
-
-  static defaultMainConnectionConfig = {
+};
+NearConstants.defaultMainConnectionConfig = {
     networkId: "mainnet",
     nodeUrl: "https://rpc.mainnet.near.org",
     walletUrl: "https://wallet.mainnet.near.org",
     helperUrl: "https://helper.mainnet.near.org",
-  };
-
-  static defaultTestConnectionConfig = {
+};
+NearConstants.defaultTestConnectionConfig = {
     networkId: "testnet",
     nodeUrl: "https://rpc.testnet.near.org",
     walletUrl: "https://testnet.mynearwallet.com/",
     helperUrl: "https://helper.testnet.near.org",
-  };
-
-  static contractPerNetwork = {
+};
+NearConstants.contractPerNetwork = {
     testnet: "guestbook.near-examples.testnet",
-  };
-
-  static NetworkId = "testnet";
-  // static GuestbookNearContract = this.contractPerNetwork[this.NetworkId];
-}
+};
+NearConstants.NetworkId = "testnet";
+//# sourceMappingURL=near_constants.js.map

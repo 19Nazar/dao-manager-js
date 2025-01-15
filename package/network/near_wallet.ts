@@ -127,7 +127,7 @@ export default class NearWallet {
 
       this.nearConnection = await connect(finalConfig);
     } catch (error) {
-      throw new Error("Error create connection:", error);
+      throw new Error(`Error create connection: ${error.message}`);
     }
   }
 
@@ -210,8 +210,8 @@ export default class NearWallet {
         return true;
       }
     } catch (error) {
-      console.error("Check is unable", error);
-      throw new Error("Check is unable", error);
+      console.error(`Check is unable: ${error.message}`);
+      throw new Error(`Check is unable: ${error.message}`);
     }
   }
 
@@ -253,7 +253,7 @@ export default class NearWallet {
         successUrl: successUrl,
       });
     } catch (error) {
-      throw new Error("Error while create access key", error);
+      throw new Error(`Error while create access key: ${error.message}`);
     }
   }
 
@@ -286,8 +286,8 @@ export default class NearWallet {
 
       console.log(res);
     } catch (error) {
-      console.error("Error call smart contract", error);
-      throw new Error("Error call smart contract", error);
+      console.error(`Error call smart contract: ${error.message}`);
+      throw new Error(`Error call smart contract: ${error.message}`);
     }
   }
 
@@ -327,7 +327,7 @@ export default class NearWallet {
       }
     } catch (e) {
       console.error(e);
-      throw new Error("Get transaction error:", e);
+      throw new Error(`Get transaction error: ${e.message}`);
     }
   }
 
@@ -355,34 +355,50 @@ export default class NearWallet {
     if (this.walletConnection == null) {
       throw new Error("Wallet connection is absent");
     }
+    if (!changeMethodName && !viewMethodName) {
+      throw new Error("At least one method must be specified");
+    }
     try {
       const contract = new Contract(
         this.walletConnection.account(),
         contractId,
         {
-          viewMethods: [viewMethodName],
-          changeMethods: [changeMethodName],
+          viewMethods: viewMethodName ? [viewMethodName] : [],
+          changeMethods: changeMethodName ? [changeMethodName] : [],
           useLocalViewExecution: false,
         },
       );
-      if (contract[changeMethodName ?? viewMethodName]) {
+      if (viewMethodName && contract[viewMethodName]) {
         try {
-          let result;
-          if (viewMethodName) {
-            result = await contract[viewMethodName](args);
-          } else {
-            result = await contract[changeMethodName]({
-              args: args,
-              gas: gas,
-              amount: deposit,
-            });
-          }
+          const result = await contract[viewMethodName](args);
           return new BlockChainResponse({
             status: Status.successful,
             data: result,
           });
         } catch (error) {
-          throw new Error(`Error call smart contract: ${error.message}`, error);
+          if (error instanceof Error) {
+            throw new Error(`Error call smart contract: ${error.message}`);
+          } else {
+            throw new Error(`Error call smart contract: ${String(error)}`);
+          }
+        }
+      } else if (changeMethodName && contract[changeMethodName]) {
+        try {
+          const result = await contract[changeMethodName]({
+            args: args,
+            gas: gas,
+            amount: deposit,
+          });
+          return new BlockChainResponse({
+            status: Status.successful,
+            data: result,
+          });
+        } catch (error) {
+          if (error instanceof Error) {
+            throw new Error(`Error call smart contract: ${error.message}`);
+          } else {
+            throw new Error(`Error call smart contract: ${String(error)}`);
+          }
         }
       } else {
         throw new Error(
@@ -390,8 +406,8 @@ export default class NearWallet {
         );
       }
     } catch (error) {
-      console.error(`Error call smart contract: ${error.message}`, error);
-      throw new Error(`Error call smart contract ${error.message}`, error);
+      console.error(`Error call smart contract: ${error.message}`);
+      throw new Error(`Error call smart contract ${error.message}`);
     }
   }
 }

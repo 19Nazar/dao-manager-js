@@ -1,7 +1,12 @@
 {
   "name": "dao-manager-js",
   "private": true,
-  "main": "./package/index.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "workspaces": [
+    "app/*"
+  ],
   "devDependencies": {
     "@typescript-eslint/parser": "^5.0.1",
     "eslint": "^8.52.0",
@@ -12,5 +17,10 @@
   "dependencies": {
     "@types/node": "^22.9.0",
     "near-api-js": "^5.0.1"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "yarn clean && tsc",
+    "dev": "tsc --watch"
   }
 }
