@@ -1,6 +1,6 @@
 import { utils } from "near-api-js";
 
-export class Utils {
+export default class Utils {
   static nearToYoctoNEAR(amount: string): string {
     const amountInYocto = utils.format.parseNearAmount(amount);
     try {
@@ -10,7 +10,7 @@ export class Utils {
         throw new Error("Something went wrong, try again.");
       }
     } catch (error) {
-      throw new Error(`Error: ${error.message}`, error);
+      throw new Error(`Error: ${error.message}`);
     }
   }
 
@@ -23,7 +23,7 @@ export class Utils {
         throw new Error("Something went wrong, try again.");
       }
     } catch (error) {
-      throw new Error(`Error: ${error.message}`, error);
+      throw new Error(`Error: ${error.message}`);
     }
   }
 }

@@ -87,7 +87,7 @@ export default class DaoService {
       });
       return resp;
     } catch (error) {
-      throw new Error(`Error get policy: ${error.message}`, error);
+      throw new Error(`Error get policy: ${error.message}`);
     }
   }
 
@@ -372,7 +372,7 @@ export default class DaoService {
       });
       return res;
     } catch (error) {
-      throw new Error(`Error get proposal by id: ${error.message}`, error);
+      throw new Error(`Error get proposal by id: ${error.message}`);
     }
   }
 
@@ -399,7 +399,7 @@ export default class DaoService {
       });
       return res;
     } catch (error) {
-      throw new Error(`Error get multiple proposals: ${error.message}`, error);
+      throw new Error(`Error get multiple proposals: ${error.message}`);
     }
   }
 
@@ -420,7 +420,7 @@ export default class DaoService {
       });
       return res;
     } catch (error) {
-      throw new Error(`Error get last proposal id: ${error.message}`, error);
+      throw new Error(`Error get last proposal id: ${error.message}`);
     }
   }
 
@@ -467,7 +467,7 @@ export default class DaoService {
       });
       return res;
     } catch (error) {
-      throw new Error(`Error get bounties: ${error.message}`, error);
+      throw new Error(`Error get bounties: ${error.message}`);
     }
   }
 
@@ -491,7 +491,7 @@ export default class DaoService {
       });
       return res;
     } catch (error) {
-      throw new Error(`Error get proposal by id: ${error.message}`, error);
+      throw new Error(`Error get proposal by id: ${error.message}`);
     }
   }
 
@@ -512,7 +512,7 @@ export default class DaoService {
       });
       return res;
     } catch (error) {
-      throw new Error(`Error get last proposal id: ${error.message}`, error);
+      throw new Error(`Error get last proposal id: ${error.message}`);
     }
   }
 
@@ -597,7 +597,7 @@ export default class DaoService {
         BigInt(balance.staked);
       return test.toString();
     } catch (error) {
-      throw new Error("Error while get balance", error);
+      throw new Error(`Error while get balance ${error.message}`);
     }
   }
 
@@ -613,7 +613,7 @@ export default class DaoService {
       });
       return res;
     } catch (error) {
-      throw new Error(`Error get proposal by id: ${error.message}`, error);
+      throw new Error(`Error get proposal by id: ${error.message}`);
     }
   }
 }
