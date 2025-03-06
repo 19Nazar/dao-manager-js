@@ -5,12 +5,32 @@
 .navBar {
   background-color: #262626;
   color: white;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+.appBarButtonColor {
+  opacity: 0.7;
+  cursor: pointer;
+}
+.appBarButtonColor:hover {
+  opacity: 1;
+  transition: all 0.3s ease-in-out;
 }
 
-.appBarButtonColor {
-  background-color: white;
+.link_appBar_button {
+  opacity: 0.7;
+  transition: all 0.3s ease-in-out;
+}
+.link_appBar_button:hover {
   opacity: 1;
-  color: black;
+}
+
+.link_appBar_button_active {
+  opacity: 1;
+  transition: all 0.3s ease-in-out;
 }
 
 .cardGrid {
@@ -37,6 +57,7 @@
   flex-direction: row;
   width: 100%;
   align-items: center;
+  gap: 16px;
 }
 
 @media (max-width: 1070px) {
@@ -46,7 +67,7 @@
 }
 
 .settings_model {
-  display: "flex";
+  display: flex;
   justify-content: center;
   flex-direction: column;
 }
@@ -59,13 +80,17 @@
 }
 
 .upload_box {
-  width: 300px;
-  height: 300px;
+  max-width: 300px;
+  min-height: 232px;
+  max-height: 300px;
+  height: 100%;
+  width: 100%;
   border: 2px dashed #ccc;
   border-radius: 10px;
   display: flex;
-  justify-content: center;
   align-items: center;
+  align-content: center;
+  justify-content: center;
   background-color: #f9f9f9;
   cursor: pointer;
   position: relative;

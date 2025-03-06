@@ -31,10 +31,8 @@ const ModelBounty: React.FC<ModelBountyProps> = ({
 
   useEffect(() => {
     if (data["max_deadline"]) {
-      console.log(data["max_deadline"]);
       const date = new Date(Number(data["max_deadline"]));
 
-      console.log(date);
 
       const newData = {
         ...data,

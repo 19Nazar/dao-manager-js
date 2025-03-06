@@ -12,6 +12,7 @@ import RemoveRole from "./variant_change_policy/remove_role";
 import UpdateParameters from "./variant_change_policy/update_parameters";
 import UpdateDefaultVotePolicy from "./variant_change_policy/update_default_vote_policy";
 import { DaoManagerJS } from "dao-manager-js";
+import { ConstantsDashboard } from "src/const/const";
 
 interface ChangePolicyProps {
   daoID: string;
@@ -32,15 +33,25 @@ const ChangePolicy: React.FC<ChangePolicyProps> = ({
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       scrollBehavior="outside"
-      style={{ overflow: "visible", maxWidth: "100%", width: "auto" }}
+      backdrop="blur"
+      placement="center"
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: "80px",
+        maxWidth: `${ConstantsDashboard.maxWidth}px`,
+        width: "100%",
+        minWidth: "50px",
+      }}
     >
-      <ModalContent>
+      <ModalContent style={{ overflow: "auto" }}>
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1">
               Change policy
             </ModalHeader>
-            <ModalBody style={{ maxWidth: "100" }}>
+            <ModalBody>
               <Tabs
                 fullWidth
                 className="flex w-full flex-col"

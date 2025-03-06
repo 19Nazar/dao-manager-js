@@ -14,7 +14,7 @@ import {
 import Link from "next/link";
 import styles from "../app/style/profile.module.css";
 import { ServiceDAO } from "../service/service";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { UrlDashboard } from "../url_dashboard/url_dashboard";
 import { ConstantsDashboard } from "../const/const";
 import { DaoManagerJS, Utils } from "dao-manager-js";
@@ -22,25 +22,50 @@ import { DaoManagerJS, Utils } from "dao-manager-js";
 const NavbarComponent: React.FC = () => {
   const daoManagerJS = DaoManagerJS.getInstance();
   const router = useRouter();
-  const [accountId, setAccountId] = useState<string | null>();
+  const [accountId, setAccountId] = useState<string | undefined>(undefined);
   const [balance, setBalance] = useState<string | null>();
+  const pathname = usePathname();
 
-  ServiceDAO.checkAuth(router);
+  const navbarItams = [
+    {
+      title: "Create DAO",
+      href: UrlDashboard.create_dao,
+    },
+    {
+      title: "Add Proposal",
+      href: UrlDashboard.add_propose,
+    },
+    {
+      title: "Settings DAO",
+      href: UrlDashboard.settings_dao,
+    },
+  ];
+
+  useEffect(() => {
+    async function init() {
+      const connection = await ServiceDAO.checkAuth(router);
+      const accountID = daoManagerJS.getAccountID();
+      setAccountId(accountID);
+    }
+    if (router) {
+      const handle = setTimeout(() => {
+        init();
+      }, 0);
+
+      return () => clearTimeout(handle);
+    }
+  }, [router]);
 
   useEffect(() => {
     const fetchBalance = async () => {
-      const accountID = daoManagerJS.getAccountID();
-      setAccountId(accountID);
-
       try {
-        await upadateBalance({ accountId: accountID });
+        await upadateBalance({ accountId: accountId });
       } catch (error) {
         console.error("Error while get balance:", error);
       }
     };
-
-    fetchBalance();
-  }, []);
+    if (accountId) fetchBalance();
+  }, [accountId]);
 
   async function upadateBalance({ accountId }: { accountId: string }) {
     try {
@@ -79,6 +104,7 @@ const NavbarComponent: React.FC = () => {
           </NavbarBrand>
         </NavbarContent>
 
+        {/* Top navbar */}
         <NavbarContent
           className="hidden md:flex justify-center"
           justify="start"
@@ -92,27 +118,23 @@ const NavbarComponent: React.FC = () => {
             </Link>
           </NavbarBrand>
         </NavbarContent>
-
         <NavbarContent className="hidden md:flex gap-4" justify="center">
-          <NavbarItem>
-            <Link color="foreground" href={UrlDashboard.create_dao}>
-              Create DAO
-            </Link>
-          </NavbarItem>
-          <NavbarItem>
-            <Link
-              href={UrlDashboard.add_propose}
-              aria-current="page"
-              color="foreground"
-            >
-              Add Proposal
-            </Link>
-          </NavbarItem>
-          <NavbarItem>
-            <Link color="foreground" href={UrlDashboard.settings_dao}>
-              Settings DAO
-            </Link>
-          </NavbarItem>
+          {navbarItams.map((item, index) => {
+            return (
+              <NavbarItem
+                key={index}
+                className={
+                  pathname == item.href
+                    ? styles.link_appBar_button_active
+                    : styles.link_appBar_button
+                }
+              >
+                <Link color="foreground" href={item.href}>
+                  {item.title}
+                </Link>
+              </NavbarItem>
+            );
+          })}
         </NavbarContent>
 
         <NavbarContent justify="end">
@@ -127,77 +149,106 @@ const NavbarComponent: React.FC = () => {
             ) : (
               <>
                 <NavbarItem>
-                  {accountId?.length > 20
-                    ? `${accountId?.slice(0, 20)}...`
-                    : accountId}
+                  {`Account ID: ${
+                    accountId
+                      ? accountId?.length > 20
+                        ? `${accountId?.slice(0, 20)}...`
+                        : accountId
+                      : "Loading..."
+                  }`}
                 </NavbarItem>
                 <NavbarItem>
-                  {balance ? (
-                    balance?.length > 10 ? (
-                      `${balance?.slice(0, 10)}... NEAR`
-                    ) : (
-                      balance + " NEAR"
-                    )
-                  ) : (
-                    <Spinner size="sm" color="white" />
-                  )}
+                  {`Balance: ${
+                    balance
+                      ? balance.length > 10
+                        ? `${balance.slice(0, 10)}... NEAR`
+                        : `${balance} NEAR`
+                      : "Loading..."
+                  }`}
                 </NavbarItem>
               </>
             )}
           </NavbarContent>
           <NavbarItem>
-            <Button className={styles.appBarButtonColor} onClick={logOut}>
+            <div className={styles.appBarButtonColor} onClick={logOut}>
               Log Out
-            </Button>
+            </div>
           </NavbarItem>
         </NavbarContent>
 
-        <NavbarMenu className={styles.navBar}>
-          <NavbarMenuItem>
-            <Link color="foreground" href={UrlDashboard.create_dao}>
-              Create DAO
-            </Link>
-          </NavbarMenuItem>
-          <NavbarMenuItem>
-            <Link
-              href={UrlDashboard.add_propose}
-              aria-current="page"
-              color="foreground"
+        {/* Left navbar */}
+        <NavbarMenu
+          className="bg-[#262626]"
+          style={{ width: "100%", height: "100%" }}
+        >
+          <NavbarContent>
+            <div
+              style={{
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                color: "white",
+                height: "100%",
+                justifyContent: "space-between",
+              }}
             >
-              Add Proposal
-            </Link>
-          </NavbarMenuItem>
-          <NavbarMenuItem>
-            <Link color="foreground" href={UrlDashboard.settings_dao}>
-              Settings DAO
-            </Link>
-          </NavbarMenuItem>
-          {accountId == null ? (
-            <NavbarItem>
-              <Spinner color="white" />
-            </NavbarItem>
-          ) : (
-            <>
-              <NavbarMenuItem>
-                Account ID:
-                {accountId?.length > 20
-                  ? `${accountId?.slice(0, 20)}...`
-                  : accountId}
-              </NavbarMenuItem>
-              <NavbarMenuItem>
-                Balance:
-                {balance ? (
-                  balance?.length > 10 ? (
-                    `${balance?.slice(0, 10)}... NEAR`
-                  ) : (
-                    balance + " NEAR"
-                  )
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "start",
+                  alignItems: "start",
+                  alignContent: "start",
+                }}
+              >
+                {navbarItams.map((item, index) => {
+                  return (
+                    <NavbarItem key={index}>
+                      <Link
+                        color="foreground"
+                        href={item.href}
+                        className={
+                          pathname == item.href
+                            ? styles.link_appBar_button_active
+                            : styles.link_appBar_button
+                        }
+                      >
+                        {item.title}
+                      </Link>
+                    </NavbarItem>
+                  );
+                })}
+              </div>
+              <div style={{ paddingBottom: "20px" }}>
+                {accountId == null ? (
+                  <NavbarItem>
+                    <Spinner color="white" />
+                  </NavbarItem>
                 ) : (
-                  <Spinner size="sm" color="white" />
+                  <>
+                    <NavbarMenuItem>
+                      {`Account ID: ${
+                        accountId
+                          ? accountId?.length > 20
+                            ? `${accountId?.slice(0, 20)}...`
+                            : accountId
+                          : "Loading..."
+                      }`}
+                    </NavbarMenuItem>
+                    <NavbarMenuItem>
+                      {`Balance: ${
+                        balance
+                          ? balance.length > 10
+                            ? `${balance.slice(0, 10)}... NEAR`
+                            : `${balance} NEAR`
+                          : "Loading..."
+                      }`}
+                    </NavbarMenuItem>
+                  </>
                 )}
-              </NavbarMenuItem>
-            </>
-          )}
+              </div>
+            </div>
+          </NavbarContent>
         </NavbarMenu>
       </Navbar>
     </div>
