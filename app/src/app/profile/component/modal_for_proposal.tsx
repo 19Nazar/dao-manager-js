@@ -8,6 +8,7 @@ import {
 import { useState, useEffect } from "react";
 import CustomButton from "../../../shared_widgets/custom_button";
 import { ActProposalModel, DaoManagerJS } from "dao-manager-js";
+import { ConstantsDashboard } from "src/const/const";
 
 interface ModelProposeProps {
   daoID: string;
@@ -29,7 +30,6 @@ const ModelPropose: React.FC<ModelProposeProps> = ({
     if (data["submission_time"]) {
       const milliseconds = data["submission_time"] / 1000000;
       const date = new Date(milliseconds);
-      console.log(date);
 
       const newData = {
         ...data,
@@ -40,7 +40,7 @@ const ModelPropose: React.FC<ModelProposeProps> = ({
   }, [data]);
 
   function RenderObject({ data, depth = 0 }) {
-    const indent = { marginLeft: `${depth * 20}px` };
+    const indent = { marginLeft: `${depth + 10}px` };
     if (typeof data === "object" && data !== null) {
       return (
         <ul>
@@ -74,16 +74,26 @@ const ModelPropose: React.FC<ModelProposeProps> = ({
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         scrollBehavior="outside"
-        style={{ maxWidth: "100%", width: "fit-content" }}
+        backdrop="blur"
+        placement="center"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop: "80px",
+          maxWidth: `${ConstantsDashboard.maxWidth}px`,
+          width: "100%",
+          minWidth: "50px",
+        }}
       >
-        <ModalContent>
+        <ModalContent style={{ overflow: "auto" }}>
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
                 Act to propose
               </ModalHeader>
               <ModalBody>
-                <div>
+                <div style={{ overflow: "auto" }}>
                   <RenderObject data={updatedData} />
                 </div>
               </ModalBody>

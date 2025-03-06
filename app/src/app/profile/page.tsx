@@ -13,7 +13,6 @@ import {
   Spinner,
 } from "@nextui-org/react";
 import styles from "../style/profile.module.css";
-import NavbarComponent from "../../shared_widgets/navbar";
 import { ConstantsDashboard } from "../../const/const";
 import ModelPropose from "./component/modal_for_proposal";
 import { ServiceDAO } from "../../service/service";
@@ -21,6 +20,9 @@ import useTransactionStatus from "../../service/useTransactionStatus";
 import ResponseModal from "../../shared_widgets/respone_modal";
 import ProfileDAOCard from "./component/profile_dao_card";
 import { DaoManagerJS, Status } from "dao-manager-js";
+import LoadingSpinner from "./component/LoadingSpinner";
+import { ButtonTab } from "src/shared_widgets/ButtonTab/ButtonTab";
+import { motion } from "framer-motion";
 
 export default function Profile() {
   const router = useRouter();
@@ -39,6 +41,10 @@ export default function Profile() {
   const limit = 6;
   const [connection, setConnection] = useState<boolean | null>(null);
 
+  const [activeSearch, setActiveSearch] = useState<"proposal" | "bounty">(
+    "proposal",
+  );
+
   useEffect(() => {
     async function init() {
       const connection = await ServiceDAO.checkAuth(router);
@@ -49,8 +55,14 @@ export default function Profile() {
         setDaoId(daoID);
       }
     }
-    init();
-  }, []);
+    if (router) {
+      const handle = setTimeout(() => {
+        init();
+      }, 0);
+
+      return () => clearTimeout(handle);
+    }
+  }, [router]);
 
   useEffect(() => {
     async function get() {
@@ -86,8 +98,9 @@ export default function Profile() {
           isPressable
           key={`${startId}-${object["id"]}`}
           style={{
-            margin: 10,
-            width: 300,
+            maxWidth: "500px",
+            width: "100%",
+            minWidth: "50px",
             borderWidth: "2px",
             borderStyle: "solid",
             borderColor: "#4b4f53",
@@ -149,7 +162,6 @@ export default function Profile() {
       from_index: startIdexId,
       limit: limit,
     });
-    console.log(res);
     if (res.status == Status.successful) {
       return res.data;
     } else {
@@ -165,21 +177,7 @@ export default function Profile() {
   }
 
   if (connection == null) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          width: "100%",
-        }}
-      >
-        <Spinner size="lg" color="white">
-          Load page
-        </Spinner>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (resFailureData || resSuccessData) {
@@ -206,19 +204,26 @@ export default function Profile() {
     );
   }
   return (
-    <div style={{ minHeight: 100, height: "auto" }}>
-      <NavbarComponent />
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       <div
         className="main_profile"
         style={{
           display: "flex",
-          justifyContent: "center",
           flexDirection: "column",
-          alignItems: "center",
+          maxWidth: `${ConstantsDashboard.maxWidth}px`,
+          width: "100%",
+          gap: "20px",
         }}
       >
-        <div className={styles.profile_dao}>
-          <div style={{ maxWidth: 500 }}>
+        <div
+          className={styles.profile_dao}
+          style={{ display: "flex", flex: 1, gap: "20px" }}
+        >
+          <div style={{ display: "flex", flex: 1, minHeight: "274px" }}>
             <Card className="max-w-full shadow-lg">
               <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
                 <h4 className="font-bold text-large">DAO initialization</h4>
@@ -251,7 +256,15 @@ export default function Profile() {
             </Card>
           </div>
           {daoId == null ? (
-            <div style={{ marginTop: 20 }}>
+            <div
+              style={{
+                display: "flex",
+                flex: 1,
+                height: "100%",
+                width: "100%",
+                minHeight: "274px",
+              }}
+            >
               <Card>
                 <CardHeader>
                   <h3 className="font-bold text-large">DAO profile</h3>
@@ -264,81 +277,127 @@ export default function Profile() {
               </Card>
             </div>
           ) : (
-            <div style={{ marginTop: 20, maxWidth: "500px" }}>
+            <div
+              style={{
+                display: "flex",
+                flex: 1,
+                width: "100%",
+              }}
+            >
               <ProfileDAOCard daoID={daoId} />
             </div>
           )}
         </div>
-        <div style={{ marginTop: 20 }}>
+        <div>
           <Card>
             <CardHeader>
-              <h3 className="font-bold text-large">
-                This is list of all proposals
-              </h3>
-            </CardHeader>
-            <CardBody>
-              <div>
-                {!daoId ? (
-                  <h1 style={{ margin: 20 }}>
-                    To see the proposals you have to enter the DAO id
-                  </h1>
-                ) : !outputProposals ? (
-                  <div style={{ display: "flex", justifyContent: "center" }}>
-                    <CircularProgress />
-                  </div>
-                ) : outputProposals.length == 0 ? (
-                  <div style={{ margin: 20 }}>
-                    <h1>You don`t have proposals.</h1>
-                    <h1>
-                      In order to make the first proposal, you need to go to the
-                      Add Proposal tab and select the appropriate proposal.
-                    </h1>
-                  </div>
-                ) : (
-                  <div
-                    style={{
-                      height: "auto",
-                      display: "flex",
-                      flexDirection: "column",
-                      padding: "20px",
-                    }}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "100%",
+                }}
+              >
+                <div style={{ display: "flex" }}>
+                  <ButtonTab
+                    isActive={activeSearch == "proposal"}
+                    onClick={() => setActiveSearch("proposal")}
+                    style={{ width: "100%" }}
                   >
-                    <div className={styles.cardGrid} key={startId}>
-                      {outputProposals.map((proposal, startId) => {
-                        return proposal;
-                      })}
-                    </div>
-                    <div
-                      style={{
-                        marginTop: 15,
-                        display: "flex",
-                        justifyContent: "flex-end",
-                      }}
-                    >
-                      <Pagination
-                        showControls
-                        total={pageNumb}
-                        initialPage={1}
-                        onChange={(page) => {
-                          async function updateDATA(page: number) {
-                            if (page <= -1) {
-                              await actionPagination(page * -1);
-                            } else {
-                              await actionPagination(page);
-                            }
-                          }
-                          updateDATA(page);
-                        }}
-                        color="success"
+                    Proposal
+                  </ButtonTab>
+                  <ButtonTab
+                    isActive={activeSearch == "bounty"}
+                    onClick={() => setActiveSearch("bounty")}
+                    style={{ width: "100%" }}
+                  >
+                    Bounty
+                  </ButtonTab>
+                </div>
+                <h3 className="font-bold text-large">
+                  This is list search value
+                </h3>
+              </div>
+            </CardHeader>
+            {activeSearch == "proposal" && (
+              <CardBody>
+                <div>
+                  {!daoId ? (
+                    <h1 style={{ margin: 20 }}>
+                      To see the proposals you have to enter the DAO id
+                    </h1>
+                  ) : !outputProposals ? (
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                      <Spinner
+                        label="Load data"
+                        color="current"
+                        style={{ color: "black" }}
                       />
                     </div>
-                  </div>
-                )}
-              </div>
-            </CardBody>
+                  ) : outputProposals.length == 0 ? (
+                    <div style={{ margin: 20 }}>
+                      <h1>You don`t have proposals.</h1>
+                      <h1>
+                        In order to make the first proposal, you need to go to
+                        the Add Proposal tab and select the appropriate
+                        proposal.
+                      </h1>
+                    </div>
+                  ) : (
+                    <div
+                      style={{
+                        height: "auto",
+                        display: "flex",
+                        flexDirection: "column",
+                        padding: "20px",
+                        width: "100%",
+                      }}
+                    >
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.4 }}
+                        className={styles.cardGrid}
+                        key={startId}
+                      >
+                        {outputProposals.map((proposal, startId) => {
+                          return proposal;
+                        })}
+                      </motion.div>
+                      <div
+                        style={{
+                          marginTop: 15,
+                          display: "flex",
+                          justifyContent: "flex-end",
+                        }}
+                      >
+                        <Pagination
+                          showControls
+                          total={pageNumb}
+                          initialPage={1}
+                          onChange={(page) => {
+                            async function updateDATA(page: number) {
+                              if (page <= -1) {
+                                await actionPagination(page * -1);
+                              } else {
+                                await actionPagination(page);
+                              }
+                            }
+                            updateDATA(page);
+                          }}
+                          color="success"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardBody>
+            )}
+
+            {activeSearch == "bounty" && <CardBody>"test"</CardBody>}
           </Card>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

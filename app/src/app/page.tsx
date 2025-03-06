@@ -34,11 +34,7 @@ export default function Home() {
 
   return (
     <div className="centered-container">
-      <Spinner
-        label="Loading..."
-        color="warning"
-        style={{ color: "#a463b0" }}
-      />
+      <Spinner label="Loading..." color="current" style={{ color: "rgb(0, 0, 0)", fontWeight: 500 }} />
     </div>
   );
 }

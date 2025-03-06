@@ -1,6 +1,5 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
-import NavbarComponent from "../../../shared_widgets/navbar";
 import {
   Card,
   CardBody,
@@ -17,6 +16,8 @@ import { ServiceDAO } from "../../../service/service";
 import useTransactionStatus from "../../../service/useTransactionStatus";
 import ResponseModal from "../../../shared_widgets/respone_modal";
 import { DaoManagerJS, Utils } from "dao-manager-js";
+import LoadingSpinner from "../component/LoadingSpinner";
+import { motion } from "framer-motion";
 
 export default function SettingsDao() {
   const router = useRouter();
@@ -47,11 +48,15 @@ export default function SettingsDao() {
         setDaoId(daoID);
       }
     }
-    init();
-  }, []);
+    if (router) {
+      const handle = setTimeout(() => {
+        init();
+      }, 0);
+    }
+  }, [router]);
 
   function RenderObject({ data, depth = 0 }) {
-    const indent = { marginLeft: `${depth * 20}px` };
+    const indent = { marginLeft: `${depth + 20}px` };
     if (typeof data === "object" && data !== null) {
       return (
         <ul>
@@ -73,7 +78,6 @@ export default function SettingsDao() {
 
   useEffect(() => {
     async function getSettings(contractId: string) {
-      console.log(1);
       const settings = await daoManagerJS.getPolicy({ contractId: contractId });
       setProposalBond(settings.data["proposal_bond"]);
       setBountyBond(settings.data["bounty_bond"]);
@@ -94,7 +98,6 @@ export default function SettingsDao() {
         bounty_forgiveness_period: bounty_forgiveness_period,
       };
 
-      console.log(settings);
       setSettings(newSettings);
     }
     if (daoID && connection) {
@@ -123,21 +126,7 @@ export default function SettingsDao() {
   }
 
   if (connection == null) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          width: "100%",
-        }}
-      >
-        <Spinner size="lg" color="white">
-          Load page
-        </Spinner>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
   if (resFailureData || resSuccessData) {
     return (
@@ -153,29 +142,50 @@ export default function SettingsDao() {
   }
 
   return (
-    <div>
-      <NavbarComponent />
-      <div className="main_profile">
-        <div className="flex flex-col gap-1 items-center justify-center ">
-          <div>
-            <Card className="max-w-full shadow-lg">
-              <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
-                <h4 className="font-bold text-large">DAO setting</h4>
-              </CardHeader>
-              <Divider className="my-4" />
-              <CardBody className="overflow-visible py-2">
-                {daoID == null ? (
-                  <h1>For Interaction you must add DAO smart contract id</h1>
-                ) : settings ? (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="main_profile"
+      style={{
+        maxWidth: `${ConstantsDashboard.maxWidth}px`,
+        width: "100%",
+        height: "100%",
+      }}
+    >
+      <div className="flex flex-col gap-1 items-center justify-center ">
+        <div>
+          <Card className="max-w-full shadow-lg">
+            <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
+              <h4 className="font-bold text-large">DAO setting</h4>
+            </CardHeader>
+            <Divider className="my-4" />
+            <CardBody className="overflow-visible py-2">
+              {daoID == null ? (
+                <h1 style={{ marginBottom: 10 }}>
+                  For Interaction you must add DAO smart contract id
+                </h1>
+              ) : settings ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  style={{ overflow: "auto" }}
+                >
                   <RenderObject data={settings} />
-                ) : (
-                  <Spinner>Load data</Spinner>
-                )}
+                </motion.div>
+              ) : (
+                <Spinner
+                  label="Load data"
+                  color="current"
+                  style={{ color: "black" }}
+                />
+              )}
 
+              {daoID && (
                 <div
                   style={{
                     display: "flex",
-                    marginTop: 10,
                     alignContent: "flex-end",
                     alignItems: "flex-end",
                     justifyContent: "flex-end",
@@ -186,17 +196,17 @@ export default function SettingsDao() {
                     onClick={() => setIsChangePolicyOpen(true)}
                   />
                 </div>
-              </CardBody>
-            </Card>
-          </div>
+              )}
+            </CardBody>
+          </Card>
         </div>
-        <ChangePolicy
-          daoID={daoID}
-          onOpenChange={() => setIsChangePolicyOpen(false)}
-          isOpen={isChangePolicyOpen}
-          proposalCost={proposalBond}
-        />
       </div>
-    </div>
+      <ChangePolicy
+        daoID={daoID}
+        onOpenChange={() => setIsChangePolicyOpen(false)}
+        isOpen={isChangePolicyOpen}
+        proposalCost={proposalBond}
+      />
+    </motion.div>
   );
 }

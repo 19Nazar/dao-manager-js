@@ -12,7 +12,6 @@ import {
   DropdownMenu,
   DropdownTrigger,
   Pagination,
-  Spinner,
 } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 
@@ -28,6 +27,8 @@ import ModelBounty from "./components/modal_for_bounty";
 import ResponseModal from "../../../shared_widgets/respone_modal";
 import useTransactionStatus from "../../../service/useTransactionStatus";
 import { DaoManagerJS, ProposalTypes, Status, Utils } from "dao-manager-js";
+import LoadingSpinner from "../component/LoadingSpinner";
+import { motion } from "framer-motion";
 
 export default function AddProposeDao() {
   const router = useRouter();
@@ -58,8 +59,14 @@ export default function AddProposeDao() {
         setDaoId(daoID);
       }
     }
-    init();
-  }, []);
+    if (router) {
+      const handle = setTimeout(() => {
+        init();
+      }, 0);
+
+      return () => clearTimeout(handle);
+    }
+  }, [router]);
 
   useEffect(() => {
     async function get() {
@@ -172,21 +179,7 @@ export default function AddProposeDao() {
   };
 
   if (connection == null) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          width: "100%",
-        }}
-      >
-        <Spinner size="lg" color="white">
-          Load page
-        </Spinner>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (resFailureData || resSuccessData) {
@@ -214,8 +207,12 @@ export default function AddProposeDao() {
   }
 
   return (
-    <div style={{ minHeight: 100, height: "auto" }}>
-      <NavbarComponent />
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      style={{ minHeight: 100, height: "auto" }}
+    >
       <div
         className="main_profile"
         style={{
@@ -404,6 +401,6 @@ export default function AddProposeDao() {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
