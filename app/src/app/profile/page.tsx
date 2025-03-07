@@ -23,6 +23,7 @@ import { DaoManagerJS, Status } from "dao-manager-js";
 import LoadingSpinner from "./component/LoadingSpinner";
 import { ButtonTab } from "src/shared_widgets/ButtonTab/ButtonTab";
 import { motion } from "framer-motion";
+import DAOCardBody from "src/shared_widgets/DAOCardBody/DAOCardBody";
 
 export default function Profile() {
   const router = useRouter();
@@ -40,6 +41,10 @@ export default function Profile() {
   const [pageNumb, setPageNumb] = useState<number>(1);
   const limit = 6;
   const [connection, setConnection] = useState<boolean | null>(null);
+
+  const [outputBounty, setOutputBounty] = useState<Array<JSX.Element> | null>(
+    null,
+  );
 
   const [activeSearch, setActiveSearch] = useState<"proposal" | "bounty">(
     "proposal",
@@ -223,7 +228,7 @@ export default function Profile() {
           className={styles.profile_dao}
           style={{ display: "flex", flex: 1, gap: "20px" }}
         >
-          <div style={{ display: "flex", flex: 1, minHeight: "274px" }}>
+          <div style={{ display: "flex", flex: 1, minHeight: "272px" }}>
             <Card className="max-w-full shadow-lg">
               <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
                 <h4 className="font-bold text-large">DAO initialization</h4>
@@ -262,12 +267,12 @@ export default function Profile() {
                 flex: 1,
                 height: "100%",
                 width: "100%",
-                minHeight: "274px",
+                minHeight: "272px",
               }}
             >
               <Card>
-                <CardHeader>
-                  <h3 className="font-bold text-large">DAO profile</h3>
+                <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
+                  <h4 className="font-bold text-large">DAO profile</h4>
                 </CardHeader>
                 <CardBody>
                   <h1 style={{ margin: 20 }}>
@@ -314,87 +319,18 @@ export default function Profile() {
                     Bounty
                   </ButtonTab>
                 </div>
-                <h3 className="font-bold text-large">
+                <h3 className="font-bold text-large mt-5">
                   This is list search value
                 </h3>
               </div>
             </CardHeader>
             {activeSearch == "proposal" && (
-              <CardBody>
-                <div>
-                  {!daoId ? (
-                    <h1 style={{ margin: 20 }}>
-                      To see the proposals you have to enter the DAO id
-                    </h1>
-                  ) : !outputProposals ? (
-                    <div style={{ display: "flex", justifyContent: "center" }}>
-                      <Spinner
-                        label="Load data"
-                        color="current"
-                        style={{ color: "black" }}
-                      />
-                    </div>
-                  ) : outputProposals.length == 0 ? (
-                    <div style={{ margin: 20 }}>
-                      <h1>You don`t have proposals.</h1>
-                      <h1>
-                        In order to make the first proposal, you need to go to
-                        the Add Proposal tab and select the appropriate
-                        proposal.
-                      </h1>
-                    </div>
-                  ) : (
-                    <div
-                      style={{
-                        height: "auto",
-                        display: "flex",
-                        flexDirection: "column",
-                        padding: "20px",
-                        width: "100%",
-                      }}
-                    >
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.4 }}
-                        className={styles.cardGrid}
-                        key={startId}
-                      >
-                        {outputProposals.map((proposal, startId) => {
-                          return proposal;
-                        })}
-                      </motion.div>
-                      <div
-                        style={{
-                          marginTop: 15,
-                          display: "flex",
-                          justifyContent: "flex-end",
-                        }}
-                      >
-                        <Pagination
-                          showControls
-                          total={pageNumb}
-                          initialPage={1}
-                          onChange={(page) => {
-                            async function updateDATA(page: number) {
-                              if (page <= -1) {
-                                await actionPagination(page * -1);
-                              } else {
-                                await actionPagination(page);
-                              }
-                            }
-                            updateDATA(page);
-                          }}
-                          color="success"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </CardBody>
+              <DAOCardBody daoId={daoId} type="proposal" />
             )}
 
-            {activeSearch == "bounty" && <CardBody>"test"</CardBody>}
+            {activeSearch == "bounty" && (
+              <DAOCardBody daoId={daoId} type="bounty" />
+            )}
           </Card>
         </div>
       </div>

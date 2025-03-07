@@ -8,7 +8,7 @@ import {
   Spinner,
   useDisclosure,
 } from "@nextui-org/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ConstantsDashboard } from "../../../const/const";
 import CustomButton from "../../../shared_widgets/custom_button";
 import ChangePolicy from "./components/change_policy";
@@ -36,7 +36,19 @@ export default function SettingsDao() {
   const [proposalBond, setProposalBond] = useState<string | null>(null);
   const [bountyBond, setBountyBond] = useState<string | null>(null);
 
-  const [connection, setConnection] = useState<boolean | null>(null);
+  const [connection, setConnection] = useState<boolean>(false);
+
+  const formattedSettings = useMemo(() => {
+    if (!settings) return null;
+
+    return {
+      ...settings,
+      proposal_bond: Utils.yoctoNEARToNear(settings["proposal_bond"]) + " Near",
+      bounty_bond: Utils.yoctoNEARToNear(settings["bounty_bond"]) + " Near",
+      proposal_period: getData(settings["proposal_period"]),
+      bounty_forgiveness_period: getData(settings["bounty_forgiveness_period"]),
+    };
+  }, [settings]);
 
   useEffect(() => {
     async function init() {
@@ -78,27 +90,8 @@ export default function SettingsDao() {
 
   useEffect(() => {
     async function getSettings(contractId: string) {
-      const settings = await daoManagerJS.getPolicy({ contractId: contractId });
-      setProposalBond(settings.data["proposal_bond"]);
-      setBountyBond(settings.data["bounty_bond"]);
-      const proposal_period = getData(settings.data["proposal_period"]);
-      const bounty_forgiveness_period = getData(
-        settings.data["bounty_forgiveness_period"],
-      );
-      const proposal_bond =
-        Utils.yoctoNEARToNear(settings.data["proposal_bond"]) + " Near";
-      const bounty_bond =
-        Utils.yoctoNEARToNear(settings.data["bounty_bond"]) + " Near";
-
-      const newSettings = {
-        ...settings.data,
-        bounty_bond: bounty_bond,
-        proposal_bond: proposal_bond,
-        proposal_period: proposal_period,
-        bounty_forgiveness_period: bounty_forgiveness_period,
-      };
-
-      setSettings(newSettings);
+      const settingsData = await daoManagerJS.getPolicy({ contractId });
+      setSettings(settingsData.data);
     }
     if (daoID && connection) {
       getSettings(daoID);
@@ -125,7 +118,7 @@ export default function SettingsDao() {
     return `${days ? "Days: " + days : ""} ${hours ? "Hours: " + hours : ""} ${minutes ? "Minutes: " + minutes : ""} ${seconds ? "Seconds: " + seconds : ""}`;
   }
 
-  if (connection == null) {
+  if (connection != true) {
     return <LoadingSpinner />;
   }
   if (resFailureData || resSuccessData) {
@@ -160,19 +153,19 @@ export default function SettingsDao() {
               <h4 className="font-bold text-large">DAO setting</h4>
             </CardHeader>
             <Divider className="my-4" />
-            <CardBody className="overflow-visible py-2">
+            <CardBody className="overflow-visible py-2 gap-4">
               {daoID == null ? (
                 <h1 style={{ marginBottom: 10 }}>
                   For Interaction you must add DAO smart contract id
                 </h1>
-              ) : settings ? (
+              ) : formattedSettings ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
                   style={{ overflow: "auto" }}
                 >
-                  <RenderObject data={settings} />
+                  <RenderObject data={formattedSettings} />
                 </motion.div>
               ) : (
                 <Spinner

@@ -6,7 +6,7 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@nextui-org/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import CustomButton from "../../../../shared_widgets/custom_button";
 import { getLocalTimeZone } from "@internationalized/date";
 import { DaoManagerJS } from "dao-manager-js";
@@ -24,22 +24,19 @@ const ModelBounty: React.FC<ModelBountyProps> = ({
   onOpenChange,
   isOpen,
 }) => {
-  const [updatedData, setUpdatedData] = useState(data);
   const daoManagerJS = DaoManagerJS.getInstance();
   const [isModelOpen, setIsModelOpen] = useState<boolean>(false);
   const [maxDeadline, setMaxDeadline] = useState<string | undefined>(undefined);
 
-  useEffect(() => {
+  const formattedData = useMemo(() => {
     if (data["max_deadline"]) {
       const date = new Date(Number(data["max_deadline"]));
 
-
-      const newData = {
+      return {
         ...data,
         amount: data["amount"] + " Near",
         max_deadline: date.toUTCString(),
       };
-      setUpdatedData(newData);
     }
   }, [data]);
 
@@ -121,7 +118,7 @@ const ModelBounty: React.FC<ModelBountyProps> = ({
               </ModalHeader>
               <ModalBody>
                 <div>
-                  <RenderObject data={updatedData} />
+                  <RenderObject data={formattedData} />
                 </div>
               </ModalBody>
               <ModalFooter

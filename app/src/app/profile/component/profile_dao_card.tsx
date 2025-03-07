@@ -72,7 +72,9 @@ const ProfileDAOCard: React.FC<ProfileDAOCardProps> = ({ daoID }) => {
       <Card
         style={{ height: "100%", minHeight: "272px", display: "flex", flex: 1 }}
       >
-        <CardHeader className="font-bold text-large">DAO profile</CardHeader>
+        <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
+          <h4 className="font-bold text-large">DAO profile</h4>
+        </CardHeader>
         <CardBody>
           <div>
             <Skeleton className="flex rounded-full w-32 h-32" />
@@ -94,7 +96,9 @@ const ProfileDAOCard: React.FC<ProfileDAOCardProps> = ({ daoID }) => {
       <Card
         style={{ height: "100%", minHeight: "272px", display: "flex", flex: 1 }}
       >
-        <CardHeader className="font-bold text-large">DAO profile</CardHeader>
+        <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
+          <h4 className="font-bold text-large">DAO profile</h4>
+        </CardHeader>
         <CardBody>
           <div
             style={{
