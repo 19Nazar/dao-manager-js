@@ -5,7 +5,7 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@nextui-org/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import CustomButton from "../../../shared_widgets/custom_button";
 import { ActProposalModel, DaoManagerJS } from "dao-manager-js";
 import { ConstantsDashboard } from "src/const/const";
@@ -23,20 +23,19 @@ const ModelPropose: React.FC<ModelProposeProps> = ({
   onOpenChange,
   isOpen,
 }) => {
-  const [updatedData, setUpdatedData] = useState(data);
+  // const [updatedData, setUpdatedData] = useState(data);
   const daoManagerJS = DaoManagerJS.getInstance();
 
-  useEffect(() => {
-    if (data["submission_time"]) {
-      const milliseconds = data["submission_time"] / 1000000;
-      const date = new Date(milliseconds);
+  const formattedData = useMemo(() => {
+    if (!data["submission_time"]) return data;
 
-      const newData = {
-        ...data,
-        submission_time: date.toDateString() + " time:" + date.toTimeString(),
-      };
-      setUpdatedData(newData);
-    }
+    const milliseconds = data["submission_time"] / 1000000;
+    const date = new Date(milliseconds);
+
+    return {
+      ...data,
+      submission_time: date.toDateString() + " time:" + date.toTimeString(),
+    };
   }, [data]);
 
   function RenderObject({ data, depth = 0 }) {
@@ -94,7 +93,7 @@ const ModelPropose: React.FC<ModelProposeProps> = ({
               </ModalHeader>
               <ModalBody>
                 <div style={{ overflow: "auto" }}>
-                  <RenderObject data={updatedData} />
+                  <RenderObject data={formattedData} />
                 </div>
               </ModalBody>
               <ModalFooter
