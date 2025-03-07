@@ -158,7 +158,7 @@ export default function CreateDao() {
                 To create a DAO, you need 5.5 NEAR. Also you need to enter the
                 following parameters:
               </h4>
-              <h1 className="mt-4">Purpose for DAO</h1>
+              <h1 className="mt-4"> Name for DAO</h1>
               <Input
                 className="mt-1"
                 autoFocus

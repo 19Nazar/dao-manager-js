@@ -13,13 +13,13 @@ export default class DaoManagerJS {
   private static instance: DaoManagerJS | null = null;
   nearWallet: NearWallet;
   daoService: DaoService;
-  constructor() {
-    this.nearWallet = NearWallet.getInstance();
-    this.daoService = DaoService.getInstance();
+  constructor({daoService, nearWallet} : {daoService?: DaoService, nearWallet?: NearWallet}) {
+    this.nearWallet = nearWallet ?? NearWallet.getInstance();
+    this.daoService = daoService ?? DaoService.getInstance();
   }
   static getInstance(): DaoManagerJS {
     if (!DaoManagerJS.instance) {
-      DaoManagerJS.instance = new DaoManagerJS();
+      DaoManagerJS.instance = new DaoManagerJS({});
     }
     return DaoManagerJS.instance;
   }
@@ -225,6 +225,7 @@ export default class DaoManagerJS {
     });
     return res;
   }
+
 
   async getLastBountyId({
     contractId,

@@ -5,7 +5,10 @@ export default class DaoManagerJS {
     private static instance;
     nearWallet: NearWallet;
     daoService: DaoService;
-    constructor();
+    constructor({ daoService, nearWallet }: {
+        daoService?: DaoService;
+        nearWallet?: NearWallet;
+    });
     static getInstance(): DaoManagerJS;
     createConnection({ connectionType, networkID, privateKey, accountID, }: {
         privateKey?: string;
