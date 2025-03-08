@@ -51,7 +51,6 @@ const ChangeConfig: React.FC<ChangeConfigProps> = ({ daoID }) => {
   const handleImageUpload = async (event) => {
     setIsLoadingImage(true);
     const file = event.target.files[0];
-    console.log(file.size);
     setFilename(file.name);
 
     if (!file) return;
@@ -83,7 +82,7 @@ const ChangeConfig: React.FC<ChangeConfigProps> = ({ daoID }) => {
           setImageBase64(JSON.stringify(resizedBase64));
         };
       } else {
-        console.error("FileReader result is not a string");
+        setResFailureData("FileReader result is not a string");
       }
     };
     reader.readAsDataURL(file);
@@ -143,7 +142,7 @@ const ChangeConfig: React.FC<ChangeConfigProps> = ({ daoID }) => {
           <div className={style.upload_container}>
             <label className={style.upload_box}>
               {isLoadingImage == true ? (
-                <Spinner />
+                <Spinner color="current" style={{ color: "black" }} />
               ) : imageBase64 != null ? (
                 <>
                   <FontAwesomeIcon

@@ -100,34 +100,31 @@ const AddRemoveMemberToRole: React.FC<AddRemoveMemberToRoleProps> = ({
             style={{
               display: "flex",
               justifyContent: "space-between",
+              marginTop: 17,
             }}
           >
-            <div>
-              <CustomButton
-                style={{ marginTop: 17, backgroundColor: "red" }}
-                text={"Remove member"}
-                onClick={async () => {
-                  await removeMemberFromRole({
-                    description: description,
-                    member_id: memberId,
-                    role: role,
-                  });
-                }}
-              />
-            </div>
-            <div>
-              <CustomButton
-                style={{ marginTop: 17, backgroundColor: "green" }}
-                text={"Add member"}
-                onClick={async () => {
-                  await addMemberToRole({
-                    description: description,
-                    member_id: memberId,
-                    role: role,
-                  });
-                }}
-              />
-            </div>
+            <CustomButton
+              style={{ backgroundColor: "red", flex: 1, maxWidth: "180px" }}
+              text={"Remove member"}
+              onClick={async () => {
+                await removeMemberFromRole({
+                  description: description,
+                  member_id: memberId,
+                  role: role,
+                });
+              }}
+            />
+            <CustomButton
+              style={{ backgroundColor: "green", flex: 1, maxWidth: "180px" }}
+              text={"Add member"}
+              onClick={async () => {
+                await addMemberToRole({
+                  description: description,
+                  member_id: memberId,
+                  role: role,
+                });
+              }}
+            />
           </div>
         </CardBody>
       </Card>

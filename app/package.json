@@ -15,6 +15,7 @@
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@jest/globals": "^29.7.0",
     "@next/bundle-analyzer": "^15.0.2",
     "@nextui-org/react": "2.4.8",
     "babel-loader": "^9.2.1",

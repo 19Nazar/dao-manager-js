@@ -19,10 +19,6 @@ export default function Home() {
   const daoManagerInstance = DaoManagerJS.getInstance();
   const [selectedKey, setSelectedKey] = useState<string>("testnet");
 
-  useEffect(() => {
-    console.log(path);
-  }, [path]);
-
   async function logInWallet({ network }: { network: string }) {
     await daoManagerInstance.createConnection({
       networkID: network == "mainnet" ? NetworkID.mainnet : NetworkID.testnet,

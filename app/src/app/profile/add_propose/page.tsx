@@ -12,7 +12,6 @@ import {
   DropdownMenu,
   DropdownTrigger,
   Pagination,
-  Spinner,
 } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 
@@ -28,6 +27,8 @@ import ModelBounty from "./components/modal_for_bounty";
 import ResponseModal from "../../../shared_widgets/respone_modal";
 import useTransactionStatus from "../../../service/useTransactionStatus";
 import { DaoManagerJS, ProposalTypes, Status, Utils } from "dao-manager-js";
+import LoadingSpinner from "../component/LoadingSpinner";
+import { motion } from "framer-motion";
 
 export default function AddProposeDao() {
   const router = useRouter();
@@ -58,8 +59,14 @@ export default function AddProposeDao() {
         setDaoId(daoID);
       }
     }
-    init();
-  }, []);
+    if (router) {
+      const handle = setTimeout(() => {
+        init();
+      }, 0);
+
+      return () => clearTimeout(handle);
+    }
+  }, [router]);
 
   useEffect(() => {
     async function get() {
@@ -172,21 +179,7 @@ export default function AddProposeDao() {
   };
 
   if (connection == null) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          width: "100%",
-        }}
-      >
-        <Spinner size="lg" color="white">
-          Load page
-        </Spinner>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (resFailureData || resSuccessData) {
@@ -214,8 +207,12 @@ export default function AddProposeDao() {
   }
 
   return (
-    <div style={{ minHeight: 100, height: "auto" }}>
-      <NavbarComponent />
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      style={{ minHeight: 100, height: "auto" }}
+    >
       <div
         className="main_profile"
         style={{
@@ -313,97 +310,9 @@ export default function AddProposeDao() {
               </Dropdown>
             </div>
             <div>{proposalsWidgets[selectedProposal]}</div>
-            <div style={{ marginTop: 20 }}>
-              <Card>
-                <CardHeader>
-                  <h3 className="font-bold text-large">
-                    This is list of all bounty
-                  </h3>
-                </CardHeader>
-                <CardBody>
-                  <div>
-                    {!daoID ? (
-                      <h1 style={{ margin: 20 }}>
-                        To see the bounty you have to enter the DAO id
-                      </h1>
-                    ) : !outputBounty ? (
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <CircularProgress />
-                      </div>
-                    ) : outputBounty.length == 0 ? (
-                      <div style={{ margin: 20 }}>
-                        <h1>You don`t have bounty</h1>
-                        <h1>
-                          To interact with bounty you need to first make a
-                          proposal to create bounty, then validate it.
-                        </h1>
-                      </div>
-                    ) : (
-                      <div
-                        style={{
-                          height: "auto",
-                          display: "flex",
-                          flexDirection: "column",
-                          padding: "20px",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            flexDirection: "column",
-                            width: "100%",
-                          }}
-                        >
-                          <div
-                            className={styles.cardGrid}
-                            style={{ justifyContent: "center" }}
-                          >
-                            {outputBounty.map((proposal) => {
-                              return proposal;
-                            })}
-                          </div>
-                          <div
-                            style={{
-                              marginTop: 15,
-                              display: "flex",
-                              justifyContent: "flex-end",
-                              width: "100%",
-                            }}
-                          >
-                            <Pagination
-                              showControls
-                              total={pageNumb}
-                              initialPage={1}
-                              onChange={(page) => {
-                                async function updateDATA(page: number) {
-                                  if (page <= -1) {
-                                    await actionPagination(page * -1);
-                                  } else {
-                                    await actionPagination(page);
-                                  }
-                                }
-                                updateDATA(page);
-                              }}
-                              color="success"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardBody>
-              </Card>
-            </div>
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
