@@ -6,7 +6,7 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@nextui-org/react";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import CustomButton from "../../../../shared_widgets/custom_button";
 import { getLocalTimeZone } from "@internationalized/date";
 import { DaoManagerJS } from "dao-manager-js";
@@ -74,7 +74,7 @@ const ModelBounty: React.FC<ModelBountyProps> = ({
   async function claimBounty(deadline: string) {
     const settings = await daoManagerJS.getPolicy({ contractId: daoID });
 
-    const res = await daoManagerJS.claimBounty({
+     await daoManagerJS.claimBounty({
       deposit: settings.data["bounty_bond"],
       contractId: daoID,
       id: data["id"],
@@ -85,7 +85,7 @@ const ModelBounty: React.FC<ModelBountyProps> = ({
   async function giveUpBounty() {
     const settings = await daoManagerJS.getPolicy({ contractId: daoID });
 
-    const res = await daoManagerJS.giveUpBounty({
+   await daoManagerJS.giveUpBounty({
       deposit: settings.data["bounty_bond"],
       contractId: daoID,
       id: data["id"],
@@ -95,7 +95,7 @@ const ModelBounty: React.FC<ModelBountyProps> = ({
   async function doneBounty() {
     const settings = await daoManagerJS.getPolicy({ contractId: daoID });
 
-    const res = await daoManagerJS.doneBounty({
+     await daoManagerJS.doneBounty({
       deposit: settings.data["bounty_bond"],
       contractId: daoID,
       id: data["id"],

@@ -4,13 +4,14 @@
   cursor: pointer;
   overflow: hidden;
   width: 100%;
-
+  padding: 4px 12px;
   text-align: center;
   border: none;
   border-bottom: 1px solid transparent;
   transition: all 0.3s ease;
   background-color: inherit;
   height: 80px;
+  flex-wrap: nowrap;
 }
 
 .button.active {

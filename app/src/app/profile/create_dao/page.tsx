@@ -4,15 +4,15 @@ import CustomButton from "../../../shared_widgets/custom_button";
 import { Card, CardBody, CardHeader, Input, Spinner } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import { ServiceDAO } from "../../../service/service";
-import useTransactionStatus from "../../../service/useTransactionStatus";
 import ResponseModal from "../../../shared_widgets/respone_modal";
 import { ConstantsDashboard } from "../../../const/const";
 import style from "../../style/profile.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload, faCheckCircle } from "@fortawesome/free-solid-svg-icons";
-import { BlockChainResponse, DaoManagerJS, Status } from "dao-manager-js";
+import { DaoManagerJS } from "dao-manager-js";
 import LoadingSpinner from "../component/LoadingSpinner";
 import { motion } from "framer-motion";
+import { useTransactionStatus } from "src/service/useTransactionStatus";
 
 export default function CreateDao() {
   const router = useRouter();
@@ -22,14 +22,10 @@ export default function CreateDao() {
   const [resSuccessData, setResSuccessData] = useState<string | null>(null);
   const [resFailureData, setResFailureData] = useState<string | null>(null);
 
-  const [DAOID, setDAOID] = useState<string | undefined>(undefined);
   const [nameDAO, setNameDAO] = useState<string | undefined>(undefined);
   const [purpose, setPurpose] = useState<string | undefined>(undefined);
   const [policy, setPolicy] = useState<string | undefined>(undefined);
   const [imageBase64, setImageBase64] = useState(null);
-  const [resData, setResData] = useState<BlockChainResponse | undefined>(
-    undefined,
-  );
   const [isLoadingImage, setIsLoadingImage] = useState<boolean>(false);
 
   const [filename, setFilename] = useState<string | undefined>(undefined);
@@ -40,11 +36,9 @@ export default function CreateDao() {
     async function init(): Promise<void> {
       const connection = await ServiceDAO.checkAuth(router);
       setConnection(connection);
-      useTransactionStatus(setResSuccessData, setResFailureData, searchParams);
       const daoID = localStorage.getItem(ConstantsDashboard.daoId);
       const userID = daoManagerJS.getAccountID();
       if (daoID) {
-        setDAOID(daoID);
         setPolicy(userID);
       }
     }
@@ -56,6 +50,8 @@ export default function CreateDao() {
       return () => clearTimeout(handle);
     }
   }, [router]);
+
+  useTransactionStatus(setResSuccessData, setResFailureData, connection);
 
   async function createDAO({
     name,
@@ -71,7 +67,7 @@ export default function CreateDao() {
     try {
       iconImage = iconImage ?? ConstantsDashboard.defaultImage;
       const convertPolicy = policy?.split(",").map((x) => x.trim());
-      const test = await daoManagerJS.createDaoManager({
+      await daoManagerJS.createDaoManager({
         name: name.toLocaleLowerCase(),
         purpose: purpose,
         metadata: JSON.stringify({ iconImage: iconImage }),
@@ -139,6 +135,7 @@ export default function CreateDao() {
       </div>
     );
   }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -254,17 +251,6 @@ export default function CreateDao() {
               />
             </CardBody>
           </Card>
-        </div>
-        <div>
-          {resData ? (
-            <h1
-              className={resData.status === Status.successful ? "" : "text-red"}
-            >
-              {atob(resData.data?.toString()) || "Absent data"}
-            </h1>
-          ) : (
-            ""
-          )}
         </div>
       </div>
     </motion.div>

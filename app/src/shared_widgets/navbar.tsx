@@ -9,7 +9,6 @@ import {
   NavbarMenuItem,
   NavbarMenuToggle,
   Spinner,
-  Button,
 } from "@nextui-org/react";
 import Link from "next/link";
 import styles from "../app/style/profile.module.css";
@@ -25,6 +24,7 @@ const NavbarComponent: React.FC = () => {
   const [accountId, setAccountId] = useState<string | undefined>(undefined);
   const [balance, setBalance] = useState<string | null>();
   const pathname = usePathname();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navbarItams = [
     {
@@ -44,8 +44,10 @@ const NavbarComponent: React.FC = () => {
   useEffect(() => {
     async function init() {
       const connection = await ServiceDAO.checkAuth(router);
-      const accountID = daoManagerJS.getAccountID();
-      setAccountId(accountID);
+      if (connection) {
+        const accountID = daoManagerJS.getAccountID();
+        setAccountId(accountID);
+      }
     }
     if (router) {
       const handle = setTimeout(() => {
@@ -88,9 +90,9 @@ const NavbarComponent: React.FC = () => {
 
   return (
     <div className={styles.navBar}>
-      <Navbar disableAnimation isBordered>
+      <Navbar disableAnimation isBordered isMenuOpen={isMenuOpen}>
         <NavbarContent className="md:hidden" justify="start">
-          <NavbarMenuToggle />
+          <NavbarMenuToggle onClick={() => setIsMenuOpen(!isMenuOpen)} />
         </NavbarContent>
 
         <NavbarContent className="md:hidden pr-3" justify="center">
@@ -98,6 +100,7 @@ const NavbarComponent: React.FC = () => {
             <Link
               href={UrlDashboard.profile}
               className="font-bold text-inherit color-white"
+              onClick={() => setIsMenuOpen(false)}
             >
               DAO-MANAGER
             </Link>
@@ -212,6 +215,7 @@ const NavbarComponent: React.FC = () => {
                             ? styles.link_appBar_button_active
                             : styles.link_appBar_button
                         }
+                        onClick={() => setIsMenuOpen(false)}
                       >
                         {item.title}
                       </Link>

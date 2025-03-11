@@ -27,8 +27,8 @@ const RemoveRole: React.FC<RemoveRoleProps> = ({ daoID, proposalCost }) => {
     contractId: string;
     description: string;
     roleName: string;
-  }) {
-    const res = await daoManagerJS.addProposal({
+  }): Promise<void> {
+    await daoManagerJS.addProposal({
       deposit: proposalCost,
       contractId: contractId,
       description: description,

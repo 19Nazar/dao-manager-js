@@ -6,18 +6,17 @@ import {
   CardHeader,
   Divider,
   Spinner,
-  useDisclosure,
 } from "@nextui-org/react";
 import { useEffect, useMemo, useState } from "react";
 import { ConstantsDashboard } from "../../../const/const";
 import CustomButton from "../../../shared_widgets/custom_button";
 import ChangePolicy from "./components/change_policy";
 import { ServiceDAO } from "../../../service/service";
-import useTransactionStatus from "../../../service/useTransactionStatus";
 import ResponseModal from "../../../shared_widgets/respone_modal";
 import { DaoManagerJS, Utils } from "dao-manager-js";
 import LoadingSpinner from "../component/LoadingSpinner";
 import { motion } from "framer-motion";
+import { useTransactionStatus } from "src/service/useTransactionStatus";
 
 export default function SettingsDao() {
   const router = useRouter();
@@ -26,7 +25,6 @@ export default function SettingsDao() {
 
   const [daoID, setDaoId] = useState<string | null>(null);
 
-  const { onOpen, onOpenChange } = useDisclosure();
   const [isChangePolicyOpen, setIsChangePolicyOpen] = useState(false);
 
   const [resSuccessData, setResSuccessData] = useState<string | null>(null);
@@ -34,7 +32,6 @@ export default function SettingsDao() {
 
   const [settings, setSettings] = useState<object | null>(null);
   const [proposalBond, setProposalBond] = useState<string | null>(null);
-  const [bountyBond, setBountyBond] = useState<string | null>(null);
 
   const [connection, setConnection] = useState<boolean>(false);
 
@@ -54,7 +51,6 @@ export default function SettingsDao() {
     async function init() {
       const connection = await ServiceDAO.checkAuth(router);
       setConnection(connection);
-      useTransactionStatus(setResSuccessData, setResFailureData, searchParams);
       const daoID = localStorage.getItem(ConstantsDashboard.daoId);
       if (daoID) {
         setDaoId(daoID);
@@ -66,6 +62,8 @@ export default function SettingsDao() {
       }, 0);
     }
   }, [router]);
+
+  useTransactionStatus(setResSuccessData, setResFailureData, connection);
 
   function RenderObject({ data, depth = 0 }) {
     const indent = { marginLeft: `${depth + 20}px` };

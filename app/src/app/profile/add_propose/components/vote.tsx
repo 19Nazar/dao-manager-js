@@ -13,7 +13,7 @@ const Transfer: React.FC<TransferProps> = ({ daoID }) => {
   async function vote({ description }: { description: string }) {
     const settings = await daoManagerJS.getPolicy({ contractId: daoID });
 
-    const res = await daoManagerJS.addProposal({
+    await daoManagerJS.addProposal({
       deposit: settings.data["proposal_bond"],
       contractId: daoID,
       description: description,

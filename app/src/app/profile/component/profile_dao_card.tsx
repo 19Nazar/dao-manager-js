@@ -36,18 +36,37 @@ const ProfileDAOCard: React.FC<ProfileDAOCardProps> = ({ daoID }) => {
       const numberOfBounty = await daoManagerJS.getLastBountyId({
         contractId: daoID,
       });
-      setIconData(metadataDecode["iconImage"]);
+
+      setIconData(safeJsonParse(metadataDecode["iconImage"])); //JSON.parse(metadataDecode["iconImage"])
       setDaoProfileData(daoProfileData["data"]);
       setNumberOfProposals(numberOfProposals.data.toString());
       setNumberOfBounty(numberOfBounty.data.toString());
     } catch (error) {
-      setResFailureData(error.message);
+      setResFailureData(
+        error instanceof Error
+          ? error.message
+          : "Internal error during DAO data retrieval",
+      );
+    }
+  }
+
+  function safeJsonParse<T = any>(str: string): T | string {
+    try {
+      return JSON.parse(str);
+    } catch (e) {
+      return str; // Вернуть строку, если это не JSON
     }
   }
 
   useEffect(() => {
     getDaoProfileData();
   }, [daoID]);
+
+  // useEffect(() => {
+  //   if (iconData) {
+  //     console.log("iconData", iconData);
+  //   }
+  // }, [iconData]);
 
   if (resFailureData) {
     return (
@@ -108,7 +127,13 @@ const ProfileDAOCard: React.FC<ProfileDAOCardProps> = ({ daoID }) => {
               alignContent: "center",
             }}
           >
-            <Avatar size="lg" src={iconData} />
+            {iconData ? (
+              <Avatar size="lg" src={iconData.toString()} />
+            ) : (
+              <Skeleton
+                style={{ width: 56, height: 56, borderRadius: "30px" }}
+              />
+            )}
             <h1
               style={{
                 marginLeft: "10px",

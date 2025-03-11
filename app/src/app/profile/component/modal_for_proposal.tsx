@@ -5,7 +5,7 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@nextui-org/react";
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import CustomButton from "../../../shared_widgets/custom_button";
 import { ActProposalModel, DaoManagerJS } from "dao-manager-js";
 import { ConstantsDashboard } from "src/const/const";
@@ -59,8 +59,10 @@ const ModelPropose: React.FC<ModelProposeProps> = ({
     return <div>{data}</div>;
   }
 
-  async function actProposal(actProposalModel: ActProposalModel) {
-    const res = await daoManagerJS.actProposal({
+  async function actProposal(
+    actProposalModel: ActProposalModel,
+  ): Promise<void> {
+    await daoManagerJS.actProposal({
       contractId: daoID,
       id: data["id"],
       action: actProposalModel,

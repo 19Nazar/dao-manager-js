@@ -1,50 +1,29 @@
 "use client";
 import { useEffect, useState } from "react";
-// import DaoManagerJS from "../../../../../package/dao_manager_js_lib";
 import CustomButton from "../../shared_widgets/custom_button";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  CircularProgress,
-  Input,
-  Pagination,
-  Spinner,
-} from "@nextui-org/react";
+import { Card, CardBody, CardHeader, Input } from "@nextui-org/react";
 import styles from "../style/profile.module.css";
 import { ConstantsDashboard } from "../../const/const";
 import ModelPropose from "./component/modal_for_proposal";
 import { ServiceDAO } from "../../service/service";
-import useTransactionStatus from "../../service/useTransactionStatus";
 import ResponseModal from "../../shared_widgets/respone_modal";
 import ProfileDAOCard from "./component/profile_dao_card";
-import { DaoManagerJS, Status } from "dao-manager-js";
 import LoadingSpinner from "./component/LoadingSpinner";
 import { ButtonTab } from "src/shared_widgets/ButtonTab/ButtonTab";
 import { motion } from "framer-motion";
 import DAOCardBody from "src/shared_widgets/DAOCardBody/DAOCardBody";
+import { useTransactionStatus } from "src/service/useTransactionStatus";
 
 export default function Profile() {
   const router = useRouter();
-  const daoManagerJS = DaoManagerJS.getInstance();
-  const searchParams = useSearchParams();
 
   const [accountID, setAccountID] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<object>();
   const [daoId, setDaoId] = useState<string | null>(null);
   const [resSuccessData, setResSuccessData] = useState<string | null>(null);
   const [resFailureData, setResFailureData] = useState<string | null>(null);
-  const [outputProposals, setOutputProposals] =
-    useState<Array<JSX.Element> | null>(null);
-  const [startId, setStartId] = useState<number>(0);
-  const [pageNumb, setPageNumb] = useState<number>(1);
-  const limit = 6;
   const [connection, setConnection] = useState<boolean | null>(null);
-
-  const [outputBounty, setOutputBounty] = useState<Array<JSX.Element> | null>(
-    null,
-  );
 
   const [activeSearch, setActiveSearch] = useState<"proposal" | "bounty">(
     "proposal",
@@ -54,7 +33,6 @@ export default function Profile() {
     async function init() {
       const connection = await ServiceDAO.checkAuth(router);
       setConnection(connection);
-      useTransactionStatus(setResSuccessData, setResFailureData, searchParams);
       const daoID = localStorage.getItem(ConstantsDashboard.daoId);
       if (daoID) {
         setDaoId(daoID);
@@ -69,120 +47,23 @@ export default function Profile() {
     }
   }, [router]);
 
-  useEffect(() => {
-    async function get() {
-      const lastId = (
-        await daoManagerJS.getLastProposalId({ contractId: daoId })
-      ).data;
-      setPageNumb(Math.floor(Number(lastId) / 6) + 1);
-      await getProposalsPagination({});
-    }
-    if (daoId && connection) {
-      get();
-    }
-  }, [daoId, connection]);
-
-  async function getProposalsPagination({
-    newDaoid,
-    newStartId,
-  }: {
-    newDaoid?: string;
-    newStartId?: number;
-  }) {
-    if (daoId == null && newDaoid == null) {
-      throw new Error("You must input DAO id");
-    }
-    const res = (await getSixProposals({
-      contractId: newDaoid ?? daoId,
-      startIdexId: newStartId ?? startId,
-    })) as Array<object>;
-    const arrayWidgets = res.map((object) => {
-      return (
-        <Card
-          shadow="md"
-          isPressable
-          key={`${startId}-${object["id"]}`}
-          style={{
-            maxWidth: "500px",
-            width: "100%",
-            minWidth: "50px",
-            borderWidth: "2px",
-            borderStyle: "solid",
-            borderColor: "#4b4f53",
-          }}
-          onPress={() => {
-            setSelectedModel(object);
-          }}
-        >
-          <CardHeader>
-            <h1
-              style={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                width: "100%",
-              }}
-            >
-              {object["description"]}
-            </h1>
-          </CardHeader>
-          <CardBody>
-            <h1
-              style={{
-                textAlign: "left",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                width: "100%",
-              }}
-            >
-              {object["proposer"]}
-            </h1>
-            <h1>{object["status"]}</h1>
-            <h1>{Object.keys(object["kind"])[0]}</h1>
-          </CardBody>
-        </Card>
-      );
-    });
-    setOutputProposals(arrayWidgets);
-  }
-
-  async function actionPagination(page: number) {
-    const newStartId = page * 6 - limit;
-    setStartId(newStartId);
-    await getProposalsPagination({
-      newStartId: newStartId,
-    });
-  }
-
-  async function getSixProposals({
-    contractId,
-    startIdexId,
-  }: {
-    contractId: string;
-    startIdexId: number;
-  }): Promise<object> {
-    const res = await daoManagerJS.getMultipleProposals({
-      contractId: contractId,
-      from_index: startIdexId,
-      limit: limit,
-    });
-    if (res.status == Status.successful) {
-      return res.data;
-    } else {
-      throw new Error(`Incorrect response: ${res.data}`);
-    }
-  }
+  useTransactionStatus(setResSuccessData, setResFailureData, connection);
 
   async function addDaoID(accountId: string) {
     const correctID = accountId.trim();
     localStorage.setItem(ConstantsDashboard.daoId, correctID);
     setDaoId(correctID);
-    // await getProposalsPagination({ newDaoid: correctID });
   }
 
-  if (connection == null) {
-    return <LoadingSpinner />;
+  if (selectedModel) {
+    return (
+      <ModelPropose
+        daoID={daoId}
+        data={selectedModel}
+        onOpenChange={() => setSelectedModel(null)}
+        isOpen={true}
+      />
+    );
   }
 
   if (resFailureData || resSuccessData) {
@@ -198,15 +79,8 @@ export default function Profile() {
     );
   }
 
-  if (selectedModel) {
-    return (
-      <ModelPropose
-        daoID={daoId}
-        data={selectedModel}
-        onOpenChange={() => setSelectedModel(null)}
-        isOpen={true}
-      />
-    );
+  if (connection == null) {
+    return <LoadingSpinner />;
   }
   return (
     <motion.div
@@ -270,7 +144,7 @@ export default function Profile() {
                 minHeight: "272px",
               }}
             >
-              <Card>
+              <Card style={{ width: "100%" }}>
                 <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
                   <h4 className="font-bold text-large">DAO profile</h4>
                 </CardHeader>
