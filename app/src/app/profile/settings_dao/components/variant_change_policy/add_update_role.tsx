@@ -51,8 +51,8 @@ const AddUpdateRole: React.FC<AddUpdateRoleProps> = ({
     permissions: Array<string>;
     vote_policy?: object;
     kind: AllKind;
-  }) {
-    const res = await daoManagerJS.addProposal({
+  }): Promise<void> {
+    await daoManagerJS.addProposal({
       deposit: proposalCost,
       contractId: contractId,
       description: description,

@@ -56,7 +56,7 @@ const UpdateParameters: React.FC<UpdateParametersProps> = ({
     description: string;
     bounty_bond?: string;
     proposal_bond?: string;
-  }) {
+  }): Promise<void> {
     const proposalNanoseconds =
       proposalDay || proposalHour || proposalMinute
         ? (proposalDay || 0) * 24 * 60 * 60 * 1e9 +
@@ -78,7 +78,7 @@ const UpdateParameters: React.FC<UpdateParametersProps> = ({
       ? Utils.nearToYoctoNEAR(bounty_bond)
       : null;
 
-    const res = await daoManagerJS.addProposal({
+    await daoManagerJS.addProposal({
       deposit: proposalCost,
       contractId: daoID,
       description: description,

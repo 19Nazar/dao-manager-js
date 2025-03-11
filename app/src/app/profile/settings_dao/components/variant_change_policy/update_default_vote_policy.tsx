@@ -46,7 +46,7 @@ const UpdateDefaultVotePolicy: React.FC<UpdateDefaultVotePolicyProps> = ({
     weightKind: string;
     contractId: string;
     description: string;
-  }) {
+  }): Promise<void> {
     const defaultVotePolicy = new VotePolicy({
       weight_kind:
         weightKind == WeightKind.RoleWeight
@@ -55,7 +55,7 @@ const UpdateDefaultVotePolicy: React.FC<UpdateDefaultVotePolicyProps> = ({
       threshold: threshold.map((num) => Number(num)),
       quorum: quorum,
     });
-    const res = await daoManagerJS.addProposal({
+    await daoManagerJS.addProposal({
       deposit: proposalCost,
       contractId: contractId,
       description: description,

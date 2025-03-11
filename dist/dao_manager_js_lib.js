@@ -6,13 +6,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const near_wallet_1 = __importDefault(require("./network/near_wallet"));
 const dao_service_1 = __importDefault(require("./service/dao_service"));
 class DaoManagerJS {
-    constructor() {
-        this.nearWallet = near_wallet_1.default.getInstance();
-        this.daoService = dao_service_1.default.getInstance();
+    constructor({ daoService, nearWallet }) {
+        this.nearWallet = nearWallet ?? near_wallet_1.default.getInstance();
+        this.daoService = daoService ?? dao_service_1.default.getInstance();
     }
     static getInstance() {
         if (!DaoManagerJS.instance) {
-            DaoManagerJS.instance = new DaoManagerJS();
+            DaoManagerJS.instance = new DaoManagerJS({});
         }
         return DaoManagerJS.instance;
     }

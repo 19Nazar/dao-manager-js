@@ -6,7 +6,7 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@nextui-org/react";
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import CustomButton from "../../../../shared_widgets/custom_button";
 import { getLocalTimeZone } from "@internationalized/date";
 import { DaoManagerJS } from "dao-manager-js";
@@ -24,24 +24,19 @@ const ModelBounty: React.FC<ModelBountyProps> = ({
   onOpenChange,
   isOpen,
 }) => {
-  const [updatedData, setUpdatedData] = useState(data);
   const daoManagerJS = DaoManagerJS.getInstance();
   const [isModelOpen, setIsModelOpen] = useState<boolean>(false);
   const [maxDeadline, setMaxDeadline] = useState<string | undefined>(undefined);
 
-  useEffect(() => {
+  const formattedData = useMemo(() => {
     if (data["max_deadline"]) {
-      console.log(data["max_deadline"]);
       const date = new Date(Number(data["max_deadline"]));
 
-      console.log(date);
-
-      const newData = {
+      return {
         ...data,
         amount: data["amount"] + " Near",
         max_deadline: date.toUTCString(),
       };
-      setUpdatedData(newData);
     }
   }, [data]);
 
@@ -79,7 +74,7 @@ const ModelBounty: React.FC<ModelBountyProps> = ({
   async function claimBounty(deadline: string) {
     const settings = await daoManagerJS.getPolicy({ contractId: daoID });
 
-    const res = await daoManagerJS.claimBounty({
+     await daoManagerJS.claimBounty({
       deposit: settings.data["bounty_bond"],
       contractId: daoID,
       id: data["id"],
@@ -90,7 +85,7 @@ const ModelBounty: React.FC<ModelBountyProps> = ({
   async function giveUpBounty() {
     const settings = await daoManagerJS.getPolicy({ contractId: daoID });
 
-    const res = await daoManagerJS.giveUpBounty({
+   await daoManagerJS.giveUpBounty({
       deposit: settings.data["bounty_bond"],
       contractId: daoID,
       id: data["id"],
@@ -100,7 +95,7 @@ const ModelBounty: React.FC<ModelBountyProps> = ({
   async function doneBounty() {
     const settings = await daoManagerJS.getPolicy({ contractId: daoID });
 
-    const res = await daoManagerJS.doneBounty({
+     await daoManagerJS.doneBounty({
       deposit: settings.data["bounty_bond"],
       contractId: daoID,
       id: data["id"],
@@ -123,7 +118,7 @@ const ModelBounty: React.FC<ModelBountyProps> = ({
               </ModalHeader>
               <ModalBody>
                 <div>
-                  <RenderObject data={updatedData} />
+                  <RenderObject data={formattedData} />
                 </div>
               </ModalBody>
               <ModalFooter

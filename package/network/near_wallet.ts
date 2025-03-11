@@ -16,8 +16,6 @@ import {
 } from "../models/near_models";
 import { NearConstants } from "../constants/near_constants";
 import { KeyPairString } from "near-api-js/lib/utils";
-import { promises } from "dns";
-import { FunctionCall } from "near-api-js/lib/transaction";
 export default class NearWallet {
   private static instance: NearWallet | null = null;
   config: Map<ConnectionType, Map<NetworkID, ConnectConfig>> | null = null;

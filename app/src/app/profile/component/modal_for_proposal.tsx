@@ -5,9 +5,10 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@nextui-org/react";
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 import CustomButton from "../../../shared_widgets/custom_button";
 import { ActProposalModel, DaoManagerJS } from "dao-manager-js";
+import { ConstantsDashboard } from "src/const/const";
 
 interface ModelProposeProps {
   daoID: string;
@@ -22,25 +23,23 @@ const ModelPropose: React.FC<ModelProposeProps> = ({
   onOpenChange,
   isOpen,
 }) => {
-  const [updatedData, setUpdatedData] = useState(data);
+  // const [updatedData, setUpdatedData] = useState(data);
   const daoManagerJS = DaoManagerJS.getInstance();
 
-  useEffect(() => {
-    if (data["submission_time"]) {
-      const milliseconds = data["submission_time"] / 1000000;
-      const date = new Date(milliseconds);
-      console.log(date);
+  const formattedData = useMemo(() => {
+    if (!data["submission_time"]) return data;
 
-      const newData = {
-        ...data,
-        submission_time: date.toDateString() + " time:" + date.toTimeString(),
-      };
-      setUpdatedData(newData);
-    }
+    const milliseconds = data["submission_time"] / 1000000;
+    const date = new Date(milliseconds);
+
+    return {
+      ...data,
+      submission_time: date.toDateString() + " time:" + date.toTimeString(),
+    };
   }, [data]);
 
   function RenderObject({ data, depth = 0 }) {
-    const indent = { marginLeft: `${depth * 20}px` };
+    const indent = { marginLeft: `${depth + 10}px` };
     if (typeof data === "object" && data !== null) {
       return (
         <ul>
@@ -60,8 +59,10 @@ const ModelPropose: React.FC<ModelProposeProps> = ({
     return <div>{data}</div>;
   }
 
-  async function actProposal(actProposalModel: ActProposalModel) {
-    const res = await daoManagerJS.actProposal({
+  async function actProposal(
+    actProposalModel: ActProposalModel,
+  ): Promise<void> {
+    await daoManagerJS.actProposal({
       contractId: daoID,
       id: data["id"],
       action: actProposalModel,
@@ -74,17 +75,27 @@ const ModelPropose: React.FC<ModelProposeProps> = ({
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         scrollBehavior="outside"
-        style={{ maxWidth: "100%", width: "fit-content" }}
+        backdrop="blur"
+        placement="center"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop: "80px",
+          maxWidth: `${ConstantsDashboard.maxWidth}px`,
+          width: "100%",
+          minWidth: "50px",
+        }}
       >
-        <ModalContent>
+        <ModalContent style={{ overflow: "auto" }}>
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
                 Act to propose
               </ModalHeader>
               <ModalBody>
-                <div>
-                  <RenderObject data={updatedData} />
+                <div style={{ overflow: "auto" }}>
+                  <RenderObject data={formattedData} />
                 </div>
               </ModalBody>
               <ModalFooter

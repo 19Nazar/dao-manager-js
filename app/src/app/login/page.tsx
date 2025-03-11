@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect, use, useMemo } from "react";
+import { useState } from "react";
 import CustomButton from "../../shared_widgets/custom_button";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { UrlDashboard } from "../../url_dashboard/url_dashboard";
 import styles from "../style/login.module.css";
 import {
@@ -15,13 +15,8 @@ import { ConnectionType, DaoManagerJS, NetworkID } from "dao-manager-js";
 
 export default function Home() {
   const router = useRouter();
-  const path = usePathname();
   const daoManagerInstance = DaoManagerJS.getInstance();
   const [selectedKey, setSelectedKey] = useState<string>("testnet");
-
-  useEffect(() => {
-    console.log(path);
-  }, [path]);
 
   async function logInWallet({ network }: { network: string }) {
     await daoManagerInstance.createConnection({

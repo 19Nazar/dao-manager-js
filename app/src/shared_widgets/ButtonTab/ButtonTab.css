@@ -1,0 +1,59 @@
+.button {
+  position: relative;
+  white-space: nowrap;
+  cursor: pointer;
+  overflow: hidden;
+  width: 100%;
+  padding: 4px 12px;
+  text-align: center;
+  border: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.3s ease;
+  background-color: inherit;
+  height: 80px;
+  flex-wrap: nowrap;
+}
+
+.button.active {
+  border-image: linear-gradient(
+      90deg,
+      #dee1e9 0%,
+      #356eff 26%,
+      #356eff 79%,
+      #dee1e9 100%
+    )
+    1;
+}
+
+.text {
+  font-size: 16px;
+  font-weight: 500;
+  color: black;
+  opacity: 0.5;
+  transition: opacity 0.3s ease-out;
+}
+
+.text.active {
+  opacity: 1;
+}
+
+.button::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0px;
+  margin: 0 auto;
+  width: min(10.94vw, 90px);
+  height: 20px;
+  filter: blur(30px);
+  border-bottom: 1px solid transparent;
+
+  background-color: #00008b;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.button.active::after {
+  opacity: 1;
+}

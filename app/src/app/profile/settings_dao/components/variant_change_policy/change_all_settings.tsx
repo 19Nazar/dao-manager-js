@@ -114,7 +114,7 @@ const ChangeAllPolicy: React.FC<ChangeAllPolicyProps> = ({
     roles: Array<roleI>;
     bounty_bond: string;
     proposal_bond: string;
-  }) {
+  }): Promise<void> {
     if (bountyDay == null && bountyMinute == null && bountyHour == null) {
       throw new Error("You must input bounty period");
     }
@@ -149,7 +149,7 @@ const ChangeAllPolicy: React.FC<ChangeAllPolicyProps> = ({
     });
     const bounty_bond_YctoNear = Utils.nearToYoctoNEAR(bounty_bond);
     const proposal_bond_YctoNear = Utils.nearToYoctoNEAR(proposal_bond);
-    const res = await daoManagerJS.addProposal({
+    await daoManagerJS.addProposal({
       deposit: proposalCost,
       contractId: contractId,
       description: description,
