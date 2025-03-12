@@ -10,9 +10,8 @@ import {
 
 interface RemoveRoleProps {
   daoID: string;
-  proposalCost: string;
 }
-const RemoveRole: React.FC<RemoveRoleProps> = ({ daoID, proposalCost }) => {
+const RemoveRole: React.FC<RemoveRoleProps> = ({ daoID }) => {
   const daoManagerJS = DaoManagerJS.getInstance();
   const [description, setDescription] = useState<string | undefined>(undefined);
 
@@ -29,7 +28,6 @@ const RemoveRole: React.FC<RemoveRoleProps> = ({ daoID, proposalCost }) => {
     roleName: string;
   }): Promise<void> {
     await daoManagerJS.addProposal({
-      deposit: proposalCost,
       contractId: contractId,
       description: description,
       proposalTypes: ProposalTypes.ChangePolicyRemoveRole,

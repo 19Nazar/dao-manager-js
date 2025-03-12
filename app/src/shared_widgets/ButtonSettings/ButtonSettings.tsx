@@ -1,7 +1,7 @@
 import React, { AllHTMLAttributes, forwardRef } from "react";
 import "./ButtonSettings.css";
 
-export interface ButtonSettings
+export interface ButtonSettingsProps
   extends Omit<AllHTMLAttributes<HTMLButtonElement>, never> {
   /**
    * Determines if the tab is currently active
@@ -10,34 +10,23 @@ export interface ButtonSettings
   isActive: boolean;
 }
 
-const ButtonSettings = forwardRef<HTMLButtonElement, ButtonSettings>(
-  (
-    {
-      isActive,
-      children,
-      style,
-      onClick,
-      onMouseOver,
-      onMouseOut,
-      ...restProps
-    },
-    ref,
-  ) => {
+const ButtonSettings = forwardRef<HTMLButtonElement, ButtonSettingsProps>(
+  ({ isActive, children, style, onClick, onMouseOver, onMouseOut }, ref) => {
     return (
       <button
+        ref={ref}
         className={`custom-button ${isActive ? "active" : "inactive"}`}
-        style={{
-          ...style,
-        }}
+        style={{ ...style }}
         onClick={onClick}
         onMouseOver={onMouseOver}
         onMouseOut={onMouseOut}
-        //    {...restProps}
       >
         {children}
       </button>
     );
   },
 );
+
+ButtonSettings.displayName = "ButtonSettings";
 
 export default ButtonSettings;

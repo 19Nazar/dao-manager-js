@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import CustomButton from "../../shared_widgets/custom_button";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Card, CardBody, CardHeader, Input } from "@nextui-org/react";
 import styles from "../style/profile.module.css";
 import { ConstantsDashboard } from "../../const/const";

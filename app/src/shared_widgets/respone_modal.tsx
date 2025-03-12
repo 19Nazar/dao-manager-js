@@ -38,7 +38,7 @@ const ResponseModal: React.FC<ResponseModalProps> = ({
         }}
       >
         <ModalContent>
-          {(onClose) => (
+          {(_onClose) => (
             <>
               <ModalHeader>
                 <h1>Successful</h1>
@@ -72,7 +72,7 @@ const ResponseModal: React.FC<ResponseModalProps> = ({
         }}
       >
         <ModalContent>
-          {(onClose) => (
+          {(_onClose) => (
             <>
               <ModalHeader>
                 <h1>Error</h1>

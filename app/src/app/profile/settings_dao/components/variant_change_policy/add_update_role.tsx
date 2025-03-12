@@ -23,11 +23,9 @@ import {
 
 interface AddUpdateRoleProps {
   daoID: string;
-  proposalCost: string;
 }
 const AddUpdateRole: React.FC<AddUpdateRoleProps> = ({
   daoID,
-  proposalCost,
 }) => {
   const daoManagerJS = DaoManagerJS.getInstance();
   const [description, setDescription] = useState<string | undefined>(undefined);
@@ -53,7 +51,6 @@ const AddUpdateRole: React.FC<AddUpdateRoleProps> = ({
     kind: AllKind;
   }): Promise<void> {
     await daoManagerJS.addProposal({
-      deposit: proposalCost,
       contractId: contractId,
       description: description,
       proposalTypes: ProposalTypes.ChangePolicyAddOrUpdateRole,
@@ -67,6 +64,7 @@ const AddUpdateRole: React.FC<AddUpdateRoleProps> = ({
       }),
     });
   }
+
 
   return (
     <div className={style.settings_model}>
