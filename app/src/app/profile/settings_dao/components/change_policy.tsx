@@ -1,11 +1,4 @@
-import {
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  Tab,
-  Tabs,
-} from "@nextui-org/react";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@nextui-org/react";
 import ChangeAllPolicy from "./variant_change_policy/change_all_settings";
 import AddUpdateRole from "./variant_change_policy/add_update_role";
 import RemoveRole from "./variant_change_policy/remove_role";
@@ -18,7 +11,6 @@ interface ChangePolicyProps {
   daoID: string;
   onOpenChange: () => void;
   isOpen: boolean;
-  proposalCost: string;
 }
 
 const listTubs = [
@@ -32,7 +24,6 @@ const ChangePolicy: React.FC<ChangePolicyProps> = ({
   daoID,
   onOpenChange,
   isOpen,
-  proposalCost,
 }) => {
   const [activeTub, setActiveTub] = useState<string>("ChangeAllPolicyProps");
 
@@ -53,7 +44,7 @@ const ChangePolicy: React.FC<ChangePolicyProps> = ({
     >
       {/* style={{ overflow: "auto" }} */}
       <ModalContent>
-        {(onClose) => (
+        {(_onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1">
               Change policy
@@ -84,26 +75,19 @@ const ChangePolicy: React.FC<ChangePolicyProps> = ({
               </div>
 
               {activeTub == "ChangeAllPolicyProps" && (
-                <ChangeAllPolicy proposalCost={proposalCost} daoID={daoID} />
+                <ChangeAllPolicy daoID={daoID} />
               )}
 
-              {activeTub == "AddUpdateRole" && (
-                <AddUpdateRole proposalCost={proposalCost} daoID={daoID} />
-              )}
+              {activeTub == "AddUpdateRole" && <AddUpdateRole daoID={daoID} />}
 
-              {activeTub == "RemoveRole" && (
-                <RemoveRole proposalCost={proposalCost} daoID={daoID} />
-              )}
+              {activeTub == "RemoveRole" && <RemoveRole daoID={daoID} />}
 
               {activeTub == "UpdateParameters" && (
-                <UpdateParameters proposalCost={proposalCost} daoID={daoID} />
+                <UpdateParameters daoID={daoID} />
               )}
 
               {activeTub == "UpdateDefaultVotePolicy" && (
-                <UpdateDefaultVotePolicy
-                  proposalCost={proposalCost}
-                  daoID={daoID}
-                />
+                <UpdateDefaultVotePolicy daoID={daoID} />
               )}
             </ModalBody>
           </>

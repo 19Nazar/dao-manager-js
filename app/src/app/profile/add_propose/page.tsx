@@ -1,5 +1,5 @@
 "use client";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   Button,
   Card,
@@ -10,7 +10,6 @@ import {
   DropdownTrigger,
 } from "@nextui-org/react";
 import { useEffect, useState } from "react";
-
 import AddBounty from "./components/add_bounty";
 import { ConstantsDashboard } from "../../../const/const";
 import AddRemoveMemberToRole from "./components/add_member_to_role";
@@ -27,7 +26,6 @@ import { useTransactionStatus } from "src/service/useTransactionStatus";
 
 export default function AddProposeDao() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [daoID, setDaoId] = useState<string | null>(null);
 
   const [resSuccessData, setResSuccessData] = useState<string | null>(null);

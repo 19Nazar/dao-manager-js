@@ -1,5 +1,5 @@
 "use client";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import CustomButton from "../../../shared_widgets/custom_button";
 import { Card, CardBody, CardHeader, Input, Spinner } from "@nextui-org/react";
 import { useEffect, useState } from "react";
@@ -16,7 +16,6 @@ import { useTransactionStatus } from "src/service/useTransactionStatus";
 
 export default function CreateDao() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const daoManagerJS = DaoManagerJS.getInstance();
 
   const [resSuccessData, setResSuccessData] = useState<string | null>(null);

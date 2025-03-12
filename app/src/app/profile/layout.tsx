@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 import NavbarComponent from "src/shared_widgets/navbar";
+import LoadingSpinner from "./component/LoadingSpinner";
 
 export const metadata: Metadata = {
   title: "DAO-Manager",
@@ -13,9 +14,13 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <div style={{ minHeight: 100, height: "auto" }}>
-      <NavbarComponent />
-      <div style={{ marginTop: "85px", marginBottom: "20px" }}>{children}</div>
-    </div>
+    <Suspense fallback={<LoadingSpinner />}>
+      <div style={{ minHeight: 100, height: "auto" }}>
+        <NavbarComponent />
+        <div style={{ marginTop: "85px", marginBottom: "20px" }}>
+          {children}
+        </div>
+      </div>
+    </Suspense>
   );
 }

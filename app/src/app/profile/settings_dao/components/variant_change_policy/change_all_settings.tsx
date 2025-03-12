@@ -26,11 +26,9 @@ import {
 
 interface ChangeAllPolicyProps {
   daoID: string;
-  proposalCost: string;
 }
 const ChangeAllPolicy: React.FC<ChangeAllPolicyProps> = ({
   daoID,
-  proposalCost,
 }) => {
   const daoManagerJS = DaoManagerJS.getInstance();
   const [description, setDescription] = useState<string | undefined>(undefined);
@@ -77,7 +75,7 @@ const ChangeAllPolicy: React.FC<ChangeAllPolicyProps> = ({
     ]);
   }
 
-  const updateRole = (index: number, field: string, value: any) => {
+  const updateRole = (index: number, field: string, value: unknown) => {
     const updatedRoles = roles.map((role, i) =>
       i === index ? { ...role, [field]: value } : role,
     );
@@ -150,7 +148,6 @@ const ChangeAllPolicy: React.FC<ChangeAllPolicyProps> = ({
     const bounty_bond_YctoNear = Utils.nearToYoctoNEAR(bounty_bond);
     const proposal_bond_YctoNear = Utils.nearToYoctoNEAR(proposal_bond);
     await daoManagerJS.addProposal({
-      deposit: proposalCost,
       contractId: contractId,
       description: description,
       proposalTypes: ProposalTypes.ChangePolicy,

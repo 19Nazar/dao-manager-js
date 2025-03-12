@@ -11,11 +11,9 @@ import {
 
 interface UpdateParametersProps {
   daoID: string;
-  proposalCost: string;
 }
 const UpdateParameters: React.FC<UpdateParametersProps> = ({
   daoID,
-  proposalCost,
 }) => {
   const daoManagerJS = DaoManagerJS.getInstance();
   const [description, setDescription] = useState<string | undefined>(undefined);
@@ -79,7 +77,6 @@ const UpdateParameters: React.FC<UpdateParametersProps> = ({
       : null;
 
     await daoManagerJS.addProposal({
-      deposit: proposalCost,
       contractId: daoID,
       description: description,
       proposalTypes: ProposalTypes.ChangePolicyUpdateParameters,

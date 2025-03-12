@@ -37,7 +37,7 @@ const ProfileDAOCard: React.FC<ProfileDAOCardProps> = ({ daoID }) => {
         contractId: daoID,
       });
 
-      setIconData(safeJsonParse(metadataDecode["iconImage"])); //JSON.parse(metadataDecode["iconImage"])
+      setIconData(safeJsonParse(metadataDecode["iconImage"]));
       setDaoProfileData(daoProfileData["data"]);
       setNumberOfProposals(numberOfProposals.data.toString());
       setNumberOfBounty(numberOfBounty.data.toString());
@@ -50,23 +50,17 @@ const ProfileDAOCard: React.FC<ProfileDAOCardProps> = ({ daoID }) => {
     }
   }
 
-  function safeJsonParse<T = any>(str: string): T | string {
+  function safeJsonParse<T = unknown>(str: string): T | string {
     try {
-      return JSON.parse(str);
-    } catch (e) {
-      return str; // Вернуть строку, если это не JSON
+      return JSON.parse(str) as T;
+    } catch (_e) {
+      return str;
     }
   }
 
   useEffect(() => {
     getDaoProfileData();
   }, [daoID]);
-
-  // useEffect(() => {
-  //   if (iconData) {
-  //     console.log("iconData", iconData);
-  //   }
-  // }, [iconData]);
 
   if (resFailureData) {
     return (

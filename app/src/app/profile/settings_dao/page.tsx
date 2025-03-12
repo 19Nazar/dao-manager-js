@@ -1,5 +1,5 @@
 "use client";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardBody,
@@ -21,7 +21,6 @@ import { useTransactionStatus } from "src/service/useTransactionStatus";
 export default function SettingsDao() {
   const router = useRouter();
   const daoManagerJS = DaoManagerJS.getInstance();
-  const searchParams = useSearchParams();
 
   const [daoID, setDaoId] = useState<string | null>(null);
 
@@ -31,7 +30,6 @@ export default function SettingsDao() {
   const [resFailureData, setResFailureData] = useState<string | null>(null);
 
   const [settings, setSettings] = useState<object | null>(null);
-  const [proposalBond, setProposalBond] = useState<string | null>(null);
 
   const [connection, setConnection] = useState<boolean>(false);
 
@@ -60,6 +58,7 @@ export default function SettingsDao() {
       const handle = setTimeout(() => {
         init();
       }, 0);
+      return () => clearTimeout(handle);
     }
   }, [router]);
 
@@ -196,7 +195,6 @@ export default function SettingsDao() {
         daoID={daoID}
         onOpenChange={() => setIsChangePolicyOpen(false)}
         isOpen={isChangePolicyOpen}
-        proposalCost={proposalBond}
       />
     </motion.div>
   );

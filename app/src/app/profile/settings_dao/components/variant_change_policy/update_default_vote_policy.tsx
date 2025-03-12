@@ -22,11 +22,9 @@ import {
 
 interface UpdateDefaultVotePolicyProps {
   daoID: string;
-  proposalCost: string;
 }
 const UpdateDefaultVotePolicy: React.FC<UpdateDefaultVotePolicyProps> = ({
   daoID,
-  proposalCost,
 }) => {
   const daoManagerJS = DaoManagerJS.getInstance();
   const [description, setDescription] = useState<string | undefined>(undefined);
@@ -56,7 +54,6 @@ const UpdateDefaultVotePolicy: React.FC<UpdateDefaultVotePolicyProps> = ({
       quorum: quorum,
     });
     await daoManagerJS.addProposal({
-      deposit: proposalCost,
       contractId: contractId,
       description: description,
       proposalTypes: ProposalTypes.ChangePolicyUpdateDefaultVotePolicy,

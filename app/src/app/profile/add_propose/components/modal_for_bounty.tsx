@@ -74,7 +74,7 @@ const ModelBounty: React.FC<ModelBountyProps> = ({
   async function claimBounty(deadline: string) {
     const settings = await daoManagerJS.getPolicy({ contractId: daoID });
 
-     await daoManagerJS.claimBounty({
+    await daoManagerJS.claimBounty({
       deposit: settings.data["bounty_bond"],
       contractId: daoID,
       id: data["id"],
@@ -85,7 +85,7 @@ const ModelBounty: React.FC<ModelBountyProps> = ({
   async function giveUpBounty() {
     const settings = await daoManagerJS.getPolicy({ contractId: daoID });
 
-   await daoManagerJS.giveUpBounty({
+    await daoManagerJS.giveUpBounty({
       deposit: settings.data["bounty_bond"],
       contractId: daoID,
       id: data["id"],
@@ -95,7 +95,7 @@ const ModelBounty: React.FC<ModelBountyProps> = ({
   async function doneBounty() {
     const settings = await daoManagerJS.getPolicy({ contractId: daoID });
 
-     await daoManagerJS.doneBounty({
+    await daoManagerJS.doneBounty({
       deposit: settings.data["bounty_bond"],
       contractId: daoID,
       id: data["id"],
@@ -111,7 +111,7 @@ const ModelBounty: React.FC<ModelBountyProps> = ({
         style={{ maxWidth: "100%", width: "fit-content" }}
       >
         <ModalContent>
-          {(onClose) => (
+          {(_onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
                 Interact with bounty
@@ -140,7 +140,7 @@ const ModelBounty: React.FC<ModelBountyProps> = ({
                   style={{ maxWidth: "100%", width: "fit-content" }}
                 >
                   <ModalContent>
-                    {(onClose) => (
+                    {(_onClose) => (
                       <>
                         <ModalHeader className="flex flex-col gap-1">
                           Claim Bounty

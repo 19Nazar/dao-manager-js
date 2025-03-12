@@ -88,7 +88,7 @@ const ModelPropose: React.FC<ModelProposeProps> = ({
         }}
       >
         <ModalContent style={{ overflow: "auto" }}>
-          {(onClose) => (
+          {(_onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
                 Act to propose

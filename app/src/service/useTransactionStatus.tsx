@@ -7,7 +7,7 @@ export function useTransactionStatus(
   setResSuccessData: (data: string | null) => void,
   setResFailureData: (data: string | null) => void,
   connection: boolean,
-) {
+): void {
   const searchParams = useSearchParams();
   const daoManagerJS = DaoManagerJS.getInstance();
 
