@@ -28,9 +28,10 @@ export default function Home() {
     if (isLogIn == true) {
       router.push(UrlDashboard.profile);
     } else {
+      const currentUrl = window.location.origin;
       await daoManagerInstance.logIn({
-        successUrl: UrlDashboard.url + UrlDashboard.profile,
-        failureUrl: UrlDashboard.url + UrlDashboard.login,
+        successUrl: `${currentUrl}${UrlDashboard.profile}`, // Используем актуальный URL
+        failureUrl: `${currentUrl}${UrlDashboard.login}`, // Используем актуальный URL
       });
     }
   }

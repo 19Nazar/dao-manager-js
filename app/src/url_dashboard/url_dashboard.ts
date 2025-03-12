@@ -1,6 +1,6 @@
 class Dashboard {
   profile = "/profile";
-  url = "http://localhost:3000"; //"http://localhost:3000"
+  // url = "http://localhost:3000";
   login = "/login";
   create_dao = this.profile + "/create_dao";
   add_propose = this.profile + "/add_propose";
