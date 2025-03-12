@@ -79,7 +79,7 @@ With the **DAO-Manager-JS Application**, users can:
 
 ## Demonstration
 
-Preview demonstration, full video you can check by next **[link](./assets/DAO-Manager.mp4)**:
+Preview demonstration:
 
 ![Preview_demonstration](./assets/DAO-Manager.gif)
 
