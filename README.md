@@ -2,6 +2,8 @@
 
 **[DAO-Manager-JS Application](./app/)**
 
+**[Demo application](https://dao-manager-js.vercel.app/)**
+
 # About **DAO-Manager-JS**
 
 **DAO-Manager-JS** is a library designed for easy interaction with DAOs on the NEAR blockchain. It provides the ability to interact with DAOs without delving into the details. Using this library, developers will not have to spend time figuring out how to interact with a blockchain or DAO implementation. The foundation of the library is **[Sputnik DAO](https://github.com/near-daos/sputnik-dao-contract)**.
